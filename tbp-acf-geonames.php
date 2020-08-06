@@ -4,9 +4,9 @@
 Plugin Name: Advanced Custom Fields: Geo Names
 Plugin URI: PLUGIN_URL
 Description: List of worldwide locations based on geonames.org and the geonames plugin
-Version: 1.0.0
-Author: AUTHOR_NAME
-Author URI: AUTHOR_URL
+Version: 1.0.1
+Author: Bhujagendra Ishaya
+Author URI: https://www.thebrightpath.com
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
