@@ -704,7 +704,7 @@ class tbp_acf_field_geoname_base
                                 break;
 
                             default:
-                                die ("unknown filter input type $filter");
+                                throw new \ErrorException("unknown filter input type $filter");
                             }
 
                             call_user_func_array(
