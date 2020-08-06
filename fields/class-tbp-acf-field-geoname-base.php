@@ -371,8 +371,14 @@ class tbp_acf_field_geoname_base
             die();
         }
 
-        // get choices
-        $response = $this->getData($_POST);
+        try
+        {
+            // get choices
+            $response = $this->getData($_POST);
+        }
+        catch (\Exception $e) {
+            wp_send_json_error( new WP_Error('error', $e->getMessage()), 503);
+        }
 
         // return
         acf_send_ajax_results($response);
