@@ -16,6 +16,7 @@ class tbp_acf_field_geoname_base
     // protected properties
     protected static $instance;
     protected static $filters;
+    protected static $fieldSettings;
 
     protected $settings = [];  // will hold info such as dir / path
 
@@ -173,6 +174,139 @@ class tbp_acf_field_geoname_base
                 'filterCallback' => [$this, 'filterSearch'],
             ],
 
+        ];
+
+        self::$fieldSettings = [
+
+            // filter layout
+            'one_filter_per_row' => [
+                'type'       => 'true_false',
+                'name'       => 'one_filter_per_row',
+                'label'      => __('Display one filter per row', 'tbp-acf-geoname'),
+                'ui'         => 1,
+                'allow_null' => 0,
+                'default'    => false,
+            ],
+
+            // choice layout
+            'choice_on_new_line' => [
+                'type'       => 'true_false',
+                'name'       => 'choice_on_new_line',
+                'label'      => __('Display selected values on new line', 'tbp-acf-geoname'),
+                'ui'         => 1,
+                'allow_null' => 0,
+                'default'    => false,
+            ],
+
+            'selection_choices_display_instruction' => [
+                'type'       => 'true_false',
+                'name'       => 'selection_choices_display_instruction',
+                'label'      => __('Display instruction for available choices', 'tbp-acf-geoname'),
+                'ui'         => 1,
+                'allow_null' => 0,
+                'default'    => 1,
+            ],
+
+            'selection_choices_instruction_text' => [
+                'type'              => 'text',
+                'name'              => 'selection_choices_instruction_text',
+                'label'             => __('Choices instructions', 'tbp-acf-geoname'),
+                'instructions'      => __('This text is shown before the field', 'tbp-acf-geoname'),
+                'placeholder'       => __('Click on one of the entries to add it to the selection.', 'tbp-acf-geoname'),
+                'allow_null'        => 1,
+                'default'           => null,
+                'conditional_logic' => [
+                    [
+                        [
+                            'field'    => 'selection_choices_display_instruction',
+                            'operator' => '==',
+                            'value'    => '1',
+                        ],
+                    ],
+                ],
+            ],
+
+            'selection_values_display_instruction' => [
+                'type'       => 'true_false',
+                'name'       => 'selection_values_display_instruction',
+                'label'      => __('Display instruction for selected values', 'tbp-acf-geoname'),
+                'ui'         => 1,
+                'allow_null' => 0,
+                'default'    => 1,
+            ],
+
+            'selection_values_instruction_text' => [
+                'type'              => 'text',
+                'name'              => 'selection_values_instruction_text',
+                'label'             => __('Selection instructions', 'tbp-acf-geoname'),
+                'instructions'      => __('This text is shown before the field', 'tbp-acf-geoname'),
+                'placeholder'       => __(
+                    'This is/are the current selected values. To remove an entry, click on the minus-symbol at the end of the line.',
+                    'tbp-acf-geoname'
+                ),
+                'allow_null'        => 1,
+                'default'           => null,
+                'conditional_logic' => [
+                    [
+                        [
+                            'field'    => 'selection_values_display_instruction',
+                            'operator' => '==',
+                            'value'    => '1',
+                        ],
+                    ],
+                ],
+            ],
+
+            // min
+            'min'                               => [
+                'type'         => 'number',
+                'name'         => 'min',
+                'label'        => __('Minimum locations', 'tbp-acf-geoname'),
+                'instructions' => '',
+            ],
+
+            // max
+            'max'                               => [
+                'type'         => 'number',
+                'name'         => 'max',
+                'label'        => __('Maximum locations', 'tbp-acf-geoname'),
+                'instructions' => '',
+            ],
+
+            'replace_selected_value' => [
+                'type'              => 'true_false',
+                'name'              => 'replace_selected_value',
+                'label'             => __('Replace selected value', 'tbp-acf-geoname'),
+                'instructions'      => __(
+                    'If there is only one choice allowed and this setting is set to true, the selected value is automatically replaced. If this setting is set to false, the user has to first remove the current selection.',
+                    'tbp-acf-geoname'
+                ),
+                'ui'                => 1,
+                'allow_null'        => 0,
+                'default'           => true,
+                'conditional_logic' => [
+                    [
+                        [
+                            'field'    => 'max',
+                            'operator' => '==',
+                            'value'    => '1',
+                        ],
+                    ],
+                ],
+            ],
+
+            // return_format
+            'return_format'          => [
+                'type'         => 'radio',
+                'name'         => 'return_format',
+                'label'        => __('Return Format', 'acf'),
+                'instructions' => '',
+                'choices'      => [
+                    'object' => __("Geoname Location Object", 'tbp-acf-geoname'),
+                    'id'     => __("Geoname ID", 'tbp-acf-geoname'),
+                ],
+                'layout'       => 'horizontal',
+            ],
         ];
 
         // do not delete!
@@ -432,18 +566,21 @@ class tbp_acf_field_geoname_base
 
         if ($context->field['habitation_only'])
         {
-            $args ['feature_class'] = ['P'];
-            /** @noinspection SpellCheckingInspection */
-            $args ['feature_code'] = [
-                'PPL',
-                'PPLA',
-                'PPLA2',
-                'PPLA3',
-                'PPLA4',
-                'PPLC',
-            ];
+            $args ['feature_class'] = array_keys(Core::FEATURE_FILTERS['habitationOnly']);
+            $args ['feature_code']  = array_reduce(
+                Core::FEATURE_FILTERS['habitationOnly'],
+                static function (
+                    $carry,
+                    $item
+                )
+                {
 
-            unset ($context->filters['feature_class'], $context->filters['feature_code']);
+                    return $carry + $item;
+                },
+                []
+            );
+
+            unset ($context->filters['feature_class'], $context->filters['feature_code'], $context->filters['countries_only']);
         }
 
         return $args;
@@ -865,69 +1002,12 @@ class tbp_acf_field_geoname_base
             ]
         );
 
-        // filter layout
-        acf_render_field_setting(
-            $field,
-            [
-                'type'       => 'true_false',
-                'name'       => 'one_filter_per_row',
-                'label'      => __('Display one filter per row', 'tbp-acf-geoname'),
-                'ui'         => 1,
-                'allow_null' => 0,
-                'default'    => false,
-            ]
-        );
+        foreach (self::getFieldSettingDefinitions() as $fieldName => $setting)
+        {
 
-        // choice layout
-        acf_render_field_setting(
-            $field,
-            [
-                'type'       => 'true_false',
-                'name'       => 'choice_on_new_line',
-                'label'      => __('Display selected values on new line', 'tbp-acf-geoname'),
-                'ui'         => 1,
-                'allow_null' => 0,
-                'default'    => false,
-            ]
-        );
+            acf_render_field_setting($field, $setting);
+        };
 
-        // min
-        acf_render_field_setting(
-            $field,
-            [
-                'label'        => __('Minimum locations', 'tbp-acf-geoname'),
-                'instructions' => '',
-                'type'         => 'number',
-                'name'         => 'min',
-            ]
-        );
-
-        // max
-        acf_render_field_setting(
-            $field,
-            [
-                'label'        => __('Maximum locations', 'tbp-acf-geoname'),
-                'instructions' => '',
-                'type'         => 'number',
-                'name'         => 'max',
-            ]
-        );
-
-        // return_format
-        acf_render_field_setting(
-            $field,
-            [
-                'label'        => __('Return Format', 'acf'),
-                'instructions' => '',
-                'type'         => 'radio',
-                'name'         => 'return_format',
-                'choices'      => [
-                    'object' => __("Geoname Location Object", 'tbp-acf-geoname'),
-                    'id'     => __("Geoname ID", 'tbp-acf-geoname'),
-                ],
-                'layout'       => 'horizontal',
-            ]
-        );
     }
 
 
@@ -1078,6 +1158,69 @@ class tbp_acf_field_geoname_base
     }
 
 
+    protected static function getDefinitions(
+        $array,
+        $key
+    ) {
+
+        switch (true)
+        {
+        case $key === null:
+            // no key given, return all keys
+            return $array;
+
+        case is_string($key):
+            // key is a single key name
+            return $array[$key];
+
+        case is_array($key):
+
+            // key is given, but empty. Return empty array
+            if (empty($key))
+            {
+                return [];
+            }
+
+            // key is a list of field names
+            if (!is_string(key($key)))
+            {
+
+                return array_intersect_key($array, array_flip($key));
+            }
+
+            // key is a set of properties to match
+            return array_filter(
+                $array,
+                static function (&$item) use
+                (
+                    &
+                    $key
+                )
+                {
+
+                    foreach (array_keys($key) as $key)
+                    {
+
+                        if (!array_key_exists($key, $item))/**/
+                        {
+                            return false;
+                        }
+
+                        if ($item[$key] !== $key[$key])
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            );
+        }
+
+        return null;
+    }
+
+
     public static function getFeatureClasses($feature_classes = []): array
     {
 
@@ -1092,64 +1235,18 @@ class tbp_acf_field_geoname_base
     }
 
 
+    public static function getFieldSettingDefinitions($setting = null)
+    {
+
+        return self::getDefinitions(self::$fieldSettings, $setting);
+
+    }
+
+
     public static function getFilterDefinitions($filter = null)
     {
 
-        switch (true)
-        {
-        case $filter === null:
-            // no filter given, return all filters
-            return self::$filters;
-
-        case is_string($filter):
-            // filter is a single filter name
-            return self::$filters[$filter];
-
-        case is_array($filter):
-
-            // filter is given, but empty. Return empty array
-            if (empty($filter))
-            {
-                return [];
-            }
-
-            // filter is a list of field names
-            if (!is_string(key($filter)))
-            {
-
-                return array_intersect_key(self::$filters, array_flip($filter));
-            }
-
-            // filter is a set of properties to match
-            return array_filter(
-                self::$filters,
-                static function (&$item) use
-                (
-                    &
-                    $filter
-                )
-                {
-
-                    foreach (array_keys($filter) as $key)
-                    {
-
-                        if (!array_key_exists($key, $item))/**/
-                        {
-                            return false;
-                        }
-
-                        if ($item[$key] !== $filter[$key])
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-            );
-        }
-
-        return null;
+        return self::getDefinitions(self::$filters, $filter);
     }
 
 }
