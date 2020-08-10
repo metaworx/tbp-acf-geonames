@@ -102,6 +102,31 @@
 
 			// return
 			return ajaxData;
+		},
+
+		onClickAdd: function( e, $el ){
+
+			// vars
+			var val = this.val();
+			var max = parseInt( this.get('max') );
+			var allowReplace = parseInt( this.get('replaceSelected') );
+
+			// can be added?
+			if( $el.hasClass('disabled') ) {
+				return false;
+			}
+
+			if (max === 1 && allowReplace && val.length === 1) {
+
+				// vars
+				var $span = this.$listItem('values', val[0]);
+				var $a =  $span.find('.acf-icon[data-name="remove_item"]');
+
+				this.onClickRemove( e, $a);
+
+			}
+
+			acf.models.RelationshipField.prototype.onClickAdd.call(this, e, $el);
 		}
 
 	});

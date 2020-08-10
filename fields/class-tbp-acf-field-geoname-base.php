@@ -905,6 +905,10 @@ class tbp_acf_field_geoname_base
             'data-paged' => 1,
         ];
 
+        if  ($field['max'] === 1) {
+            $attributes['data-replace-selected'] = $field['replace_selected_value'] ? 1 : 0;
+        }
+
         array_walk(
             $filters,
             static function (&$filter) use
