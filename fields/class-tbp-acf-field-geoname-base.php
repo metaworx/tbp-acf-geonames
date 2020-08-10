@@ -83,16 +83,76 @@ class tbp_acf_field_geoname_base
 
             // habitation only
             'habitation_only' => [
-                'isSetting'      => true,
-                'type'           => 'true_false',
-                'name'           => 'habitation_only',
-                'caption'        => __("Habitations only", 'tbp-acf-geoname'),
-                'label'          => __('Filter habitations only', 'tbp-acf-geoname'),
-                'instructions'   => '',
-                'allow_null'     => 0,
-                'default_value'  => true,
-                'ui'             => true,
-                'filterCallback' => [$this, 'filterHabitationOnly'],
+                'isSetting'         => true,
+                'type'              => 'true_false',
+                'name'              => 'habitation_only',
+                'caption'           => __("Habitations only", 'tbp-acf-geoname'),
+                'label'             => __('Filter habitations only', 'tbp-acf-geoname'),
+                'instructions'      => 'If selected, only locations denominating a habitation (city, town, village, etc.) will be in the list. (Feature codes: ' . implode(
+                        ', ',
+                        array_reduce(
+                            Core::FEATURE_FILTERS['habitationOnly'],
+                            static function (
+                                $carry,
+                                $item
+                            )
+                            {
+
+                                return $carry + $item;
+                            },
+                            []
+                        )
+                    ) . ')',
+                'allow_null'        => 0,
+                'default_value'     => true,
+                'ui'                => true,
+                'filterCallback'    => [$this, 'filterHabitationOnly'],
+                'conditional_logic' => [
+                    [
+                        [
+                            'field'    => 'countries_only',
+                            'operator' => '!=',
+                            'value'    => '1',
+                        ],
+                    ],
+                ],
+            ],
+
+            // Countries only
+            'countries_only'  => [
+                'isSetting'         => true,
+                'type'              => 'true_false',
+                'name'              => 'countries_only',
+                'caption'           => __("Countries only", 'tbp-acf-geoname'),
+                'label'             => __('Filter countries only', 'tbp-acf-geoname'),
+                'instructions'      => 'If selected, only locations denominating a country will be in the list. (Feature codes: ' . implode(
+                        ', ',
+                        array_reduce(
+                            Core::FEATURE_FILTERS['countriesOnly'],
+                            static function (
+                                $carry,
+                                $item
+                            )
+                            {
+
+                                return $carry + $item;
+                            },
+                            []
+                        )
+                    ) . ')',
+                'allow_null'        => 0,
+                'default_value'     => true,
+                'ui'                => true,
+                'filterCallback'    => [$this, 'filterCountriesOnly'],
+                'conditional_logic' => [
+                    [
+                        [
+                            'field'    => 'habitation_only',
+                            'operator' => '!=',
+                            'value'    => '1',
+                        ],
+                    ],
+                ],
             ],
 
             // feature_class
@@ -116,6 +176,11 @@ class tbp_acf_field_geoname_base
                     [
                         [
                             'field'    => 'habitation_only',
+                            'operator' => '!=',
+                            'value'    => '1',
+                        ],
+                        [
+                            'field'    => 'countries_only',
                             'operator' => '!=',
                             'value'    => '1',
                         ],
@@ -144,24 +209,38 @@ class tbp_acf_field_geoname_base
                             'operator' => '!=',
                             'value'    => '1',
                         ],
+                        [
+                            'field'    => 'countries_only',
+                            'operator' => '!=',
+                            'value'    => '1',
+                        ],
                     ],
                 ],
             ],
 
             // country
             'country_code'    => [
-                'isSetting'    => true,
-                'name'         => 'country_code',
-                'type'         => 'select',
-                'caption'      => __("Country", 'tbp-acf-geoname'),
-                'label'        => __('Filter by', 'tbp-acf-geoname') . ' ' . __('country', 'tbp-acf-geoname'),
-                'select_label' => __("All countries", 'tbp-acf-geoname'),
-                'instructions' => '',
-                'choices'      => [static::class, 'getCountryCodes'],
-                'multiple'     => 1,
-                'ui'           => 1,
-                'allow_null'   => 1,
-                'placeholder'  => __("All countries", 'tbp-acf-geoname'),
+                'isSetting'         => true,
+                'name'              => 'country_code',
+                'type'              => 'select',
+                'caption'           => __("Country", 'tbp-acf-geoname'),
+                'label'             => __('Filter by', 'tbp-acf-geoname') . ' ' . __('country', 'tbp-acf-geoname'),
+                'select_label'      => __("All countries", 'tbp-acf-geoname'),
+                'instructions'      => '',
+                'choices'           => [static::class, 'getCountryCodes'],
+                'multiple'          => 1,
+                'ui'                => 1,
+                'allow_null'        => 1,
+                'placeholder'       => __("All countries", 'tbp-acf-geoname'),
+                'conditional_logic' => [
+                    [
+                        [
+                            'field'    => 'countries_only',
+                            'operator' => '!=',
+                            'value'    => '1',
+                        ],
+                    ],
+                ],
             ],
 
             // search
@@ -559,6 +638,40 @@ class tbp_acf_field_geoname_base
      *
      * @return array
      */
+    public function filterCountriesOnly(
+        $args,
+        $context
+    ): array {
+
+        if ($context->field['countries_only'])
+        {
+            $args ['feature_class'] = array_keys(Core::FEATURE_FILTERS['countriesOnly']);
+            $args ['feature_code']  = array_reduce(
+                Core::FEATURE_FILTERS['countriesOnly'],
+                static function (
+                    $carry,
+                    $item
+                )
+                {
+
+                    return $carry + $item;
+                },
+                []
+            );
+
+            unset ($context->filters['feature_class'], $context->filters['feature_code'], $context->filters['habitation_only']);
+        }
+
+        return $args;
+    }
+
+
+    /**
+     * @param  array   $args
+     * @param  object  $context
+     *
+     * @return array
+     */
     public function filterHabitationOnly(
         $args,
         $context
@@ -776,6 +889,9 @@ class tbp_acf_field_geoname_base
     public function render_field($field)
     {
 
+        // field settings
+        $fieldSettings = static::getFieldSettingDefinitions();
+
         // filters
         $filters      = static::getFilterDefinitions(acf_get_array($field['filters']));
         $filter_count = count($filters);
@@ -825,6 +941,14 @@ class tbp_acf_field_geoname_base
                     foreach ($filters as $filter => $filterSettings)
                     {
                         ?>
+                        <div class="filter-instruction -<?php
+                        echo esc_attr($filter); ?>"><?php
+
+                            if ($field[$filter . '_display_instruction'])
+                            {
+                                echo $field[$filter . '_instruction_text'] ?? $filterSettings['instructions'];
+                            }
+                            ?></div>
                         <div class="filter -<?php
                         echo esc_attr($filter); ?>">
                             <?php
@@ -886,10 +1010,24 @@ class tbp_acf_field_geoname_base
             ?>
 
             <div class="selection">
+                <div class="selection-instruction choices-instruction"><?php
+
+                    if ($field['selection_choices_display_instruction'])
+                    {
+                        echo $field['selection_choices_instruction_text'] ?: $fieldSettings['selection_choices_instruction_text']['placeholder'];
+                    }
+                    ?></div>
                 <div class="choices choices-<?php
                 echo $width; ?>">
                     <ul class="acf-bl list choices-list"></ul>
                 </div>
+                <div class="selection-instruction values-instruction"><?php
+
+                    if ($field['selection_values_display_instruction'])
+                    {
+                        echo $field['selection_values_instruction_text'] ?: $fieldSettings['selection_values_instruction_text']['placeholder'];
+                    }
+                    ?></div>
                 <div class="values values-<?php
                 echo $width; ?>">
                     <ul class="acf-bl list values-list <?php
@@ -975,18 +1113,81 @@ class tbp_acf_field_geoname_base
 
             $filterChoices[$filter] = $setting['caption'];
 
-            if (!$setting['isSetting']
-                ?: false)
-            {
-                continue;
-            }
-
             if (array_key_exists('choices', $setting) && is_callable($setting['choices']))
             {
                 $setting['choices'] = $setting['choices']();
             }
 
-            acf_render_field_setting($field, $setting);
+            ?>
+            <tr>
+                <td>
+                    <?php
+                    echo $setting['caption'];
+                    ?>
+                </td>
+                <td>
+                    <table class="acf-table">
+                        <?php
+
+                        if ($setting['isSetting'] ?? false)
+                        {
+                            acf_render_field_setting($field, $setting);
+                        }
+
+                        $logic = $setting['conditional_logic'] ?? [];
+
+                        acf_render_field_setting(
+                            $field,
+                            [
+                                'type'              => 'true_false',
+                                'name'              => $filter . '_display_instruction',
+                                'label'             => __('Display instruction', 'tbp-acf-geoname'),
+                                'ui'                => 1,
+                                'allow_null'        => 0,
+                                'default'           => 1,
+                                'conditional_logic' => $logic,
+                            ]
+                        );
+
+                        if (empty($logic))
+                        {
+                            $logic = [[]];
+                        }
+
+                        array_walk(
+                            $logic,
+                            static function (&$condition) use
+                            (
+                                $filter
+                            )
+                            {
+
+                                $condition[] = [
+                                    'field'    => $filter . '_display_instruction',
+                                    'operator' => '!=',
+                                    'value'    => '0',
+                                ];
+                            }
+                        );
+
+                        //echo "<pre>" . print_r($logic, true) . "</pre>";
+
+                        acf_render_field_setting(
+                            $field,
+                            [
+                                'type'              => 'text',
+                                'name'              => $filter . '_instruction_text',
+                                'label'             => __('Filter instructions', 'tbp-acf-geoname'),
+                                'instructions'      => __('This text is shown before the field', 'tbp-acf-geoname'),
+                                'placeholder'       => $setting['instructions'],
+                                'conditional_logic' => $logic,
+                            ]
+                        );
+                        ?>
+                    </table>
+                </td>
+            </tr>
+            <?php
         }
 
         // filters
