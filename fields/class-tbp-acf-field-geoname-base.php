@@ -588,8 +588,9 @@ class tbp_acf_field_geoname_base
             // get choices
             $response = $this->getData($_POST);
         }
-        catch (\Exception $e) {
-            wp_send_json_error( new WP_Error('error', $e->getMessage()), 503);
+        catch (\Exception $e)
+        {
+            wp_send_json_error(new WP_Error('error', $e->getMessage()), 503);
         }
 
         // return
@@ -904,8 +905,11 @@ class tbp_acf_field_geoname_base
             'data-paged' => 1,
         ];
 
-        if  ($field['max'] === 1) {
-            $attributes['data-replace-selected'] = $field['replace_selected_value'] ? 1 : 0;
+        if ($field['max'] === 1)
+        {
+            $attributes['data-replace-selected'] = $field['replace_selected_value']
+                ? 1
+                : 0;
         }
 
         array_walk(
@@ -1017,7 +1021,8 @@ class tbp_acf_field_geoname_base
 
                     if ($field['selection_choices_display_instruction'])
                     {
-                        echo $field['selection_choices_instruction_text'] ?: $fieldSettings['selection_choices_instruction_text']['placeholder'];
+                        echo $field['selection_choices_instruction_text']
+                            ?: $fieldSettings['selection_choices_instruction_text']['placeholder'];
                     }
                     ?></div>
                 <div class="choices choices-<?php
@@ -1028,7 +1033,8 @@ class tbp_acf_field_geoname_base
 
                     if ($field['selection_values_display_instruction'])
                     {
-                        echo $field['selection_values_instruction_text'] ?: $fieldSettings['selection_values_instruction_text']['placeholder'];
+                        echo $field['selection_values_instruction_text']
+                            ?: $fieldSettings['selection_values_instruction_text']['placeholder'];
                     }
                     ?></div>
                 <div class="values values-<?php
