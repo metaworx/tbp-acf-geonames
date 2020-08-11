@@ -512,6 +512,12 @@ class tbp_acf_field_geoname_base
         }
 
         $results = [];
+        $country = null;
+
+        if ($isSearch = $options['is_search'])
+        {
+            $data =& $results;
+        }
 
         // loop
         while ($location = array_shift($locations))
@@ -523,38 +529,31 @@ class tbp_acf_field_geoname_base
             ];
 
             // order posts by search
-            if (!$options['is_search'])
+            if (!$isSearch && $country !== $location->countryCode)
             {
 
                 // vars
                 $country = $location->countryCode;
 
-                if (array_key_exists($country, $results))
+                if (!array_key_exists($country, $results))
                 {
-                    $data = [
+                    $results[$country] = [
                         'text'     => $country,
                         'children' => [],
                     ];
+                }
 
-                    $results[$country] = &$data;
-                }
-                else
-                {
-                    $data = &$results[$country];
-                }
-            }
-            else
-            {
-                $data =& $results;
+                $data =& $results[$country]['children'];
+
             }
 
             // append to $results
-            $results[] = $entry;
+            $data[] = $entry;
         }
 
         // vars
         $response = [
-            'results' => $results,
+            'results' => array_values($results),
             'limit'   => $args['maxRows'],
         ];
 
