@@ -9,6 +9,7 @@ Author URI: https://www.thebrightpath.com
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Depends: Advanced Custom Fields, WP GeoNames
+RequiresPHP: 7.3.0
 */
 
 use Tbp\WP\Plugin\AcfGeoname\Plugin;
@@ -134,8 +135,14 @@ if (call_user_func(
             unset($error);
 
             $message= implode("\n", $errors);
-
-            if (($_GET['action'] ?: false) !== 'error_scrape') {
+            // ToDo: don't use absolute name
+            // get_admin_url() / get_home_path() / ABSPATH ...?
+            // current_user_can( 'activate_plugins' )
+            // is_admin()
+            if ($_SERVER['SCRIPT_NAME'] === '/wp-admin/plugins.php'
+                && ($_GET['action'] ?: false) === 'activate'
+                && (isset( $_REQUEST['plugin'] ) ? wp_unslash( $_REQUEST['plugin'] ) : '') === 'tbp-acf-geonames/tbp-acf-geonames.php'
+            ) {
                 trigger_error(strip_tags( $message), E_USER_ERROR);
             }
 
@@ -143,6 +150,7 @@ if (call_user_func(
 
             deactivate_plugins(plugin_basename(__FILE__));
 
+            return new WP_Error( 'missing_dependency', __( 'One of the plugins is invalid.' ), $errors );
         };
 
         $notice = is_multisite()
