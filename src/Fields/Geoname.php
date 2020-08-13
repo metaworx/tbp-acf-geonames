@@ -3,8 +3,8 @@
 namespace Tbp\WP\Plugin\AcfGeoname\Fields;
 
 use Tbp\WP\Plugin\AcfGeoname\Field;
+use WPGeonames\ApiQuery;
 use WPGeonames\Core;
-
 
 class Geoname
     extends Field
@@ -1197,6 +1197,58 @@ class Geoname
                 'label'        => __('Filters', 'acf'),
                 'instructions' => '',
                 'choices'      => $filterChoices,
+            ]
+        );
+
+        $searchTypes = [];
+
+        foreach (ApiQuery::SEARCH_TYPES as $searchTypeBitmask => $searchTypeName)
+        {
+            $searchTypes[$searchTypeBitmask] = __($searchTypeName, 'tbp-acf-geoname');
+        }
+
+        acf_render_field_setting(
+            $field,
+            [
+                'isSetting'    => true,
+                'name'         => 'searchTypeDefaults',
+                'type'         => 'checkbox',
+                'label'        => __('Default search mode', 'tbp-acf-geoname'),
+                'instructions' => '',
+                'choices'      => $searchTypes,
+            ]
+        );
+
+        acf_render_field_setting(
+            $field,
+            [
+                'type'         => 'true_false',
+                'name'         => 'searchTypesAllowUser',
+                'label'        => __('User-defined Search Mode', 'tbp-acf-geoname'),
+                'instructions' => __('Allow user to select from the following search types.', 'tbp-acf-geoname'),
+                'ui'           => 1,
+                'allow_null'   => 0,
+                'default'      => 0,
+            ]
+        );
+
+        acf_render_field_setting(
+            $field,
+            [
+                'isSetting'         => true,
+                'name'              => 'searchTypeUserEditable',
+                'type'              => 'checkbox',
+                'label'             => __('Available Search Modes', 'tbp-acf-geoname'),
+                'instructions'      => __('Allow user to select from these search modes.', 'tbp-acf-geoname'),
+                'choices'           => $searchTypes,
+                'conditional_logic' => [
+                    [
+                        'field'    => 'searchTypesAllowUser',
+                        'operator' => '!=',
+                        'value'    => '0',
+                    ],
+                ],
+
             ]
         );
 
