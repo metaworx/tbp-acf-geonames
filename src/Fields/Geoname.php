@@ -1,24 +1,18 @@
 <?php
 
-// exit if accessed directly
+namespace Tbp\WP\Plugin\AcfGeoname\Fields;
+
+use Tbp\WP\Plugin\AcfGeoname\Field;
 use WPGeonames\Core;
 
-if (!defined('ABSPATH'))
-{
-    exit;
-}
 
-
-class tbp_acf_field_geoname_base
-    extends acf_field
+class Geoname
+    extends Field
 {
 
     // protected properties
-    protected static $instance;
     protected static $filters;
     protected static $fieldSettings;
-
-    protected $settings = [];  // will hold info such as dir / path
 
 
     /*
@@ -74,10 +68,12 @@ class tbp_acf_field_geoname_base
             ]
         );
 
-        /*
-        *  settings (array) Store plugin settings (url, path, version) as a reference for later use with assets
-        */
-        $this->settings = $settings;
+        parent::__construct($settings);
+    }
+
+
+    public function initialize()
+    {
 
         self::$filters = [
 
@@ -387,14 +383,6 @@ class tbp_acf_field_geoname_base
                 'layout'       => 'horizontal',
             ],
         ];
-
-        // do not delete!
-        parent::__construct();
-    }
-
-
-    public function initialize()
-    {
 
         /*
         *  l10n (array) Array of strings that are used in JavaScript. This allows JS strings to be translated in PHP and loaded via:
@@ -1267,14 +1255,6 @@ class tbp_acf_field_geoname_base
     }
 
 
-    public static function Factory($file): tbp_acf_field_geoname_base
-    {
-
-        return self::$instance
-            ?: self::$instance = new self($file);
-    }
-
-
     /**
      * @param  array          $choices
      * @param  callable       $getter
@@ -1460,4 +1440,3 @@ class tbp_acf_field_geoname_base
     }
 
 }
-
