@@ -161,13 +161,14 @@ class Plugin
                 $class = sprintf(
                     '%s\\Fields%s\\%s',
                     __NAMESPACE__,
-                    file_exists(sprintf('%s/src/fields/v%d/%s.php', $this->get_plugin_dir(), static::$acfVersion, $base))
-                        ? sprintf('v%d\\', static::$acfVersion)
+                    file_exists(sprintf('%ssrc/Fields/v%d/%s.php', $this->get_plugin_dir(), static::$acfVersion, $base))
+                        ? sprintf('\\v%d', static::$acfVersion)
                         : '',
                     $base
                 );
 
-                static::$fields[$base] = ([$class, 'Factory'])($this->settings);
+                //static::$fields[$base] = ([$class, 'Factory'])($this->settings);
+                static::$fields[$base] = new $class($this->settings);
             }
         }
 

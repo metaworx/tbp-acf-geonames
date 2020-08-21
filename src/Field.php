@@ -29,7 +29,7 @@ class Field
     {
 
         return self::$instance
-            ?: self::$instance = new self($settings);
+            ?: self::$instance = new static($settings);
     }
 
 }
