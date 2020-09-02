@@ -3,6 +3,7 @@
 namespace Tbp\WP\Plugin\AcfGeoname\Fields;
 
 use Tbp\WP\Plugin\AcfGeoname\Field;
+use WP_Error;
 use WPGeonames\ApiQuery;
 use WPGeonames\Core;
 
