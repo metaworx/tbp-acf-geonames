@@ -6,6 +6,7 @@ use Tbp\WP\Plugin\AcfGeoname\Field;
 use WP_Error;
 use WPGeonames\ApiQuery;
 use WPGeonames\Core;
+use WPGeonames\Entities\Location;
 
 class Geoname
     extends Field
@@ -514,7 +515,7 @@ class Geoname
 
             $entry = [
                 'id'   => $location->geonameId,
-                'text' => sprintf('%s, %s', $location->name, $location->countryCode),
+                'text' => sprintf('%s, %s', $location->name, $location->country->iso2),
             ];
 
             // order posts by search
