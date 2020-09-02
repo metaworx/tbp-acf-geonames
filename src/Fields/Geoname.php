@@ -747,10 +747,16 @@ class Geoname
     ) {
 
         // bail early if no value
-        if (empty($value))
+        if (empty($value) || !array_key_exists('return_format', $field))
         {
 
             return $value;
+        }
+
+        switch ($field['return_format'])
+        {
+        case 'object':
+            $value = Location::load($value);
         }
 
         // return
