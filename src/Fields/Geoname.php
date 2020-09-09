@@ -2,6 +2,7 @@
 
 namespace Tbp\WP\Plugin\AcfGeoname\Fields;
 
+use ErrorException;
 use Tbp\WP\Plugin\AcfGeoname\Field;
 use WPGeonames\ApiQuery;
 use WPGeonames\Core;
@@ -436,6 +437,7 @@ class Geoname
      * @param  array  $options
      *
      * @return    array|false
+     * @throws \ErrorException
      */
     public function getData($options = [])
     {
@@ -509,6 +511,7 @@ class Geoname
         }
 
         // loop
+        /** @var Location $location */
         while ($location = array_shift($locations))
         {
 
@@ -862,7 +865,9 @@ class Geoname
      * @param    $field  (array) the $field being rendered
      *
      * @method-type    action
-     **/
+     *
+     * @throws \ErrorException
+     */
     public function render_field($field)
     {
 
@@ -955,7 +960,7 @@ class Geoname
                                 break;
 
                             default:
-                                throw new \ErrorException("unknown filter input type $filter");
+                                throw new ErrorException("unknown filter input type $filter");
                             }
 
                             call_user_func_array(
@@ -1245,7 +1250,7 @@ class Geoname
         {
 
             acf_render_field_setting($field, $setting);
-        };
+        }
 
     }
 
