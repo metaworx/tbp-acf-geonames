@@ -651,7 +651,7 @@ class Geoname
         $context
     ): array {
 
-        if ($context->field['habitation_only'])
+        if ($context->field['habitation_only'] ?? false)
         {
             $args ['feature_class'] = array_keys(Core::FEATURE_FILTERS['habitationOnly']);
             $args ['feature_code']  = array_reduce(
