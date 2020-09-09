@@ -3,7 +3,6 @@
 namespace Tbp\WP\Plugin\AcfGeoname\Fields;
 
 use Tbp\WP\Plugin\AcfGeoname\Field;
-use WP_Error;
 use WPGeonames\ApiQuery;
 use WPGeonames\Core;
 use WPGeonames\Entities\Location;
@@ -553,38 +552,20 @@ class Geoname
 
 
     /**
-     *  ajax_query
+     *  ajax_query_helper
      *
      *  description
      *
-     * @date      24/10/13
-     * @since     5.0.0
+     * @date      2020-09-09
      *
-     * @param
-     *
-     * @return   void
+     * @return   mixed
+     * @throws \ErrorException
      */
-    public function ajax_query()
+    public function ajax_query_helper()
     {
 
-        // validate
-        if (!acf_verify_ajax())
-        {
-            die();
-        }
-
-        try
-        {
-            // get choices
-            $response = $this->getData($_POST);
-        }
-        catch (\Exception $e)
-        {
-            wp_send_json_error(new WP_Error('error', $e->getMessage()), 503);
-        }
-
-        // return
-        acf_send_ajax_results($response);
+        // get choices
+        return $this->getData($_POST);
     }
 
 
