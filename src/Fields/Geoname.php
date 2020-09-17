@@ -1,10 +1,10 @@
 <?php
 
-namespace Tbp\WP\Plugin\AcfGeoname\Fields;
+namespace Tbp\WP\Plugin\AcfFields\Fields;
 
 use ErrorException;
-use Tbp\WP\Plugin\AcfGeoname\Entities\Location;
-use Tbp\WP\Plugin\AcfGeoname\Field;
+use Tbp\WP\Plugin\AcfFields\Entities\Location;
+use Tbp\WP\Plugin\AcfFields\Field;
 use WPGeonames\ApiQuery;
 use WPGeonames\Core;
 
@@ -40,7 +40,7 @@ class Geoname
         /*
         *  label (string) Multiple words, can include spaces, visible when selecting a field type
         */
-        $this->label = __('Geo Names', 'tbp-acf-geoname');
+        $this->label = __('Geo Names', 'tbp-acf-fields');
 
         /*
         *  category (string) basic | content | choice | relational | jquery | layout | CUSTOM GROUP NAME
@@ -84,8 +84,8 @@ class Geoname
                 'isSetting'         => true,
                 'type'              => 'true_false',
                 'name'              => 'habitation_only',
-                'caption'           => __("Habitations only", 'tbp-acf-geoname'),
-                'label'             => __('Filter habitations only', 'tbp-acf-geoname'),
+                'caption'           => __("Habitations only", 'tbp-acf-fields'),
+                'label'             => __('Filter habitations only', 'tbp-acf-fields'),
                 'instructions'      => 'If selected, only locations denominating a habitation (city, town, village, etc.) will be in the list. (Feature codes: ' . implode(
                         ', ',
                         array_reduce(
@@ -121,8 +121,8 @@ class Geoname
                 'isSetting'         => true,
                 'type'              => 'true_false',
                 'name'              => 'countries_only',
-                'caption'           => __("Countries only", 'tbp-acf-geoname'),
-                'label'             => __('Filter countries only', 'tbp-acf-geoname'),
+                'caption'           => __("Countries only", 'tbp-acf-fields'),
+                'label'             => __('Filter countries only', 'tbp-acf-fields'),
                 'instructions'      => 'If selected, only locations denominating a country will be in the list. (Feature codes: ' . implode(
                         ', ',
                         array_reduce(
@@ -158,18 +158,18 @@ class Geoname
                 'isSetting'         => true,
                 'type'              => 'select',
                 'name'              => 'feature_class',
-                'caption'           => __("Feature Class", 'tbp-acf-geoname'),
-                'label'             => __('Filter by', 'tbp-acf-geoname') . ' ' . __(
+                'caption'           => __("Feature Class", 'tbp-acf-fields'),
+                'label'             => __('Filter by', 'tbp-acf-fields') . ' ' . __(
                         'feature class',
-                        'tbp-acf-geoname'
+                        'tbp-acf-fields'
                     ),
-                'select_label'      => __('Select', 'tbp-acf-geoname') . ' ' . __('feature class', 'tbp-acf-geoname'),
+                'select_label'      => __('Select', 'tbp-acf-fields') . ' ' . __('feature class', 'tbp-acf-fields'),
                 'instructions'      => '',
                 'choices'           => [static::class, 'getFeatureClasses'],
                 'multiple'          => 1,
                 'ui'                => 1,
                 'allow_null'        => 1,
-                'placeholder'       => __("All feature classes", 'tbp-acf-geoname'),
+                'placeholder'       => __("All feature classes", 'tbp-acf-fields'),
                 'conditional_logic' => [
                     [
                         [
@@ -191,15 +191,15 @@ class Geoname
                 'isSetting'         => true,
                 'type'              => 'select',
                 'name'              => 'feature_code',
-                'caption'           => __("Feature Code", 'tbp-acf-geoname'),
-                'label'             => __('Filter by', 'tbp-acf-geoname') . ' ' . __('Feature Code', 'tbp-acf-geoname'),
-                'select_label'      => __('Select', 'tbp-acf-geoname') . ' ' . __('Feature Code', 'tbp-acf-geoname'),
+                'caption'           => __("Feature Code", 'tbp-acf-fields'),
+                'label'             => __('Filter by', 'tbp-acf-fields') . ' ' . __('Feature Code', 'tbp-acf-fields'),
+                'select_label'      => __('Select', 'tbp-acf-fields') . ' ' . __('Feature Code', 'tbp-acf-fields'),
                 'instructions'      => '',
                 'choices'           => [static::class, 'getFeatureCodes'],
                 'multiple'          => 1,
                 'ui'                => 1,
                 'allow_null'        => 1,
-                'placeholder'       => __("All feature codes", 'tbp-acf-geoname'),
+                'placeholder'       => __("All feature codes", 'tbp-acf-fields'),
                 'conditional_logic' => [
                     [
                         [
@@ -221,15 +221,15 @@ class Geoname
                 'isSetting'         => true,
                 'name'              => 'country_code',
                 'type'              => 'select',
-                'caption'           => __("Country", 'tbp-acf-geoname'),
-                'label'             => __('Filter by', 'tbp-acf-geoname') . ' ' . __('country', 'tbp-acf-geoname'),
-                'select_label'      => __("All countries", 'tbp-acf-geoname'),
+                'caption'           => __("Country", 'tbp-acf-fields'),
+                'label'             => __('Filter by', 'tbp-acf-fields') . ' ' . __('country', 'tbp-acf-fields'),
+                'select_label'      => __("All countries", 'tbp-acf-fields'),
                 'instructions'      => '',
                 'choices'           => [static::class, 'getCountryCodes'],
                 'multiple'          => 1,
                 'ui'                => 1,
                 'allow_null'        => 1,
-                'placeholder'       => __("All countries", 'tbp-acf-geoname'),
+                'placeholder'       => __("All countries", 'tbp-acf-fields'),
                 'conditional_logic' => [
                     [
                         [
@@ -259,7 +259,7 @@ class Geoname
             'one_filter_per_row' => [
                 'type'       => 'true_false',
                 'name'       => 'one_filter_per_row',
-                'label'      => __('Display one filter per row', 'tbp-acf-geoname'),
+                'label'      => __('Display one filter per row', 'tbp-acf-fields'),
                 'ui'         => 1,
                 'allow_null' => 0,
                 'default'    => false,
@@ -269,7 +269,7 @@ class Geoname
             'choice_on_new_line' => [
                 'type'       => 'true_false',
                 'name'       => 'choice_on_new_line',
-                'label'      => __('Display selected values on new line', 'tbp-acf-geoname'),
+                'label'      => __('Display selected values on new line', 'tbp-acf-fields'),
                 'ui'         => 1,
                 'allow_null' => 0,
                 'default'    => false,
@@ -278,7 +278,7 @@ class Geoname
             'selection_choices_display_instruction' => [
                 'type'       => 'true_false',
                 'name'       => 'selection_choices_display_instruction',
-                'label'      => __('Display instruction for available choices', 'tbp-acf-geoname'),
+                'label'      => __('Display instruction for available choices', 'tbp-acf-fields'),
                 'ui'         => 1,
                 'allow_null' => 0,
                 'default'    => 1,
@@ -287,9 +287,9 @@ class Geoname
             'selection_choices_instruction_text' => [
                 'type'              => 'text',
                 'name'              => 'selection_choices_instruction_text',
-                'label'             => __('Choices instructions', 'tbp-acf-geoname'),
-                'instructions'      => __('This text is shown before the field', 'tbp-acf-geoname'),
-                'placeholder'       => __('Click on one of the entries to add it to the selection.', 'tbp-acf-geoname'),
+                'label'             => __('Choices instructions', 'tbp-acf-fields'),
+                'instructions'      => __('This text is shown before the field', 'tbp-acf-fields'),
+                'placeholder'       => __('Click on one of the entries to add it to the selection.', 'tbp-acf-fields'),
                 'allow_null'        => 1,
                 'default'           => null,
                 'conditional_logic' => [
@@ -306,7 +306,7 @@ class Geoname
             'selection_values_display_instruction' => [
                 'type'       => 'true_false',
                 'name'       => 'selection_values_display_instruction',
-                'label'      => __('Display instruction for selected values', 'tbp-acf-geoname'),
+                'label'      => __('Display instruction for selected values', 'tbp-acf-fields'),
                 'ui'         => 1,
                 'allow_null' => 0,
                 'default'    => 1,
@@ -315,11 +315,11 @@ class Geoname
             'selection_values_instruction_text' => [
                 'type'              => 'text',
                 'name'              => 'selection_values_instruction_text',
-                'label'             => __('Selection instructions', 'tbp-acf-geoname'),
-                'instructions'      => __('This text is shown before the field', 'tbp-acf-geoname'),
+                'label'             => __('Selection instructions', 'tbp-acf-fields'),
+                'instructions'      => __('This text is shown before the field', 'tbp-acf-fields'),
                 'placeholder'       => __(
                     'This is/are the current selected values. To remove an entry, click on the minus-symbol at the end of the line.',
-                    'tbp-acf-geoname'
+                    'tbp-acf-fields'
                 ),
                 'allow_null'        => 1,
                 'default'           => null,
@@ -338,7 +338,7 @@ class Geoname
             'min'                               => [
                 'type'         => 'number',
                 'name'         => 'min',
-                'label'        => __('Minimum locations', 'tbp-acf-geoname'),
+                'label'        => __('Minimum locations', 'tbp-acf-fields'),
                 'instructions' => '',
             ],
 
@@ -346,17 +346,17 @@ class Geoname
             'max'                               => [
                 'type'         => 'number',
                 'name'         => 'max',
-                'label'        => __('Maximum locations', 'tbp-acf-geoname'),
+                'label'        => __('Maximum locations', 'tbp-acf-fields'),
                 'instructions' => '',
             ],
 
             'replace_selected_value' => [
                 'type'              => 'true_false',
                 'name'              => 'replace_selected_value',
-                'label'             => __('Replace selected value', 'tbp-acf-geoname'),
+                'label'             => __('Replace selected value', 'tbp-acf-fields'),
                 'instructions'      => __(
                     'If there is only one choice allowed and this setting is set to true, the selected value is automatically replaced. If this setting is set to false, the user has to first remove the current selection.',
-                    'tbp-acf-geoname'
+                    'tbp-acf-fields'
                 ),
                 'ui'                => 1,
                 'allow_null'        => 0,
@@ -379,8 +379,8 @@ class Geoname
                 'label'        => __('Return Format', 'acf'),
                 'instructions' => '',
                 'choices'      => [
-                    'object' => __("Geoname Location Object", 'tbp-acf-geoname'),
-                    'id'     => __("Geoname ID", 'tbp-acf-geoname'),
+                    'object' => __("Geoname Location Object", 'tbp-acf-fields'),
+                    'id'     => __("Geoname ID", 'tbp-acf-fields'),
                 ],
                 'layout'       => 'horizontal',
             ],
@@ -391,7 +391,7 @@ class Geoname
         *  var message = acf._e('geoname', 'error');
         */
         $this->l10n = [
-            'error' => __('Error! Please enter a higher value', 'tbp-acf-geoname'),
+            'error' => __('Error! Please enter a higher value', 'tbp-acf-fields'),
         ];
 
         // extra
@@ -742,12 +742,12 @@ class Geoname
         $version = $this->settings['version'];
 
         // register & include JS
-        wp_register_script('tbp-acf-geoname', "{$url}assets/js/input.js", ['acf-input'], $version);
-        wp_enqueue_script('tbp-acf-geoname');
+        wp_register_script('tbp-acf-fields', "{$url}assets/js/input.js", ['acf-input'], $version);
+        wp_enqueue_script('tbp-acf-fields');
 
         // register & include CSS
-        wp_register_style('tbp-acf-geoname', "{$url}assets/css/input.css", ['acf-input'], $version);
-        wp_enqueue_style('tbp-acf-geoname');
+        wp_register_style('tbp-acf-fields', "{$url}assets/css/input.css", ['acf-input'], $version);
+        wp_enqueue_style('tbp-acf-fields');
     }
 
 
@@ -1100,7 +1100,7 @@ HTML,
                             [
                                 'type'              => 'true_false',
                                 'name'              => $filter . '_display_instruction',
-                                'label'             => __('Display instruction', 'tbp-acf-geoname'),
+                                'label'             => __('Display instruction', 'tbp-acf-fields'),
                                 'ui'                => 1,
                                 'allow_null'        => 0,
                                 'default'           => 1,
@@ -1136,8 +1136,8 @@ HTML,
                             [
                                 'type'              => 'text',
                                 'name'              => $filter . '_instruction_text',
-                                'label'             => __('Filter instructions', 'tbp-acf-geoname'),
-                                'instructions'      => __('This text is shown before the field', 'tbp-acf-geoname'),
+                                'label'             => __('Filter instructions', 'tbp-acf-fields'),
+                                'instructions'      => __('This text is shown before the field', 'tbp-acf-fields'),
                                 'placeholder'       => $setting['instructions'],
                                 'conditional_logic' => $logic,
                             ]
@@ -1166,7 +1166,7 @@ HTML,
 
         foreach (ApiQuery::SEARCH_TYPES as $searchTypeBitmask => $searchTypeName)
         {
-            $searchTypes[$searchTypeBitmask] = __($searchTypeName, 'tbp-acf-geoname');
+            $searchTypes[$searchTypeBitmask] = __($searchTypeName, 'tbp-acf-fields');
         }
 
         acf_render_field_setting(
@@ -1175,7 +1175,7 @@ HTML,
                 'isSetting'    => true,
                 'name'         => 'searchTypeDefaults',
                 'type'         => 'checkbox',
-                'label'        => __('Default search mode', 'tbp-acf-geoname'),
+                'label'        => __('Default search mode', 'tbp-acf-fields'),
                 'instructions' => '',
                 'choices'      => $searchTypes,
             ]
@@ -1186,8 +1186,8 @@ HTML,
             [
                 'type'         => 'true_false',
                 'name'         => 'searchTypesAllowUser',
-                'label'        => __('User-defined Search Mode', 'tbp-acf-geoname'),
-                'instructions' => __('Allow user to select from the following search types.', 'tbp-acf-geoname'),
+                'label'        => __('User-defined Search Mode', 'tbp-acf-fields'),
+                'instructions' => __('Allow user to select from the following search types.', 'tbp-acf-fields'),
                 'ui'           => 1,
                 'allow_null'   => 0,
                 'default'      => 0,
@@ -1200,8 +1200,8 @@ HTML,
                 'isSetting'         => true,
                 'name'              => 'searchTypeUserEditable',
                 'type'              => 'checkbox',
-                'label'             => __('Available Search Modes', 'tbp-acf-geoname'),
-                'instructions'      => __('Allow user to select from these search modes.', 'tbp-acf-geoname'),
+                'label'             => __('Available Search Modes', 'tbp-acf-fields'),
+                'instructions'      => __('Allow user to select from these search modes.', 'tbp-acf-fields'),
                 'choices'           => $searchTypes,
                 'conditional_logic' => [
                     [

@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Advanced Custom Fields: Geo Names
+Plugin Name: Advanced Custom Fields: TBP Collection
 Plugin URI: PLUGIN_URL
 Description: List of worldwide locations based on geonames.org and the geonames plugin
-Version: 1.1.0
+Version: 2.0.0
 Author: Bhujagendra Ishaya
 Author URI: https://www.thebrightpath.com
 License: GPLv2 or later
@@ -12,7 +12,7 @@ Depends: Advanced Custom Fields, WP GeoNames
 RequiresPHP: 7.3.0
 */
 
-use Tbp\WP\Plugin\AcfGeoname\Plugin;
+use Tbp\WP\Plugin\AcfFields\Plugin;
 
 // exit if accessed directly
 if (!defined('ABSPATH'))
@@ -90,8 +90,8 @@ if (call_user_func(
                 {
                     $message = sprintf(
                         __(
-                            'Please update to PHP version %s or higher in order to use Geonames Advanced Custom Field.',
-                            'tbp-acf-geonames'
+                            'Please update to PHP version %s or higher in order to use "Advanced Custom Fields: TBP Collection".',
+                            'tbp-acf-fields'
                         ),
                         $php_version
                     );
@@ -106,8 +106,8 @@ if (call_user_func(
                         /** @noinspection HtmlUnknownTarget */
                         $message = sprintf(
                             __(
-                                'Geonames Advanced Custom Field requires <strong>version %s</strong> of <a href="%s" target="_blank">%s</a> to be installed. The current version is %s',
-                                'tbp-acf-geonames'
+                                '"Advanced Custom Fields: TBP Collection" requires <strong>version %s</strong> of <a href="%s" target="_blank">%s</a> to be installed. The current version is %s',
+                                'tbp-acf-fields'
                             ),
                             $plugin['version'],
                             $plugin['info']['PluginURI'],
@@ -120,8 +120,8 @@ if (call_user_func(
                         /** @noinspection HtmlUnknownTarget */
                         $message = sprintf(
                             __(
-                                'Geonames Advanced Custom Field requires <a href="%s" target="_blank">%s</a> (v%s) to be installed and activated.',
-                                'tbp-acf-geonames'
+                                '"Advanced Custom Fields: TBP Collection" requires <a href="%s" target="_blank">%s</a> (v%s) to be installed and activated.',
+                                'tbp-acf-fields'
                             ),
                             $plugin['url'],
                             $plugin['name'],
@@ -141,7 +141,7 @@ if (call_user_func(
             // is_admin()
             if ($_SERVER['SCRIPT_NAME'] === '/wp-admin/plugins.php'
                 && ($_GET['action'] ?: false) === 'activate'
-                && (isset( $_REQUEST['plugin'] ) ? wp_unslash( $_REQUEST['plugin'] ) : '') === 'tbp-acf-geonames/tbp-acf-geonames.php'
+                && (isset( $_REQUEST['plugin'] ) ? wp_unslash( $_REQUEST['plugin'] ) : '') === 'tbp-acf-fields/tbp-acf-fields.php'
             ) {
                 trigger_error(strip_tags( $message), E_USER_ERROR);
             }

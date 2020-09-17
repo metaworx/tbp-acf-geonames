@@ -1,6 +1,6 @@
 <?php
 
-namespace Tbp\WP\Plugin\AcfGeoname\Entities;
+namespace Tbp\WP\Plugin\AcfFields\Entities;
 
 use DateTimeInterface;
 
@@ -14,7 +14,7 @@ class Location
     /**
      * @param $dateTimeString
      *
-     * @return \Tbp\WP\Plugin\AcfGeoname\Entities\DateTime
+     * @return \Tbp\WP\Plugin\AcfFields\Entities\DateTime
      * @throws \Exception
      */
     public function createDateTime($dateTimeString)
@@ -28,7 +28,7 @@ class Location
      * @param         $selector
      * @param  false  $post_id
      *
-     * @return \Tbp\WP\Plugin\AcfGeoname\Entities\DateTime
+     * @return \Tbp\WP\Plugin\AcfFields\Entities\DateTime
      * @throws \Exception
      */
     public function createDateTimeFromField(

@@ -1,9 +1,9 @@
 <?php
 
-namespace Tbp\WP\Plugin\AcfGeoname\Fields\v4;
+namespace Tbp\WP\Plugin\AcfFields\Fields\v4;
 
 class Geoname
-    extends \Tbp\WP\Plugin\AcfGeoname\Fields\Geoname
+    extends \Tbp\WP\Plugin\AcfFields\Fields\Geoname
 {
 
 //  public properties
@@ -25,7 +25,7 @@ class Geoname
         parent::__construct($settings);
 
         // overwrite v4-specific category
-        $this->category = __("Choice", 'tbp-acf-geoname'); // Basic, Content, Choice, etc
+        $this->category = __("Choice", 'tbp-acf-fields'); // Basic, Content, Choice, etc
 
     }
 
@@ -93,9 +93,9 @@ class Geoname
         echo $this->name; ?>">
             <td class="label">
                 <label><?php
-                    _e("Preview Size", 'tbp-acf-geoname'); ?></label>
+                    _e("Preview Size", 'tbp-acf-fields'); ?></label>
                 <p class="description"><?php
-                    _e("Thumbnail is advised", 'tbp-acf-geoname'); ?></p>
+                    _e("Thumbnail is advised", 'tbp-acf-fields'); ?></p>
             </td>
             <td>
                 <?php
@@ -108,8 +108,8 @@ class Geoname
                         'value'   => $field['preview_size'],
                         'layout'  => 'horizontal',
                         'choices' => [
-                            'thumbnail'      => __('Thumbnail', 'tbp-acf-geoname'),
-                            'something_else' => __('Something Else', 'tbp-acf-geoname'),
+                            'thumbnail'      => __('Thumbnail', 'tbp-acf-fields'),
+                            'something_else' => __('Something Else', 'tbp-acf-fields'),
                         ],
                     ]
                 );

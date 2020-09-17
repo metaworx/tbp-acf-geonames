@@ -1,6 +1,6 @@
 <?php
 
-namespace Tbp\WP\Plugin\AcfGeoname;
+namespace Tbp\WP\Plugin\AcfFields;
 
 use acf_field;
 use WP_Error;

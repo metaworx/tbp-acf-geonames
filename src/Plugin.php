@@ -1,6 +1,6 @@
 <?php
 
-namespace Tbp\WP\Plugin\AcfGeoname;
+namespace Tbp\WP\Plugin\AcfFields;
 
 class Plugin
 {
@@ -46,7 +46,7 @@ class Plugin
         // settings
         // - these will be passed into the field class.
         $this->settings = [
-            'version' => '1.1.0',
+            'version' => '2.0.0',
             'url'     => plugin_dir_url($file),
             'path'    => plugin_dir_path($file),
         ];
@@ -136,8 +136,8 @@ class Plugin
         static::$acfVersion = (int)$version
             ?: 4;
 
-        // load tbp-acf-geoname
-        load_plugin_textdomain('tbp-acf-geoname', false, $this->get_plugin_dir() . '/lang');
+        // load tbp-acf-fields
+        load_plugin_textdomain('tbp-acf-fields', false, $this->get_plugin_dir() . '/lang');
 
         $dir = new \DirectoryIterator($this->get_plugin_dir() . '/src/Fields');
 

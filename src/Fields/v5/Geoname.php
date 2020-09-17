@@ -1,9 +1,9 @@
 <?php
 
-namespace Tbp\WP\Plugin\AcfGeoname\Fields\v5;
+namespace Tbp\WP\Plugin\AcfFields\Fields\v5;
 
 class Geoname
-    extends \Tbp\WP\Plugin\AcfGeoname\Fields\Geoname
+    extends \Tbp\WP\Plugin\AcfFields\Fields\Geoname
 {
 
     /*
@@ -65,7 +65,7 @@ class Geoname
         // Advanced usage
         if( $value < $field['custom_minimum_setting'] )
         {
-            $valid = __('The value is too little!','tbp-acf-geoname'),
+            $valid = __('The value is too little!','tbp-acf-fields'),
         }
 
 

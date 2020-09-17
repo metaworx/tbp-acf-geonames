@@ -1,6 +1,6 @@
 <?php
 
-namespace Tbp\WP\Plugin\AcfGeoname\Entities;
+namespace Tbp\WP\Plugin\AcfFields\Entities;
 
 use DateTimeZone;
 use ErrorException;
@@ -10,7 +10,7 @@ class DateTime
 {
 
     // protected properties
-    /** @var \Tbp\WP\Plugin\AcfGeoname\Entities\Location|null */
+    /** @var \Tbp\WP\Plugin\AcfFields\Entities\Location|null */
     protected $location;
 
 
@@ -45,7 +45,7 @@ class DateTime
 
 
     /**
-     * @return \Tbp\WP\Plugin\AcfGeoname\Entities\Location|null
+     * @return \Tbp\WP\Plugin\AcfFields\Entities\Location|null
      */
     public function getLocation(): ?Location
     {
@@ -55,7 +55,7 @@ class DateTime
 
 
     /**
-     * @param  \Tbp\WP\Plugin\AcfGeoname\Entities\Location|null  $location
+     * @param  \Tbp\WP\Plugin\AcfFields\Entities\Location|null  $location
      *
      * @return DateTime
      */
