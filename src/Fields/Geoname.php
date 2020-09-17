@@ -3,10 +3,10 @@
 namespace Tbp\WP\Plugin\AcfGeoname\Fields;
 
 use ErrorException;
+use Tbp\WP\Plugin\AcfGeoname\Entities\Location;
 use Tbp\WP\Plugin\AcfGeoname\Field;
 use WPGeonames\ApiQuery;
 use WPGeonames\Core;
-use WPGeonames\Entities\Location;
 
 class Geoname
     extends Field
@@ -494,7 +494,7 @@ class Geoname
         $args = apply_filters('acf/fields/geoname/query/key=' . $field['key'], $args, $field, $options);
 
         // get locations grouped by top most ancestor
-        $locations = Core::getLiveSearch($args);
+        $locations = Core::getLiveSearch($args, Location::class);
 
         // bail early if no posts
         if (empty($locations))
@@ -503,16 +503,11 @@ class Geoname
         }
 
         $results = [];
-        $country = null;
-
-        if ($isSearch = $options['is_search'])
-        {
-            $data =& $results;
-        }
+        //$country = null;
 
         // loop
         /** @var Location $location */
-        while ($location = array_shift($locations))
+        while (($location = array_shift($locations)) && count($results) <= $args['maxRows'] ?? 20)
         {
 
             $entry = [
@@ -520,27 +515,8 @@ class Geoname
                 'text' => sprintf('%s, %s', $location->name, $location->country->iso2),
             ];
 
-            // order posts by search
-            if (!$isSearch && $country !== $location->countryCode)
-            {
-
-                // vars
-                $country = $location->countryCode;
-
-                if (!array_key_exists($country, $results))
-                {
-                    $results[$country] = [
-                        'text'     => $country,
-                        'children' => [],
-                    ];
-                }
-
-                $data =& $results[$country]['children'];
-
-            }
-
             // append to $results
-            $data[] = $entry;
+            $results[] = $entry;
         }
 
         // vars
@@ -1028,48 +1004,40 @@ class Geoname
                         {
 
                             // get posts
-                            $locations = Core::getLocations(
-                                [
-                                    'location__in' => $field['value'],
-                                ]
-                            );
+                            $locations = Location::load($field['value']);
 
                             // loop
+                            /** @var Location $location */
                             foreach ($locations as $location)
                             {
-                                $key     = $location->geoname_id;
-                                $caption = $field['name'] . ', ' . $field['country_code'];
+                                $dataId  = $location->geonameId;
+                                $caption = $location->name . ', ' . $location->countryCode;
 
-                                ?>
-                                <li>
-                                    <?php
-                                    acf_hidden_input(
-                                        [
-                                            'name'  => $caption,
-                                            'value' => $key,
-                                        ]
-                                    ); ?>
-                                    <span data-id="<?php
-                                    echo esc_attr($key); ?>"
-                                          class="acf-rel-item">
-							<?php
-                            echo acf_esc_html($caption); ?>
-							<a href="#" class="acf-icon -minus small dark" data-name="remove_item"></a>
-						</span>
+                                printf(
+                                    <<<HTML
+                               <li>
+                                    %s
+                                    <span class="acf-rel-item" data-id="%s" >
+							            %s
+							            <a href="#" class="acf-icon -minus small dark" data-name="remove_item"></a>
+                                    </span>
                                 </li>
-                                <?php
-                            } ?>
-                            <?php
+HTML,
+                                    acf_get_hidden_input(
+                                        [
+                                            'name'  => $field['name'] . '[]',
+                                            'value' => $dataId,
+                                        ]
+                                    ),
+                                    esc_attr($dataId),
+                                    acf_esc_html($caption)
+                                );
+                            }
                         } ?>
                     </ul>
                 </div>
             </div>
-            <?php
-            echo '<pre>';
-            print_r($field);
-            echo '</pre>';
-            ?>
-        </div>
+         </div>
         <?php
     }
 
