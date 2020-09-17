@@ -46,7 +46,7 @@ class Plugin
         // settings
         // - these will be passed into the field class.
         $this->settings = [
-            'version' => '1.0.3',
+            'version' => '1.1.0',
             'url'     => plugin_dir_url($file),
             'path'    => plugin_dir_path($file),
         ];
