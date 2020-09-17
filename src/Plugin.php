@@ -1,6 +1,12 @@
 <?php
+/**
+ * @noinspection PhpUnusedParameterInspection
+ */
 
 namespace Tbp\WP\Plugin\AcfFields;
+
+use DirectoryIterator;
+use ErrorException;
 
 class Plugin
 {
@@ -13,7 +19,8 @@ class Plugin
     private static $acfVersion;
 
     /** @var string plugin main file */
-    private $plugin_file;
+    private static $pluginFile;
+    private static $missingPlugins;
 
     private $settings;
 
@@ -29,13 +36,26 @@ class Plugin
     *
     *  @param	void
     *  @return	void
+     * @throw \ErrorException
     */
-    function __construct($file = __FILE__)
-    {
+    function __construct(
+        string $file,
+        array $missingPlugins
+    ) {
 
-        self::$instance    = self::$instance
-            ?: $this;
-        $this->plugin_file = $file;
+        if (self::$instance !== null)
+        {
+            throw new ErrorException(
+                sprintf(
+                    '%s is a singleton class. Please instantiate using the static Factory() constructor.',
+                    static::class
+                )
+            );
+        }
+
+        self::$instance       = $this;
+        self::$pluginFile     = $file;
+        self::$missingPlugins = $missingPlugins;
 
         register_activation_hook($this->get_plugin_file(), [$this, 'activate']);
         register_deactivation_hook($this->get_plugin_file(), [$this, 'deactivate']);
@@ -73,7 +93,7 @@ class Plugin
     public function get_plugin_file()
     {
 
-        return $this->plugin_file;
+        return self::$pluginFile;
     }
 
 
@@ -139,9 +159,8 @@ class Plugin
         // load tbp-acf-fields
         load_plugin_textdomain('tbp-acf-fields', false, $this->get_plugin_dir() . '/lang');
 
-        $dir = new \DirectoryIterator($this->get_plugin_dir() . '/src/Fields');
+        $dir = new DirectoryIterator($this->get_plugin_dir() . '/src/Fields');
 
-        /** @var \SplFileInfo $fileInfo */
         foreach ($dir as $fileInfo)
         {
 
@@ -158,16 +177,70 @@ class Plugin
 
             if (!array_key_exists($base, static::$fields))
             {
-                $class = sprintf(
-                    '%s\\Fields%s\\%s',
+                /** @var \Tbp\WP\Plugin\AcfFields\Field $baseClass */
+                $baseClass = sprintf(
+                    '%s\\Fields\\%s',
                     __NAMESPACE__,
-                    file_exists(sprintf('%ssrc/Fields/v%d/%s.php', $this->get_plugin_dir(), static::$acfVersion, $base))
-                        ? sprintf('\\v%d', static::$acfVersion)
-                        : '',
                     $base
                 );
 
-                //static::$fields[$base] = ([$class, 'Factory'])($this->settings);
+                /** @var \Tbp\WP\Plugin\AcfFields\Field $class */
+                $class = file_exists(
+                    sprintf('%ssrc/Fields/v%d/%s.php', $this->get_plugin_dir(), static::$acfVersion, $base)
+                )
+                    ? sprintf(
+                        '%s\\Fields\\v%d\\%s',
+                        __NAMESPACE__,
+                        static::$acfVersion,
+                        $base
+                    )
+                    : $baseClass;
+
+                foreach (self::$missingPlugins as $plugin)
+                {
+                    if (!array_key_exists('fields', $plugin))
+                    {
+                        continue;
+                    }
+
+                    if (!array_key_exists($class, $plugin['fields'])
+                        && !array_key_exists($baseClass, $plugin['fields']))
+                    {
+                        continue;
+                    }
+
+                    switch ($plugin['reason'])
+                    {
+                    case 'installed':
+                        $reason = __('inactive due to missing dependency', 'tbp-acf-fields');
+                        break;
+
+                    case 'activated':
+                        $reason = __('inactive due to deactivated dependency', 'tbp-acf-fields');
+                        break;
+
+                    case 'updated':
+                        $reason = __('inactive due to outdated dependency', 'tbp-acf-fields');
+                        break;
+
+                    default:
+                        $reason = __('inactive due to error with a dependency', 'tbp-acf-fields');
+                        break;
+
+                    }
+
+                    static::$fields[$base] = new InactiveField(
+                        $this->settings + [
+                            'field_name'      => $class::NAME,
+                            'field_label'     => sprintf('%s (%s)', $class::LABEL, $reason),
+                            'field_category'  => $class::CATEGORY,
+                            'inactive_reason' => $reason,
+                        ]
+                    );
+
+                    continue 2;
+                }
+
                 static::$fields[$base] = new $class($this->settings);
             }
         }
@@ -196,9 +269,9 @@ class Plugin
      * )
      */
     public function upgrade(
-        $new_version,
-        $old_version
-    ) {
+        string $nev_version,
+        string $old_version
+    ): array {
 
         $result = [
             'success'  => true,
@@ -220,13 +293,16 @@ class Plugin
     *
     *  @param	$version (int) major ACF version. Defaults to false
     *  @return	tbp_acf_field_geoname
+     * @throw \ErrorException
     */
 
-    static function Factory($file)
-    {
+    static function Factory(
+        $file,
+        array $missingPlugins = []
+    ) {
 
         return self::$instance
-            ?: self::$instance = new self($file);
+            ?: self::$instance = new self($file, $missingPlugins);
     }
 
 

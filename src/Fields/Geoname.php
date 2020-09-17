@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnnecessaryLocalVariableInspection */
 
 namespace Tbp\WP\Plugin\AcfFields\Fields;
 
@@ -11,6 +11,11 @@ use WPGeonames\Core;
 class Geoname
     extends Field
 {
+
+    // constants
+    public const CATEGORY = 'relational';
+    public const LABEL    = 'Geo Names';
+    public const NAME     = 'geoname';
 
     // protected properties
     protected static $filters;
@@ -29,23 +34,9 @@ class Geoname
     *  @param	n/a
     *  @return	n/a
     */
+
     public function __construct($settings = [])
     {
-
-        /*
-        *  name (string) Single word, no spaces. Underscores allowed
-        */
-        $this->name = 'geoname';
-
-        /*
-        *  label (string) Multiple words, can include spaces, visible when selecting a field type
-        */
-        $this->label = __('Geo Names', 'tbp-acf-fields');
-
-        /*
-        *  category (string) basic | content | choice | relational | jquery | layout | CUSTOM GROUP NAME
-        */
-        $this->category = 'relational';
 
         /*
         *  defaults (array) Array of default settings which are merged into the field object. These are used later in settings
@@ -589,8 +580,8 @@ class Geoname
      * @return array
      */
     public function filterCountriesOnly(
-        $args,
-        $context
+        array $args,
+        object $context
     ): array {
 
         if ($context->field['countries_only'])
@@ -623,8 +614,8 @@ class Geoname
      * @return array
      */
     public function filterHabitationOnly(
-        $args,
-        $context
+        array $args,
+        object $context
     ): array {
 
         if ($context->field['habitation_only'] ?? false)
@@ -657,8 +648,8 @@ class Geoname
      * @return array
      */
     public function filterSearch(
-        $args,
-        $context
+        array $args,
+        object $context
     ): array {
 
         // search
@@ -702,8 +693,8 @@ class Geoname
 
     public function format_value(
         $value,
-        $post_id,
-        $field
+        int $post_id,
+        array $field
     ) {
 
         // bail early if no value
@@ -797,7 +788,7 @@ class Geoname
      *
      * @return array         $field
      */
-    public function load_field($field): array
+    public function load_field(array $field): array
     {
 
         return $field;
@@ -822,8 +813,8 @@ class Geoname
      */
     public function load_value(
         $value,
-        $post_id,
-        $field
+        int $post_id,
+        array $field
     ) {
 
         return $value;
@@ -1022,7 +1013,8 @@ class Geoname
 							            <a href="#" class="acf-icon -minus small dark" data-name="remove_item"></a>
                                     </span>
                                 </li>
-HTML,
+HTML
+                                    ,
                                     acf_get_hidden_input(
                                         [
                                             'name'  => $field['name'] . '[]',
@@ -1037,7 +1029,7 @@ HTML,
                     </ul>
                 </div>
             </div>
-         </div>
+        </div>
         <?php
     }
 
@@ -1055,7 +1047,7 @@ HTML,
      *
      * @return    void
      */
-    public function render_field_settings($field)
+    public function render_field_settings(array $field)
     {
 
         // vars
@@ -1236,7 +1228,7 @@ HTML,
      *
      * @return  array       $field
      */
-    public function update_field($field): array
+    public function update_field(array $field): array
     {
 
         return $field;
@@ -1261,8 +1253,8 @@ HTML,
      */
     public function update_value(
         $value,
-        $post_id,
-        $field
+        int $post_id,
+        array $field
     ) {
 
         return $value;
@@ -1277,8 +1269,8 @@ HTML,
      * @return array
      */
     public static function &checkChoices(
-        $choices,
-        $getter,
+        array $choices,
+        callable $getter,
         $formatter = null
     ): array {
 
@@ -1323,8 +1315,8 @@ HTML,
      * @return array
      */
     public static function filterDefault(
-        $args,
-        $context
+        array $args,
+        object $context
     ): array {
 
         $filters = acf_get_array($context->field['filters']);
@@ -1362,6 +1354,7 @@ HTML,
     }
 
 
+    /** @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection */
     protected static function getDefinitions(
         $array,
         $key

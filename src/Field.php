@@ -3,11 +3,17 @@
 namespace Tbp\WP\Plugin\AcfFields;
 
 use acf_field;
+use Throwable;
 use WP_Error;
 
 abstract class Field
     extends acf_field
 {
+    // constants
+    public const CATEGORY = 'basic';
+    public const LABEL    = 'TBP Field';
+    public const NAME     = 'tbp_field';
+
     // protected properties
     protected static $instance;
 
@@ -16,6 +22,21 @@ abstract class Field
 
     public function __construct($settings = [])
     {
+
+        /*
+         *  name (string) Single word, no spaces. Underscores allowed
+         */
+        $this->name = $settings['field_name'] ?? static::NAME;
+
+        /*
+        *  label (string) Multiple words, can include spaces, visible when selecting a field type
+        */
+        $this->label = $settings['field_label'] ?? __(static::LABEL, 'tbp-acf-fields');
+
+        /*
+        *  category (string) basic | content | choice | relational | jquery | layout | CUSTOM GROUP NAME
+        */
+        $this->category = $settings['field_category'] ?? static::CATEGORY;
 
         /**
          *  settings (array) Store plugin settings (url, path, version) as a reference for later use with assets
@@ -37,6 +58,7 @@ abstract class Field
      *
      *
      * @return   void
+     * @noinspection PhpUnusedLocalVariableInspection
      */
     public function ajax_query()
     {
@@ -58,8 +80,12 @@ abstract class Field
         )
         {
 
-            $message = '';
+            /**
+             * @var bool $report
+             * @noinspection PhpUnusedLocalVariableInspection
+             */
             $report  = error_reporting() & $errno;
+            $message = '';
 
             switch (true)
             {
@@ -103,7 +129,7 @@ abstract class Field
             return $oldErrorHandler($errno, $errString, $errFile, $errLine);
         };
 
-        $myExceptionHandler = static function (\Throwable $e) use
+        $myExceptionHandler = static function (Throwable $e) use
         (
             $myErrorHandler
         )
@@ -112,7 +138,7 @@ abstract class Field
             $myErrorHandler(E_USER_ERROR, $e->getMessage(), $e->getFile(), $e->getLine());
         };
 
-        $oldErrorHandler     = set_error_handler($myErrorHandler);
+        $oldErrorHandler = set_error_handler($myErrorHandler);
         $oldExceptionHandler = set_exception_handler($myExceptionHandler);
 
         // validate ajax request
