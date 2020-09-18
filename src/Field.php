@@ -161,6 +161,23 @@ abstract class Field
     abstract protected function ajax_query_helper();
 
 
+    /**
+     *  render_field()
+     *
+     *  Create the HTML interface for your field
+     *
+     * @since          3.6
+     * @date           23/01/13
+     *
+     * @param    $field  (array) the $field being rendered
+     *
+     * @method-type    action
+     */
+    public function render_field($field)
+    {
+    }
+
+
     public static function Factory($settings): self
     {
 
