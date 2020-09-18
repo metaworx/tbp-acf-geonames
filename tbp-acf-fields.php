@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: TBP Collection
 Plugin URI: PLUGIN_URL
 Description: List of worldwide locations based on geonames.org and the geonames plugin
-Version: 2.1.0
+Version: 2.1.1
 Author: Bhujagendra Ishaya
 Author URI: https://www.thebrightpath.com
 License: GPLv2 or later
@@ -47,7 +47,7 @@ call_user_func(
             ],
             'wp-geonames/wp-geonames.php'    => [
                 'name'     => 'WP Geonames',
-                'version'  => '2.0.7',
+                'version'  => '2.1.1',
                 'url'      => 'https://wordpress.org/plugins/wp-geonames/',
                 'required' => false,
                 'fields'   => [
