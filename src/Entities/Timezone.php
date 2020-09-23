@@ -6,4 +6,4 @@ class Timezone
     extends \WPGeonames\Entities\Timezone
 {
 
- }
+}

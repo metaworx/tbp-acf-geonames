@@ -25,7 +25,7 @@ class InactiveField
      *
      * @throws \ErrorException
      */
-    public function render_field($field)
+    public function render_field( $field )
     {
 
         // div attributes
@@ -34,12 +34,12 @@ class InactiveField
             'class' => "acf-tbp-collection acf-tbp-inactive acf-tbp-{$field['name']} {$field['class']}",
         ];
 
-        printf('<div %s', acf_esc_attrs($attributes));
-        acf_hidden_input(['name' => $field['name'], 'value' => $field['value'] ?? '']);
+        printf( '<div %s', acf_esc_attrs( $attributes ) );
+        acf_hidden_input( [ 'name' => $field['name'], 'value' => $field['value'] ?? '' ] );
 
-        printf('<p><strong>%s</strong></p>', $this->settings['inactive_reason']);
+        printf( '<p><strong>%s</strong></p>', $this->settings['inactive_reason'] );
 
-        if (!empty($field['value']))
+        if ( ! empty( $field['value'] ) )
         {
 
             printf(
@@ -50,8 +50,8 @@ class InactiveField
                            </pre>
 HTML
                 ,
-                __('Raw field value:', 'tbp-acf-fields'),
-                acf_esc_html($field['value'])
+                __( 'Raw field value:', 'tbp-acf-fields' ),
+                acf_esc_html( $field['value'] )
             );
         }
 

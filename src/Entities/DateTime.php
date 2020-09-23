@@ -9,7 +9,8 @@ class DateTime
     extends \DateTime
 {
 
-    // protected properties
+// protected properties
+
     /** @var \Tbp\WP\Plugin\AcfFields\Entities\Location|null */
     protected $location;
 
@@ -19,7 +20,7 @@ class DateTime
         $timezoneOrLocation = null
     ) {
 
-        switch (true)
+        switch ( true )
         {
 
             /** @noinspection PhpMissingBreakStatementInspection */
@@ -29,7 +30,7 @@ class DateTime
 
             // continue
         case $timezoneOrLocation instanceof DateTimeZone:
-            parent::__construct($time, $timezoneOrLocation);
+            parent::__construct( $time, $timezoneOrLocation );
             break;
 
         default:
@@ -59,7 +60,7 @@ class DateTime
      *
      * @return DateTime
      */
-    public function setLocation(?Location $location): DateTime
+    public function setLocation( ?Location $location ): DateTime
     {
 
         $this->location = $location;
@@ -82,8 +83,8 @@ class DateTime
         $locale = null
     ) {
 
-        $format = !empty($format)
-            ? \GuzzleHttp\json_encode(array_filter($format))
+        $format = ! empty( $format )
+            ? \GuzzleHttp\json_encode( array_filter( $format ) )
             : 'undefined';
 
         return sprintf(
@@ -100,7 +101,7 @@ class DateTime
         $locale = null
     ) {
 
-        return $this->location->format($this, $format, $locale);
+        return $this->location->format( $this, $format, $locale );
     }
 
 }

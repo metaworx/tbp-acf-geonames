@@ -19,12 +19,12 @@ RequiresPHP: 7.3.0
 use Tbp\WP\Plugin\AcfFields\Plugin;
 
 // exit if accessed directly
-if (!defined('ABSPATH'))
+if ( ! defined( 'ABSPATH' ) )
 {
     exit;
 }
 
-require_once(ABSPATH . '/wp-admin/includes/plugin.php');
+require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 call_user_func(
     static function ()
@@ -54,9 +54,17 @@ call_user_func(
                     'Tbp\WP\Plugin\AcfFields\Fields\Geoname' => true,
                 ],
             ],
+            'facetwp/index.php'              => [
+                'name'     => 'FacetWP',
+                'version'  => '3.6.0',
+                'url'      => 'https://facetwp.com/',
+                'required' => false,
+                'fields'   => [
+                ],
+            ],
         ];
 
-        $callback = static function ($file) use
+        $callback = static function ( $file ) use
         (
             &
             $plugins
@@ -64,53 +72,53 @@ call_user_func(
         {
 
             // only load the plugin, if the minimum php requirement is met
-            if (array_key_exists('php', $plugins))
+            if ( array_key_exists( 'php', $plugins ) )
             {
                 return null;
             }
 
             require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
-            return Plugin::Factory($file, $plugins);
+            return Plugin::Factory( $file, $plugins );
         };
 
-        if (version_compare(PHP_VERSION, $php_version, '<'))
+        if ( version_compare( PHP_VERSION, $php_version, '<' ) )
         {
-            $plugins = ['php' => []];
+            $plugins = [ 'php' => [] ];
         }
         else
         {
-            foreach ($plugins as $plugin => &$plugin_data)
+            foreach ( $plugins as $plugin => &$plugin_data )
             {
 
-                if (!file_exists(WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin))
+                if ( ! file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin ) )
                 {
                     $plugin_data['reason'] = 'installed';
                     continue;
                 }
 
-                $plugin_data['info'] = get_plugin_data(WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin, false, false);
+                $plugin_data['info'] = get_plugin_data( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin, false, false );
 
-                if (!$is_plugin_active($plugin))
+                if ( ! $is_plugin_active( $plugin ) )
                 {
                     $plugin_data['reason'] = 'activated';
                     continue;
                 }
 
-                if (version_compare($plugin_data['info']['Version'], $plugin_data['version'], '<'))
+                if ( version_compare( $plugin_data['info']['Version'], $plugin_data['version'], '<' ) )
                 {
                     $plugin_data['reason'] = 'updated';
                     continue;
                 }
 
-                unset($plugins[$plugin]);
+                unset( $plugins[ $plugin ] );
 
             }
 
-            unset($plugin_data);
+            unset( $plugin_data );
         }
 
-        if (empty($plugins))
+        if ( empty( $plugins ) )
         {
             return $callback;
         }
@@ -125,7 +133,7 @@ call_user_func(
 
             $deactivate = false;
 
-            if (array_key_exists('php', $plugins))
+            if ( array_key_exists( 'php', $plugins ) )
             {
                 $deactivate              = true;
                 $plugins['php']['error'] = sprintf(
@@ -141,26 +149,25 @@ call_user_func(
             {
                 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
-                foreach ($plugins as $plugin => &$plugin_data)
+                foreach ( $plugins as $plugin => &$plugin_data )
                 {
                     $message    = '';
-                    $deactivate = $deactivate || ($plugin_data['required'] ?? false);
+                    $deactivate = $deactivate || ( $plugin_data['required'] ?? false );
 
                     $affected_fields = array_unique(
                         array_map(
                             static function (
                                 $class
-                            )
-                            {
+                            ) {
 
                                 /** @var \Tbp\WP\Plugin\AcfFields\Field $class */
                                 return $class::LABEL;
                             },
-                            array_keys($plugin_data['fields'] ?? [])
+                            array_keys( $plugin_data['fields'] ?? [] )
                         )
                     );
 
-                    if (!empty($affected_fields))
+                    if ( ! empty( $affected_fields ) )
                     {
                         $message = '<br/>' . __(
                                 'The following field(s) will be disabled:',
@@ -171,7 +178,7 @@ call_user_func(
                             );
                     }
 
-                    if ($plugin_data['reason'] === 'updated')
+                    if ( $plugin_data['reason'] === 'updated' )
                     {
                         /** @noinspection HtmlUnknownTarget */
                         $message = sprintf(
@@ -201,43 +208,43 @@ call_user_func(
                             ) . $message;
                     }
 
-                    $plugin_data['error'] = sprintf('<div class="notice notice-error"><p>%s</p></div>', $message);
+                    $plugin_data['error'] = sprintf( '<div class="notice notice-error"><p>%s</p></div>', $message );
                 }
             }
-            unset($plugin_data);
+            unset( $plugin_data );
 
-            $errors  = array_column($plugins, 'error');
-            $message = implode("\n", $errors);
+            $errors  = array_column( $plugins, 'error' );
+            $message = implode( "\n", $errors );
             // ToDo: don't use absolute name
             // get_admin_url() / get_home_path() / ABSPATH ...?
             // current_user_can( 'activate_plugins' )
             // is_admin()
-            if ($_SERVER['SCRIPT_NAME'] === '/wp-admin/plugins.php'
-                && ($_GET['action']
-                    ?: false) === 'activate'
-                && (isset($_REQUEST['plugin'])
-                    ? wp_unslash($_REQUEST['plugin'])
-                    : '') === 'tbp-acf-fields/tbp-acf-fields.php'
+            if ( $_SERVER['SCRIPT_NAME'] === '/wp-admin/plugins.php'
+                && ( $_GET['action']
+                    ?: false ) === 'activate'
+                && ( isset( $_REQUEST['plugin'] )
+                    ? wp_unslash( $_REQUEST['plugin'] )
+                    : '' ) === 'tbp-acf-fields/tbp-acf-fields.php'
             )
             {
-                trigger_error(strip_tags($message), E_USER_ERROR);
+                trigger_error( strip_tags( $message ), E_USER_ERROR );
             }
 
             echo $message;
 
-            if ($deactivate)
+            if ( $deactivate )
             {
-                deactivate_plugins(plugin_basename(__FILE__));
+                deactivate_plugins( plugin_basename( __FILE__ ) );
             }
 
-            return new WP_Error('missing_dependency', __('One of the plugins is invalid.'), $errors);
+            return new WP_Error( 'missing_dependency', __( 'One of the plugins is invalid.' ), $errors );
         };
 
         $notice = is_multisite()
             ? 'network_admin_notices'
             : 'admin_notices';
-        add_action($notice, $display_errors);
-        register_activation_hook(__FILE__, $display_errors);
+        add_action( $notice, $display_errors );
+        register_activation_hook( __FILE__, $display_errors );
 
         return $callback;
     }

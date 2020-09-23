@@ -7,7 +7,9 @@ use DateTimeInterface;
 class Location
     extends \WPGeonames\Entities\Location
 {
-    // protected properties
+// protected properties
+
+    /** @var string */
     protected static $timezoneClass = Timezone::class;
 
 
@@ -17,10 +19,10 @@ class Location
      * @return \Tbp\WP\Plugin\AcfFields\Entities\DateTime
      * @throws \Exception
      */
-    public function createDateTime($dateTimeString)
+    public function createDateTime( $dateTimeString )
     {
 
-        return new DateTime($dateTimeString, $this);
+        return new DateTime( $dateTimeString, $this );
     }
 
 
@@ -36,7 +38,7 @@ class Location
         $post_id = false
     ) {
 
-        return $this->createDateTime(get_field($selector, $post_id));
+        return $this->createDateTime( get_field( $selector, $post_id ) );
     }
 
 
@@ -53,7 +55,7 @@ class Location
         $locale = null
     ) {
 
-        return parent::format($dateTime, $format, $locale ?? static::currentLocale());
+        return parent::format( $dateTime, $format, $locale ?? static::currentLocale() );
     }
 
 
@@ -62,7 +64,7 @@ class Location
 
         static $wpml_locale = false;
 
-        if ($wpml_locale === false)
+        if ( $wpml_locale === false )
         {
             /**
              * test WPML info
@@ -70,7 +72,7 @@ class Location
              * @see https://wpml.org/documentation/support/wpml-coding-api/wpml-hooks-reference/#hook-605645
              * @var array
              */
-            $wpml = apply_filters('wpml_post_language_details', null);
+            $wpml = apply_filters( 'wpml_post_language_details', null );
 
             /**
              * array (

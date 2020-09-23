@@ -2,6 +2,7 @@
 
 namespace Tbp\WP\Plugin\AcfFields\Fields\v4;
 
+
 class Geoname
     extends \Tbp\WP\Plugin\AcfFields\Fields\Geoname
 {
@@ -17,15 +18,14 @@ class Geoname
     *  @date	23/01/13
     */
 
-
-    function __construct($settings)
+    function __construct( $settings )
     {
 
         // do not delete!
-        parent::__construct($settings);
+        parent::__construct( $settings );
 
         // overwrite v4-specific category
-        $this->category = __("Choice", 'tbp-acf-fields'); // Basic, Content, Choice, etc
+        $this->category = __( "Choice", 'tbp-acf-fields' ); // Basic, Content, Choice, etc
 
     }
 
@@ -43,8 +43,7 @@ class Geoname
     *  @param	$field	- an array holding all the field's data
     */
 
-
-    function create_field($field)
+    function create_field( $field )
     {
 
         // defaults?
@@ -75,8 +74,7 @@ class Geoname
     *  @date	23/01/13
     */
 
-
-    function create_options($field)
+    function create_options( $field )
     {
 
         // defaults?
@@ -93,9 +91,9 @@ class Geoname
         echo $this->name; ?>">
             <td class="label">
                 <label><?php
-                    _e("Preview Size", 'tbp-acf-fields'); ?></label>
+                    _e( "Preview Size", 'tbp-acf-fields' ); ?></label>
                 <p class="description"><?php
-                    _e("Thumbnail is advised", 'tbp-acf-fields'); ?></p>
+                    _e( "Thumbnail is advised", 'tbp-acf-fields' ); ?></p>
             </td>
             <td>
                 <?php
@@ -108,8 +106,8 @@ class Geoname
                         'value'   => $field['preview_size'],
                         'layout'  => 'horizontal',
                         'choices' => [
-                            'thumbnail'      => __('Thumbnail', 'tbp-acf-fields'),
-                            'something_else' => __('Something Else', 'tbp-acf-fields'),
+                            'thumbnail'      => __( 'Thumbnail', 'tbp-acf-fields' ),
+                            'something_else' => __( 'Something Else', 'tbp-acf-fields' ),
                         ],
                     ]
                 );

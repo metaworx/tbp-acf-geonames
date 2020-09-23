@@ -1,10 +1,13 @@
-<?php /** @noinspection PhpUnnecessaryLocalVariableInspection */
+<?php
+/** @noinspection PhpUnnecessaryLocalVariableInspection */
 
 namespace Tbp\WP\Plugin\AcfFields\Fields;
 
 use ErrorException;
 use Tbp\WP\Plugin\AcfFields\Entities\Location;
 use Tbp\WP\Plugin\AcfFields\Field;
+use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
+use Tbp\WP\Plugin\AcfFields\Plugin;
 use WPGeonames\ApiQuery;
 use WPGeonames\Core;
 
@@ -12,12 +15,12 @@ class Geoname
     extends Field
 {
 
-    // constants
+// constants
     public const CATEGORY = 'relational';
     public const LABEL    = 'Geo Names';
     public const NAME     = 'geoname';
 
-    // protected properties
+// protected properties
     protected static $filters;
     protected static $fieldSettings;
 
@@ -35,7 +38,7 @@ class Geoname
     *  @return	n/a
     */
 
-    public function __construct($settings = [])
+    public function __construct( $settings = [] )
     {
 
         /*
@@ -61,7 +64,22 @@ class Geoname
             ]
         );
 
-        parent::__construct($settings);
+        parent::__construct( $settings );
+
+        add_filter(
+            "tbp-acf-fields/facet/source/field/name=" . static::NAME,
+            [ $this, 'facetwp_facet_sources' ],
+            10,
+            3
+        );
+
+        add_filter(
+            "tbp-acf-fields/facet/index/type=" . static::NAME,
+            [ $this, 'facetwp_indexer_row_data' ],
+            10,
+            2
+        );
+
     }
 
 
@@ -75,8 +93,8 @@ class Geoname
                 'isSetting'         => true,
                 'type'              => 'true_false',
                 'name'              => 'habitation_only',
-                'caption'           => __("Habitations only", 'tbp-acf-fields'),
-                'label'             => __('Filter habitations only', 'tbp-acf-fields'),
+                'caption'           => __( "Habitations only", 'tbp-acf-fields' ),
+                'label'             => __( 'Filter habitations only', 'tbp-acf-fields' ),
                 'instructions'      => 'If selected, only locations denominating a habitation (city, town, village, etc.) will be in the list. (Feature codes: ' . implode(
                         ', ',
                         array_reduce(
@@ -84,8 +102,7 @@ class Geoname
                             static function (
                                 $carry,
                                 $item
-                            )
-                            {
+                            ) {
 
                                 return $carry + $item;
                             },
@@ -95,7 +112,7 @@ class Geoname
                 'allow_null'        => 0,
                 'default_value'     => true,
                 'ui'                => true,
-                'filterCallback'    => [$this, 'filterHabitationOnly'],
+                'filterCallback'    => [ $this, 'filterHabitationOnly' ],
                 'conditional_logic' => [
                     [
                         [
@@ -112,8 +129,8 @@ class Geoname
                 'isSetting'         => true,
                 'type'              => 'true_false',
                 'name'              => 'countries_only',
-                'caption'           => __("Countries only", 'tbp-acf-fields'),
-                'label'             => __('Filter countries only', 'tbp-acf-fields'),
+                'caption'           => __( "Countries only", 'tbp-acf-fields' ),
+                'label'             => __( 'Filter countries only', 'tbp-acf-fields' ),
                 'instructions'      => 'If selected, only locations denominating a country will be in the list. (Feature codes: ' . implode(
                         ', ',
                         array_reduce(
@@ -121,8 +138,7 @@ class Geoname
                             static function (
                                 $carry,
                                 $item
-                            )
-                            {
+                            ) {
 
                                 return $carry + $item;
                             },
@@ -132,7 +148,7 @@ class Geoname
                 'allow_null'        => 0,
                 'default_value'     => true,
                 'ui'                => true,
-                'filterCallback'    => [$this, 'filterCountriesOnly'],
+                'filterCallback'    => [ $this, 'filterCountriesOnly' ],
                 'conditional_logic' => [
                     [
                         [
@@ -149,18 +165,18 @@ class Geoname
                 'isSetting'         => true,
                 'type'              => 'select',
                 'name'              => 'feature_class',
-                'caption'           => __("Feature Class", 'tbp-acf-fields'),
-                'label'             => __('Filter by', 'tbp-acf-fields') . ' ' . __(
+                'caption'           => __( "Feature Class", 'tbp-acf-fields' ),
+                'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __(
                         'feature class',
                         'tbp-acf-fields'
                     ),
-                'select_label'      => __('Select', 'tbp-acf-fields') . ' ' . __('feature class', 'tbp-acf-fields'),
+                'select_label'      => __( 'Select', 'tbp-acf-fields' ) . ' ' . __( 'feature class', 'tbp-acf-fields' ),
                 'instructions'      => '',
-                'choices'           => [static::class, 'getFeatureClasses'],
+                'choices'           => [ static::class, 'getFeatureClasses' ],
                 'multiple'          => 1,
                 'ui'                => 1,
                 'allow_null'        => 1,
-                'placeholder'       => __("All feature classes", 'tbp-acf-fields'),
+                'placeholder'       => __( "All feature classes", 'tbp-acf-fields' ),
                 'conditional_logic' => [
                     [
                         [
@@ -182,15 +198,18 @@ class Geoname
                 'isSetting'         => true,
                 'type'              => 'select',
                 'name'              => 'feature_code',
-                'caption'           => __("Feature Code", 'tbp-acf-fields'),
-                'label'             => __('Filter by', 'tbp-acf-fields') . ' ' . __('Feature Code', 'tbp-acf-fields'),
-                'select_label'      => __('Select', 'tbp-acf-fields') . ' ' . __('Feature Code', 'tbp-acf-fields'),
+                'caption'           => __( "Feature Code", 'tbp-acf-fields' ),
+                'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __(
+                        'Feature Code',
+                        'tbp-acf-fields'
+                    ),
+                'select_label'      => __( 'Select', 'tbp-acf-fields' ) . ' ' . __( 'Feature Code', 'tbp-acf-fields' ),
                 'instructions'      => '',
-                'choices'           => [static::class, 'getFeatureCodes'],
+                'choices'           => [ static::class, 'getFeatureCodes' ],
                 'multiple'          => 1,
                 'ui'                => 1,
                 'allow_null'        => 1,
-                'placeholder'       => __("All feature codes", 'tbp-acf-fields'),
+                'placeholder'       => __( "All feature codes", 'tbp-acf-fields' ),
                 'conditional_logic' => [
                     [
                         [
@@ -212,15 +231,15 @@ class Geoname
                 'isSetting'         => true,
                 'name'              => 'country_code',
                 'type'              => 'select',
-                'caption'           => __("Country", 'tbp-acf-fields'),
-                'label'             => __('Filter by', 'tbp-acf-fields') . ' ' . __('country', 'tbp-acf-fields'),
-                'select_label'      => __("All countries", 'tbp-acf-fields'),
+                'caption'           => __( "Country", 'tbp-acf-fields' ),
+                'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __( 'country', 'tbp-acf-fields' ),
+                'select_label'      => __( "All countries", 'tbp-acf-fields' ),
                 'instructions'      => '',
-                'choices'           => [static::class, 'getCountryCodes'],
+                'choices'           => [ static::class, 'getCountryCodes' ],
                 'multiple'          => 1,
                 'ui'                => 1,
                 'allow_null'        => 1,
-                'placeholder'       => __("All countries", 'tbp-acf-fields'),
+                'placeholder'       => __( "All countries", 'tbp-acf-fields' ),
                 'conditional_logic' => [
                     [
                         [
@@ -236,10 +255,10 @@ class Geoname
             'search'          => [
                 'type'           => 'text',
                 'name'           => 'search',
-                'caption'        => __("Search", 'acf'),
-                'placeholder'    => __("Search...", 'acf'),
+                'caption'        => __( "Search", 'acf' ),
+                'placeholder'    => __( "Search...", 'acf' ),
                 'data-filter'    => 's',
-                'filterCallback' => [$this, 'filterSearch'],
+                'filterCallback' => [ $this, 'filterSearch' ],
             ],
 
         ];
@@ -250,7 +269,7 @@ class Geoname
             'one_filter_per_row' => [
                 'type'       => 'true_false',
                 'name'       => 'one_filter_per_row',
-                'label'      => __('Display one filter per row', 'tbp-acf-fields'),
+                'label'      => __( 'Display one filter per row', 'tbp-acf-fields' ),
                 'ui'         => 1,
                 'allow_null' => 0,
                 'default'    => false,
@@ -260,7 +279,7 @@ class Geoname
             'choice_on_new_line' => [
                 'type'       => 'true_false',
                 'name'       => 'choice_on_new_line',
-                'label'      => __('Display selected values on new line', 'tbp-acf-fields'),
+                'label'      => __( 'Display selected values on new line', 'tbp-acf-fields' ),
                 'ui'         => 1,
                 'allow_null' => 0,
                 'default'    => false,
@@ -269,7 +288,7 @@ class Geoname
             'selection_choices_display_instruction' => [
                 'type'       => 'true_false',
                 'name'       => 'selection_choices_display_instruction',
-                'label'      => __('Display instruction for available choices', 'tbp-acf-fields'),
+                'label'      => __( 'Display instruction for available choices', 'tbp-acf-fields' ),
                 'ui'         => 1,
                 'allow_null' => 0,
                 'default'    => 1,
@@ -278,9 +297,12 @@ class Geoname
             'selection_choices_instruction_text' => [
                 'type'              => 'text',
                 'name'              => 'selection_choices_instruction_text',
-                'label'             => __('Choices instructions', 'tbp-acf-fields'),
-                'instructions'      => __('This text is shown before the field', 'tbp-acf-fields'),
-                'placeholder'       => __('Click on one of the entries to add it to the selection.', 'tbp-acf-fields'),
+                'label'             => __( 'Choices instructions', 'tbp-acf-fields' ),
+                'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
+                'placeholder'       => __(
+                    'Click on one of the entries to add it to the selection.',
+                    'tbp-acf-fields'
+                ),
                 'allow_null'        => 1,
                 'default'           => null,
                 'conditional_logic' => [
@@ -297,7 +319,7 @@ class Geoname
             'selection_values_display_instruction' => [
                 'type'       => 'true_false',
                 'name'       => 'selection_values_display_instruction',
-                'label'      => __('Display instruction for selected values', 'tbp-acf-fields'),
+                'label'      => __( 'Display instruction for selected values', 'tbp-acf-fields' ),
                 'ui'         => 1,
                 'allow_null' => 0,
                 'default'    => 1,
@@ -306,8 +328,8 @@ class Geoname
             'selection_values_instruction_text' => [
                 'type'              => 'text',
                 'name'              => 'selection_values_instruction_text',
-                'label'             => __('Selection instructions', 'tbp-acf-fields'),
-                'instructions'      => __('This text is shown before the field', 'tbp-acf-fields'),
+                'label'             => __( 'Selection instructions', 'tbp-acf-fields' ),
+                'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
                 'placeholder'       => __(
                     'This is/are the current selected values. To remove an entry, click on the minus-symbol at the end of the line.',
                     'tbp-acf-fields'
@@ -329,7 +351,7 @@ class Geoname
             'min'                               => [
                 'type'         => 'number',
                 'name'         => 'min',
-                'label'        => __('Minimum locations', 'tbp-acf-fields'),
+                'label'        => __( 'Minimum locations', 'tbp-acf-fields' ),
                 'instructions' => '',
             ],
 
@@ -337,14 +359,14 @@ class Geoname
             'max'                               => [
                 'type'         => 'number',
                 'name'         => 'max',
-                'label'        => __('Maximum locations', 'tbp-acf-fields'),
+                'label'        => __( 'Maximum locations', 'tbp-acf-fields' ),
                 'instructions' => '',
             ],
 
             'replace_selected_value' => [
                 'type'              => 'true_false',
                 'name'              => 'replace_selected_value',
-                'label'             => __('Replace selected value', 'tbp-acf-fields'),
+                'label'             => __( 'Replace selected value', 'tbp-acf-fields' ),
                 'instructions'      => __(
                     'If there is only one choice allowed and this setting is set to true, the selected value is automatically replaced. If this setting is set to false, the user has to first remove the current selection.',
                     'tbp-acf-fields'
@@ -367,11 +389,11 @@ class Geoname
             'return_format'          => [
                 'type'         => 'radio',
                 'name'         => 'return_format',
-                'label'        => __('Return Format', 'acf'),
+                'label'        => __( 'Return Format', 'acf' ),
                 'instructions' => '',
                 'choices'      => [
-                    'object' => __("Geoname Location Object", 'tbp-acf-fields'),
-                    'id'     => __("Geoname ID", 'tbp-acf-fields'),
+                    'object' => __( "Geoname Location Object", 'tbp-acf-fields' ),
+                    'id'     => __( "Geoname ID", 'tbp-acf-fields' ),
                 ],
                 'layout'       => 'horizontal',
             ],
@@ -382,33 +404,37 @@ class Geoname
         *  var message = acf._e('geoname', 'error');
         */
         $this->l10n = [
-            'error' => __('Error! Please enter a higher value', 'tbp-acf-fields'),
+            'error' => __( 'Error! Please enter a higher value', 'tbp-acf-fields' ),
         ];
 
         // extra
-        add_action('wp_ajax_acf/fields/geoname/query', [$this, 'ajax_query']);
-        add_action('wp_ajax_nopriv_acf/fields/geoname/query', [$this, 'ajax_query']);
+        add_action( 'wp_ajax_acf/fields/geoname/query', [ $this, 'ajax_query' ] );
+        add_action( 'wp_ajax_nopriv_acf/fields/geoname/query', [ $this, 'ajax_query' ] );
 
         array_walk(
             self::$filters,
             static function (
                 $filterSettings,
                 $filter
-            )
-            {
+            ) {
 
-                if (array_key_exists('filterCallback', $filterSettings) && $filterSettings['filterCallback'] === false)
+                if ( array_key_exists(
+                        'filterCallback',
+                        $filterSettings
+                    )
+                    && $filterSettings['filterCallback'] === false )
                 {
                     return;
                 }
 
                 add_filter(
                     "acf/fields/geoname/filter/name=$filter",
-                    array_key_exists('filterCallback', $filterSettings) && is_callable(
+                    array_key_exists( 'filterCallback', $filterSettings )
+                    && is_callable(
                         $filterSettings['filterCallback']
                     )
                         ? $filterSettings['filterCallback']
-                        : [static::class, 'filterDefault'],
+                        : [ static::class, 'filterDefault' ],
                     10,
                     2
                 );
@@ -430,13 +456,13 @@ class Geoname
      * @return    array|false
      * @throws \ErrorException
      */
-    public function getData($options = [])
+    public function getData( $options = [] )
     {
 
         // load field
-        $field = acf_get_field($options['field_key']);
+        $field = acf_get_field( $options['field_key'] );
 
-        if (!$field)
+        if ( ! $field )
         {
             return false;
         }
@@ -454,16 +480,16 @@ class Geoname
             'is_search'     => false,
         ];
 
-        $options = wp_parse_args($options, $defaults);
+        $options = wp_parse_args( $options, $defaults );
 
         // vars
         $args = [];
 
         // paged
         $args['maxRows'] = 20;
-        $args['paged']   = (int)$options['paged'];
+        $args['paged']   = (int) $options['paged'];
 
-        $context = (object)[
+        $context = (object) [
             'field'          => &$field,
             'filters'        => static::getFilterDefinitions(),
             'options'        => &$options,
@@ -472,23 +498,24 @@ class Geoname
         ];
 
         // filters
-        while (($context->filter = key($context->filters)) && ($context->filterSettings = array_shift(
+        while ( ( $context->filter = key( $context->filters ) )
+            && ( $context->filterSettings = array_shift(
                 $context->filters
-            )))
+            ) ) )
         {
 
-            $args = apply_filters("acf/fields/geoname/filter/name={$context->filter}", $args, $context);
+            $args = apply_filters( "acf/fields/geoname/filter/name={$context->filter}", $args, $context );
         }
 
-        $args = apply_filters('acf/fields/geoname/query', $args, $field, $options);
-        $args = apply_filters('acf/fields/geoname/query/name=' . $field['name'], $args, $field);
-        $args = apply_filters('acf/fields/geoname/query/key=' . $field['key'], $args, $field, $options);
+        $args = apply_filters( 'acf/fields/geoname/query', $args, $field, $options );
+        $args = apply_filters( 'acf/fields/geoname/query/name=' . $field['name'], $args, $field );
+        $args = apply_filters( 'acf/fields/geoname/query/key=' . $field['key'], $args, $field, $options );
 
         // get locations grouped by top most ancestor
-        $locations = Core::getLiveSearch($args, Location::class);
+        $locations = Core::getLiveSearch( $args, Location::class );
 
         // bail early if no posts
-        if (empty($locations))
+        if ( empty( $locations ) )
         {
             return false;
         }
@@ -498,12 +525,12 @@ class Geoname
 
         // loop
         /** @var Location $location */
-        while (($location = array_shift($locations)) && count($results) <= $args['maxRows'] ?? 20)
+        while ( ( $location = array_shift( $locations ) ) && count( $results ) <= $args['maxRows'] ?? 20 )
         {
 
             $entry = [
                 'id'   => $location->geonameId,
-                'text' => sprintf('%s, %s', $location->name, $location->country->iso2),
+                'text' => sprintf( '%s, %s', $location->name, $location->country->iso2 ),
             ];
 
             // append to $results
@@ -512,7 +539,7 @@ class Geoname
 
         // vars
         $response = [
-            'results' => array_values($results),
+            'results' => array_values( $results ),
             'limit'   => $args['maxRows'],
         ];
 
@@ -535,7 +562,150 @@ class Geoname
     {
 
         // get choices
-        return $this->getData($_POST);
+        return $this->getData( $_POST );
+    }
+
+
+    /**
+     * Add ACF fields to the Data Sources dropdown
+     *
+     * @param                                  $sources
+     * @param  \Tbp\WP\Plugin\AcfFields\Field  $field
+     * @param  array                           $acfFields
+     *
+     * @return array
+     * @noinspection PhpUnusedParameterInspection
+     */
+    public function facetwp_facet_sources(
+        $sources,
+        Field $field,
+        array $acfFields
+    ): array {
+
+        array_walk(
+        /**
+         * @param  array   $field
+         * @param  string  $key
+         */
+            $acfFields,
+            static function (
+                $field,
+                $key
+            ) use
+            (
+                &
+                $sources
+            )
+            {
+
+                // get information from the current source
+                $field_id    = $field['hierarchy'];
+                $field_label = $sources['acf']['choices']["acf/$field_id"] ?? null;
+
+                if ( $field_label === null )
+                {
+                    return;
+                }
+
+                // remove the native acf entry
+                unset ( $sources['acf']['choices']["acf/$field_id"] );
+
+                // re-insert as our own entry
+                foreach (
+                    [
+                        'name'    => '',
+                        'country' => sprintf( ' [%s] ', __( 'by country', Plugin::TEXT_DOMAIN ) ),
+                        'admin1'  => sprintf( ' [%s] ', __( 'by 1st admin', Plugin::TEXT_DOMAIN ) ),
+                    ]
+                    as $property => $label
+                )
+                {
+
+                    $field_id                               = sprintf(
+                        '%s/%s/%s/%s',
+                        FacetWP::SOURCE_IDENTIFIER,
+                        static::NAME,
+                        $property,
+                        $field['hierarchy']
+                    );
+                    $sources['acf']['choices'][ $field_id ] = $field_label . $label;
+                }
+            }
+        );
+
+//        echo "<pre>\n";
+//        print_r($sources['acf']);
+//        echo "</pre>\n";
+
+        return $sources;
+    }
+
+
+    /**
+     * Add ACF fields to the Data Sources dropdown
+     *
+     * This function is not called directly by FacetWP, but from
+     * \Tbp\WP\Plugin\AcfFields\Integration\FacetWP::facetwp_indexer_row_data
+     *
+     * @param  array  $rows
+     * @param  array  $params
+     *
+     * @return array
+     */
+    public function facetwp_indexer_row_data(
+        array &$rows,
+        array &$params
+    ) {
+
+        $field = $params['source']->field;
+        /*
+        $post  = get_post( $params['defaults']['post_id'] );
+
+        if ( $post->post_type === 'events' )
+        {
+            echo '';
+        }
+        */
+
+        if ( empty( $field['value'] ) )
+        {
+            $row                        = $params['defaults'];
+            $row['facet_value']         = 0;
+            $row['facet_display_value'] = 'N/A';
+
+            $rows[] = $row;
+
+            return $rows;
+        }
+
+        $locations = Location::load( (array) $field['value'] );
+
+        array_walk(
+            $locations,
+            static function ( Location $location ) use
+            (
+                &
+                $rows,
+                &
+                $params
+            )
+            {
+
+                $row                        = $params['defaults'];
+                $row['facet_value']         = $location->getGeonameId();
+                $row['facet_display_value'] = $location->getAsciiName();
+
+                $rows[] = $row;
+
+//                $row                        = $params['defaults'];
+//                $row['facet_value']         = $location->getGeonameId();
+//                $row['facet_display_value'] = $location->getAsciiName();
+//
+//                $rows[] = $row;
+            }
+        );
+
+        return $rows;
     }
 
 
@@ -584,23 +754,22 @@ class Geoname
         object $context
     ): array {
 
-        if ($context->field['countries_only'])
+        if ( $context->field['countries_only'] )
         {
-            $args ['feature_class'] = array_keys(Core::FEATURE_FILTERS['countriesOnly']);
+            $args ['feature_class'] = array_keys( Core::FEATURE_FILTERS['countriesOnly'] );
             $args ['feature_code']  = array_reduce(
                 Core::FEATURE_FILTERS['countriesOnly'],
                 static function (
                     $carry,
                     $item
-                )
-                {
+                ) {
 
                     return $carry + $item;
                 },
                 []
             );
 
-            unset ($context->filters['feature_class'], $context->filters['feature_code'], $context->filters['habitation_only']);
+            unset ( $context->filters['feature_class'], $context->filters['feature_code'], $context->filters['habitation_only'] );
         }
 
         return $args;
@@ -618,23 +787,22 @@ class Geoname
         object $context
     ): array {
 
-        if ($context->field['habitation_only'] ?? false)
+        if ( $context->field['habitation_only'] ?? false )
         {
-            $args ['feature_class'] = array_keys(Core::FEATURE_FILTERS['habitationOnly']);
+            $args ['feature_class'] = array_keys( Core::FEATURE_FILTERS['habitationOnly'] );
             $args ['feature_code']  = array_reduce(
                 Core::FEATURE_FILTERS['habitationOnly'],
                 static function (
                     $carry,
                     $item
-                )
-                {
+                ) {
 
                     return $carry + $item;
                 },
                 []
             );
 
-            unset ($context->filters['feature_class'], $context->filters['feature_code'], $context->filters['countries_only']);
+            unset ( $context->filters['feature_class'], $context->filters['feature_code'], $context->filters['countries_only'] );
         }
 
         return $args;
@@ -653,11 +821,11 @@ class Geoname
     ): array {
 
         // search
-        if ($context->options['s'] !== '')
+        if ( $context->options['s'] !== '' )
         {
 
             // strip slashes (search may be integer)
-            $s = wp_unslash((string)$context->options['s']);
+            $s = wp_unslash( (string) $context->options['s'] );
 
             // update vars
             $args['s']                     = $s;
@@ -698,16 +866,16 @@ class Geoname
     ) {
 
         // bail early if no value
-        if (empty($value) || !array_key_exists('return_format', $field))
+        if ( empty( $value ) || ! array_key_exists( 'return_format', $field ) )
         {
 
             return $value;
         }
 
-        switch ($field['return_format'])
+        switch ( $field['return_format'] )
         {
         case 'object':
-            $value = Location::load($value);
+            $value = Location::load( $value );
         }
 
         // return
@@ -733,12 +901,12 @@ class Geoname
         $version = $this->settings['version'];
 
         // register & include JS
-        wp_register_script('tbp-acf-fields', "{$url}assets/js/input.js", ['acf-input'], $version);
-        wp_enqueue_script('tbp-acf-fields');
+        wp_register_script( 'tbp-acf-fields', "{$url}assets/js/input.js", [ 'acf-input' ], $version );
+        wp_enqueue_script( 'tbp-acf-fields' );
 
         // register & include CSS
-        wp_register_style('tbp-acf-fields', "{$url}assets/css/input.css", ['acf-input'], $version);
-        wp_enqueue_style('tbp-acf-fields');
+        wp_register_style( 'tbp-acf-fields', "{$url}assets/css/input.css", [ 'acf-input' ], $version );
+        wp_enqueue_style( 'tbp-acf-fields' );
     }
 
 
@@ -788,7 +956,7 @@ class Geoname
      *
      * @return array         $field
      */
-    public function load_field(array $field): array
+    public function load_field( array $field ): array
     {
 
         return $field;
@@ -835,15 +1003,15 @@ class Geoname
      *
      * @throws \ErrorException
      */
-    public function render_field($field)
+    public function render_field( $field )
     {
 
         // field settings
         $fieldSettings = static::getFieldSettingDefinitions();
 
         // filters
-        $filters      = static::getFilterDefinitions(acf_get_array($field['filters']));
-        $filter_count = count($filters);
+        $filters      = static::getFilterDefinitions( acf_get_array( $field['filters'] ) );
+        $filter_count = count( $filters );
 
         // div attributes
         $attributes = [
@@ -854,7 +1022,7 @@ class Geoname
             'data-paged' => 1,
         ];
 
-        if ($field['max'] === 1)
+        if ( $field['max'] === 1 )
         {
             $attributes['data-replace-selected'] = $field['replace_selected_value']
                 ? 1
@@ -863,29 +1031,29 @@ class Geoname
 
         array_walk(
             $filters,
-            static function (&$filter) use
+            static function ( &$filter ) use
             (
                 &
                 $attributes
             )
             {
 
-                $filter['data-filter']                        = $filter['data-filter'] ?? $filter['name'];
-                $attributes['data-' . $filter['data-filter']] = '';
+                $filter['data-filter']                          = $filter['data-filter'] ?? $filter['name'];
+                $attributes[ 'data-' . $filter['data-filter'] ] = '';
             }
         );
 
         ?>
         <div <?php
-        echo acf_esc_attrs($attributes); ?>>
+        echo acf_esc_attrs( $attributes ); ?>>
 
             <?php
-            acf_hidden_input(['name' => $field['name'], 'value' => '']); ?>
+            acf_hidden_input( [ 'name' => $field['name'], 'value' => '' ] ); ?>
 
             <?php
 
             /* filters */
-            if ($filter_count)
+            if ( $filter_count )
             {
                 ?>
                 <div class="filters -f<?php
@@ -894,22 +1062,22 @@ class Geoname
                     : $filter_count; ?>">
                     <?php
 
-                    foreach ($filters as $filter => $filterSettings)
+                    foreach ( $filters as $filter => $filterSettings )
                     {
                         ?>
                         <div class="filter-instruction -<?php
-                        echo esc_attr($filter); ?>"><?php
+                        echo esc_attr( $filter ); ?>"><?php
 
-                            if ($field[$filter . '_display_instruction'])
+                            if ( $field[ $filter . '_display_instruction' ] )
                             {
-                                echo $field[$filter . '_instruction_text'] ?? $filterSettings['instructions'];
+                                echo $field[ $filter . '_instruction_text' ] ?? $filterSettings['instructions'];
                             }
                             ?></div>
                         <div class="filter -<?php
-                        echo esc_attr($filter); ?>">
+                        echo esc_attr( $filter ); ?>">
                             <?php
 
-                            switch ($filterSettings['type'])
+                            switch ( $filterSettings['type'] )
                             {
                             case 'text':
                                 $function = 'acf_text_input';
@@ -922,12 +1090,12 @@ class Geoname
                                     ]
                                     + call_user_func_array(
                                         $filterSettings['choices'],
-                                        [acf_get_array($field[$filter])]
+                                        [ acf_get_array( $field[ $filter ] ) ]
                                     );
                                 break;
 
                             default:
-                                throw new ErrorException("unknown filter input type $filter");
+                                throw new ErrorException( "unknown filter input type $filter" );
                             }
 
                             call_user_func_array(
@@ -956,10 +1124,10 @@ class Geoname
                 <?php
             }
 
-            $width  = ($field['choice_on_new_line'] ?? false)
+            $width  = ( $field['choice_on_new_line'] ?? false )
                 ? 100
                 : 50;
-            $height = ($width === 100 && (int)($field['max'] ?? 0) === 1)
+            $height = ( $width === 100 && (int) ( $field['max'] ?? 0 ) === 1 )
                 ? 'single-line'
                 : '';
 
@@ -968,7 +1136,7 @@ class Geoname
             <div class="selection">
                 <div class="selection-instruction choices-instruction"><?php
 
-                    if ($field['selection_choices_display_instruction'])
+                    if ( $field['selection_choices_display_instruction'] )
                     {
                         echo $field['selection_choices_instruction_text']
                             ?: $fieldSettings['selection_choices_instruction_text']['placeholder'];
@@ -980,7 +1148,7 @@ class Geoname
                 </div>
                 <div class="selection-instruction values-instruction"><?php
 
-                    if ($field['selection_values_display_instruction'])
+                    if ( $field['selection_values_display_instruction'] )
                     {
                         echo $field['selection_values_instruction_text']
                             ?: $fieldSettings['selection_values_instruction_text']['placeholder'];
@@ -991,15 +1159,15 @@ class Geoname
                     <ul class="acf-bl list values-list <?php
                     echo $height; ?>">
                         <?php
-                        if (!empty($field['value']))
+                        if ( ! empty( $field['value'] ) )
                         {
 
                             // get posts
-                            $locations = Location::load($field['value']);
+                            $locations = Location::load( $field['value'] );
 
                             // loop
                             /** @var Location $location */
-                            foreach ($locations as $location)
+                            foreach ( $locations as $location )
                             {
                                 $dataId  = $location->geonameId;
                                 $caption = $location->name . ', ' . $location->countryCode;
@@ -1021,8 +1189,8 @@ HTML
                                             'value' => $dataId,
                                         ]
                                     ),
-                                    esc_attr($dataId),
-                                    acf_esc_html($caption)
+                                    esc_attr( $dataId ),
+                                    acf_esc_html( $caption )
                                 );
                             }
                         } ?>
@@ -1047,24 +1215,24 @@ HTML
      *
      * @return    void
      */
-    public function render_field_settings(array $field)
+    public function render_field_settings( array $field )
     {
 
         // vars
-        $field['min']  = empty($field['min'])
+        $field['min']  = empty( $field['min'] )
             ? ''
             : $field['min'];
-        $field['max']  = empty($field['max'])
+        $field['max']  = empty( $field['max'] )
             ? ''
             : $field['max'];
         $filterChoices = [];
 
-        foreach (self::getFilterDefinitions() as $filter => $setting)
+        foreach ( self::getFilterDefinitions() as $filter => $setting )
         {
 
-            $filterChoices[$filter] = $setting['caption'];
+            $filterChoices[ $filter ] = $setting['caption'];
 
-            if (array_key_exists('choices', $setting) && is_callable($setting['choices']))
+            if ( array_key_exists( 'choices', $setting ) && is_callable( $setting['choices'] ) )
             {
                 $setting['choices'] = $setting['choices']();
             }
@@ -1080,9 +1248,9 @@ HTML
                     <table class="acf-table">
                         <?php
 
-                        if ($setting['isSetting'] ?? false)
+                        if ( $setting['isSetting'] ?? false )
                         {
-                            acf_render_field_setting($field, $setting);
+                            acf_render_field_setting( $field, $setting );
                         }
 
                         $logic = $setting['conditional_logic'] ?? [];
@@ -1092,7 +1260,7 @@ HTML
                             [
                                 'type'              => 'true_false',
                                 'name'              => $filter . '_display_instruction',
-                                'label'             => __('Display instruction', 'tbp-acf-fields'),
+                                'label'             => __( 'Display instruction', 'tbp-acf-fields' ),
                                 'ui'                => 1,
                                 'allow_null'        => 0,
                                 'default'           => 1,
@@ -1100,14 +1268,14 @@ HTML
                             ]
                         );
 
-                        if (empty($logic))
+                        if ( empty( $logic ) )
                         {
-                            $logic = [[]];
+                            $logic = [ [] ];
                         }
 
                         array_walk(
                             $logic,
-                            static function (&$condition) use
+                            static function ( &$condition ) use
                             (
                                 $filter
                             )
@@ -1128,8 +1296,8 @@ HTML
                             [
                                 'type'              => 'text',
                                 'name'              => $filter . '_instruction_text',
-                                'label'             => __('Filter instructions', 'tbp-acf-fields'),
-                                'instructions'      => __('This text is shown before the field', 'tbp-acf-fields'),
+                                'label'             => __( 'Filter instructions', 'tbp-acf-fields' ),
+                                'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
                                 'placeholder'       => $setting['instructions'],
                                 'conditional_logic' => $logic,
                             ]
@@ -1148,7 +1316,7 @@ HTML
                 'isSetting'    => true,
                 'name'         => 'filters',
                 'type'         => 'checkbox',
-                'label'        => __('Filters', 'acf'),
+                'label'        => __( 'Filters', 'acf' ),
                 'instructions' => '',
                 'choices'      => $filterChoices,
             ]
@@ -1156,9 +1324,9 @@ HTML
 
         $searchTypes = [];
 
-        foreach (ApiQuery::SEARCH_TYPES as $searchTypeBitmask => $searchTypeName)
+        foreach ( ApiQuery::SEARCH_TYPES as $searchTypeBitmask => $searchTypeName )
         {
-            $searchTypes[$searchTypeBitmask] = __($searchTypeName, 'tbp-acf-fields');
+            $searchTypes[ $searchTypeBitmask ] = __( $searchTypeName, 'tbp-acf-fields' );
         }
 
         acf_render_field_setting(
@@ -1167,7 +1335,7 @@ HTML
                 'isSetting'    => true,
                 'name'         => 'searchTypeDefaults',
                 'type'         => 'checkbox',
-                'label'        => __('Default search mode', 'tbp-acf-fields'),
+                'label'        => __( 'Default search mode', 'tbp-acf-fields' ),
                 'instructions' => '',
                 'choices'      => $searchTypes,
             ]
@@ -1178,8 +1346,8 @@ HTML
             [
                 'type'         => 'true_false',
                 'name'         => 'searchTypesAllowUser',
-                'label'        => __('User-defined Search Mode', 'tbp-acf-fields'),
-                'instructions' => __('Allow user to select from the following search types.', 'tbp-acf-fields'),
+                'label'        => __( 'User-defined Search Mode', 'tbp-acf-fields' ),
+                'instructions' => __( 'Allow user to select from the following search types.', 'tbp-acf-fields' ),
                 'ui'           => 1,
                 'allow_null'   => 0,
                 'default'      => 0,
@@ -1192,8 +1360,8 @@ HTML
                 'isSetting'         => true,
                 'name'              => 'searchTypeUserEditable',
                 'type'              => 'checkbox',
-                'label'             => __('Available Search Modes', 'tbp-acf-fields'),
-                'instructions'      => __('Allow user to select from these search modes.', 'tbp-acf-fields'),
+                'label'             => __( 'Available Search Modes', 'tbp-acf-fields' ),
+                'instructions'      => __( 'Allow user to select from these search modes.', 'tbp-acf-fields' ),
                 'choices'           => $searchTypes,
                 'conditional_logic' => [
                     [
@@ -1206,10 +1374,10 @@ HTML
             ]
         );
 
-        foreach (self::getFieldSettingDefinitions() as $fieldName => $setting)
+        foreach ( self::getFieldSettingDefinitions() as $fieldName => $setting )
         {
 
-            acf_render_field_setting($field, $setting);
+            acf_render_field_setting( $field, $setting );
         }
 
     }
@@ -1228,7 +1396,7 @@ HTML
      *
      * @return  array       $field
      */
-    public function update_field(array $field): array
+    public function update_field( array $field ): array
     {
 
         return $field;
@@ -1274,7 +1442,7 @@ HTML
         $formatter = null
     ): array {
 
-        if (is_array($choices) && is_string(key($choices)))
+        if ( is_array( $choices ) && is_string( key( $choices ) ) )
         {
             return $choices;
         }
@@ -1282,9 +1450,9 @@ HTML
         // get all country codes
         $all = $getter();
 
-        if (!empty($choices))
+        if ( ! empty( $choices ) )
         {
-            $choices = array_intersect_key($all, array_flip($choices));
+            $choices = array_intersect_key( $all, array_flip( $choices ) );
         }
         else
         {
@@ -1297,8 +1465,7 @@ HTML
                 ?: static function (
                 &$caption,
                 $key
-            )
-            {
+            ) {
 
                 $caption = "$key: $caption";
             }
@@ -1319,22 +1486,22 @@ HTML
         object $context
     ): array {
 
-        $filters = acf_get_array($context->field['filters']);
+        $filters = acf_get_array( $context->field['filters'] );
 
-        if (!empty($context->options[$context->filter]) && in_array($context->filter, $filters, true))
+        if ( ! empty( $context->options[ $context->filter ] ) && in_array( $context->filter, $filters, true ) )
         {
 
-            $args[$context->filter] = acf_get_array($context->options[$context->filter]);
+            $args[ $context->filter ] = acf_get_array( $context->options[ $context->filter ] );
         }
-        elseif (!empty($context->field[$context->filter]))
+        elseif ( ! empty( $context->field[ $context->filter ] ) )
         {
 
-            $args[$context->filter] = acf_get_array($context->field[$context->filter]);
+            $args[ $context->filter ] = acf_get_array( $context->field[ $context->filter ] );
         }
         else
         {
 
-            $args[$context->filter] = null; // call_user_func( $getter );
+            $args[ $context->filter ] = null; // call_user_func( $getter );
 
         }
 
@@ -1347,10 +1514,10 @@ HTML
      *
      * @return array
      */
-    public static function getCountryCodes($country_codes = []): array
+    public static function getCountryCodes( $country_codes = [] ): array
     {
 
-        return self::checkChoices($country_codes, [Core::class, 'getCountryCodes']);
+        return self::checkChoices( $country_codes, [ Core::class, 'getCountryCodes' ] );
     }
 
 
@@ -1360,50 +1527,50 @@ HTML
         $key
     ) {
 
-        switch (true)
+        switch ( true )
         {
         case $key === null:
             // no key given, return all keys
             return $array;
 
-        case is_string($key):
+        case is_string( $key ):
             // key is a single key name
-            return $array[$key];
+            return $array[ $key ];
 
-        case is_array($key):
+        case is_array( $key ):
 
             // key is given, but empty. Return empty array
-            if (empty($key))
+            if ( empty( $key ) )
             {
                 return [];
             }
 
             // key is a list of field names
-            if (!is_string(key($key)))
+            if ( ! is_string( key( $key ) ) )
             {
 
-                return array_intersect_key($array, array_flip($key));
+                return array_intersect_key( $array, array_flip( $key ) );
             }
 
             // key is a set of properties to match
             return array_filter(
                 $array,
-                static function (&$item) use
+                static function ( &$item ) use
                 (
                     &
                     $key
                 )
                 {
 
-                    foreach (array_keys($key) as $key)
+                    foreach ( array_keys( $key ) as $key )
                     {
 
-                        if (!array_key_exists($key, $item))/**/
+                        if ( ! array_key_exists( $key, $item ) )/**/
                         {
                             return false;
                         }
 
-                        if ($item[$key] !== $key[$key])
+                        if ( $item[ $key ] !== $key[ $key ] )
                         {
                             return false;
                         }
@@ -1418,32 +1585,32 @@ HTML
     }
 
 
-    public static function getFeatureClasses($feature_classes = []): array
+    public static function getFeatureClasses( $feature_classes = [] ): array
     {
 
-        return self::checkChoices($feature_classes, [Core::class, 'getFeatureClasses']);
+        return self::checkChoices( $feature_classes, [ Core::class, 'getFeatureClasses' ] );
     }
 
 
-    public static function getFeatureCodes($feature_codes = []): array
+    public static function getFeatureCodes( $feature_codes = [] ): array
     {
 
-        return self::checkChoices($feature_codes, [Core::class, 'getFeatureCodes']);
+        return self::checkChoices( $feature_codes, [ Core::class, 'getFeatureCodes' ] );
     }
 
 
-    public static function getFieldSettingDefinitions($setting = null)
+    public static function getFieldSettingDefinitions( $setting = null )
     {
 
-        return self::getDefinitions(self::$fieldSettings, $setting);
+        return self::getDefinitions( self::$fieldSettings, $setting );
 
     }
 
 
-    public static function getFilterDefinitions($filter = null)
+    public static function getFilterDefinitions( $filter = null )
     {
 
-        return self::getDefinitions(self::$filters, $filter);
+        return self::getDefinitions( self::$filters, $filter );
     }
 
 }

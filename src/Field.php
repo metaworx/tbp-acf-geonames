@@ -9,18 +9,21 @@ use WP_Error;
 abstract class Field
     extends acf_field
 {
-    // constants
+
+// constants
     public const CATEGORY = 'basic';
     public const LABEL    = 'TBP Field';
     public const NAME     = 'tbp_field';
 
-    // protected properties
+// protected properties
+
+    /** @var static */
     protected static $instance;
 
     protected $settings = [];  // will hold info such as dir / path
 
 
-    public function __construct($settings = [])
+    public function __construct( $settings = [] )
     {
 
         /*
@@ -31,7 +34,7 @@ abstract class Field
         /*
         *  label (string) Multiple words, can include spaces, visible when selecting a field type
         */
-        $this->label = $settings['field_label'] ?? __(static::LABEL, 'tbp-acf-fields');
+        $this->label = $settings['field_label'] ?? __( static::LABEL, 'tbp-acf-fields' );
 
         /*
         *  category (string) basic | content | choice | relational | jquery | layout | CUSTOM GROUP NAME
@@ -87,7 +90,7 @@ abstract class Field
             $report  = error_reporting() & $errno;
             $message = '';
 
-            switch (true)
+            switch ( true )
             {
             case $errno & E_USER_ERROR:
                 $code    = 'ERROR';
@@ -113,36 +116,37 @@ abstract class Field
             $message .= "  Error on line $errLine in file $errFile";
             $message .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")\n";
 
-            if (true || $report)
+            if ( true || $report )
             {
-                error_log($message, $errno);
+                /** @noinspection ForgottenDebugOutputInspection */
+                error_log( $message, $errno );
             }
 
-            if (true && $errno = E_USER_ERROR)
+            if ( true && $errno = E_USER_ERROR )
             {
                 wp_send_json_error(
-                    new WP_Error(strtolower($code), $message),
+                    new WP_Error( strtolower( $code ), $message ),
                     503
                 );
             }
 
-            return $oldErrorHandler($errno, $errString, $errFile, $errLine);
+            return $oldErrorHandler( $errno, $errString, $errFile, $errLine );
         };
 
-        $myExceptionHandler = static function (Throwable $e) use
+        $myExceptionHandler = static function ( Throwable $e ) use
         (
             $myErrorHandler
         )
         {
 
-            $myErrorHandler(E_USER_ERROR, $e->getMessage(), $e->getFile(), $e->getLine());
+            $myErrorHandler( E_USER_ERROR, $e->getMessage(), $e->getFile(), $e->getLine() );
         };
 
-        $oldErrorHandler     = set_error_handler($myErrorHandler);
-        $oldExceptionHandler = set_exception_handler($myExceptionHandler);
+        $oldErrorHandler     = set_error_handler( $myErrorHandler );
+        $oldExceptionHandler = set_exception_handler( $myExceptionHandler );
 
         // validate ajax request
-        if (!acf_verify_ajax())
+        if ( ! acf_verify_ajax() )
         {
             trigger_error(
                 'unable to verify acf ajax request',
@@ -154,7 +158,7 @@ abstract class Field
         $response = $this->ajax_query_helper();
 
         // return
-        acf_send_ajax_results($response);
+        acf_send_ajax_results( $response );
     }
 
 
@@ -173,16 +177,16 @@ abstract class Field
      *
      * @method-type    action
      */
-    public function render_field($field)
+    public function render_field( $field )
     {
     }
 
 
-    public static function Factory($settings): self
+    public static function Factory( $settings ): self
     {
 
         return self::$instance
-            ?: self::$instance = new static($settings);
+            ?: self::$instance = new static( $settings );
     }
 
 }
