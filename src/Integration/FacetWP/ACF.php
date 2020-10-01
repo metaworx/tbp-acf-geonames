@@ -3,8 +3,11 @@
 namespace Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
 
 class ACF
-    extends \FacetWP_Integration_ACF
+    extends
+    \FacetWP_Integration_ACF
 {
+
+//  public properties
 
     /** @var array */
     public $types = [];

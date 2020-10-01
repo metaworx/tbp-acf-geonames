@@ -4,7 +4,8 @@ namespace Tbp\WP\Plugin\AcfFields\Fields\v4;
 
 
 class Geoname
-    extends \Tbp\WP\Plugin\AcfFields\Fields\Geoname
+    extends
+    \Tbp\WP\Plugin\AcfFields\Fields\Geoname
 {
 
 //  public properties

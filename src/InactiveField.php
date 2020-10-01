@@ -3,7 +3,8 @@
 namespace Tbp\WP\Plugin\AcfFields;
 
 class InactiveField
-    extends Field
+    extends
+    Field
 {
 
     protected function ajax_query_helper()
@@ -35,7 +36,12 @@ class InactiveField
         ];
 
         printf( '<div %s', acf_esc_attrs( $attributes ) );
-        acf_hidden_input( [ 'name' => $field['name'], 'value' => $field['value'] ?? '' ] );
+        acf_hidden_input(
+            [
+                'name'  => $field['name'],
+                'value' => $field['value'] ?? '',
+            ]
+        );
 
         printf( '<p><strong>%s</strong></p>', $this->settings['inactive_reason'] );
 

@@ -75,11 +75,37 @@ class Plugin
         self::$pluginFile     = $file;
         self::$missingPlugins = $missingPlugins;
 
-        register_activation_hook( $this->get_plugin_file(), [ $this, 'activate' ] );
-        register_deactivation_hook( $this->get_plugin_file(), [ $this, 'deactivate' ] );
-        register_uninstall_hook( $this->get_plugin_file(), [ __CLASS__, 'uninstall' ] );
+        register_activation_hook(
+            $this->get_plugin_file(),
+            [
+                $this,
+                'activate',
+            ]
+        );
 
-        add_action( 'admin_init', [ $this, 'maybe_upgrade' ] );
+        register_deactivation_hook(
+            $this->get_plugin_file(),
+            [
+                $this,
+                'deactivate',
+            ]
+        );
+
+        register_uninstall_hook(
+            $this->get_plugin_file(),
+            [
+                __CLASS__,
+                'uninstall',
+            ]
+        );
+
+        add_action(
+            'admin_init',
+            [
+                $this,
+                'maybe_upgrade',
+            ]
+        );
 
         // settings
         // - these will be passed into the field class.
@@ -90,8 +116,21 @@ class Plugin
         ];
 
         // include field
-        add_action( 'acf/include_field_types', [ $this, 'include_field' ] ); // v5
-        add_action( 'acf/register_fields', [ $this, 'include_field' ] ); // v4
+        add_action(
+            'acf/include_field_types',
+            [
+                $this,
+                'include_field',
+            ]
+        ); // v5
+
+        add_action(
+            'acf/register_fields',
+            [
+                $this,
+                'include_field',
+            ]
+        ); // v4
 
         if ( ! array_key_exists( 'facetwp/index.php', self::$missingPlugins ) )
             // use low priority (>10) to make sure ACF has already loaded

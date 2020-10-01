@@ -9,8 +9,10 @@ use Tbp\WP\Plugin\AcfFields\Plugin;
 class FacetWP
 {
 
+// constants
     public const SOURCE_IDENTIFIER = 'tbp-acf';
 
+// protected properties
     /** @var \Tbp\WP\Plugin\AcfFields\Integration\FacetWP\ACF|null */
     static protected $facetAcf;
 
@@ -22,9 +24,31 @@ class FacetWP
     {
 
         // load the filters only in case we really need them
-        add_filter( 'facetwp_load_assets', [ $this, 'registerFilers' ] );
-        add_filter( 'facetwp_facet_sources', [ $this, 'registerFilers' ], 2 );
-        add_filter( 'facetwp_indexer_query_args', [ $this, 'registerFilers' ], 2 );
+        add_filter(
+            'facetwp_load_assets',
+            [
+                $this,
+                'registerFilers',
+            ]
+        );
+
+        add_filter(
+            'facetwp_facet_sources',
+            [
+                $this,
+                'registerFilers',
+            ],
+            2
+        );
+
+        add_filter(
+            'facetwp_indexer_query_args',
+            [
+                $this,
+                'registerFilers',
+            ],
+            2
+        );
     }
 
 
@@ -32,9 +56,31 @@ class FacetWP
     {
 
         // only run any of this once
-        remove_filter( 'facetwp_load_assets', [ $this, 'registerFilers' ] );
-        remove_filter( 'facetwp_facet_sources', [ $this, 'registerFilers' ], 2 );
-        remove_filter( 'facetwp_indexer_query_args', [ $this, 'registerFilers' ], 2 );
+        remove_filter(
+            'facetwp_load_assets',
+            [
+                $this,
+                'registerFilers',
+            ]
+        );
+
+        remove_filter(
+            'facetwp_facet_sources',
+            [
+                $this,
+                'registerFilers',
+            ],
+            2
+        );
+
+        remove_filter(
+            'facetwp_indexer_query_args',
+            [
+                $this,
+                'registerFilers',
+            ],
+            2
+        );
 
         if ( static::$facetAcf instanceof ACF )
         {
@@ -45,13 +91,19 @@ class FacetWP
 
         add_filter(
             'facetwp_facet_sources',
-            [ static::class, 'facetwp_facet_sources' ],
+            [
+                static::class,
+                'facetwp_facet_sources',
+            ],
             20
         );
 
         add_filter(
             'facetwp_indexer_row_data',
-            [ static::class, 'facetwp_indexer_row_data' ],
+            [
+                static::class,
+                'facetwp_indexer_row_data',
+            ],
             20,
             2
         );
@@ -139,7 +191,13 @@ class FacetWP
 
         if ( 0 === strpos( $params['facet']['source'] ?? '', static::SOURCE_IDENTIFIER . '/' ) )
         {
-            [ , $type, $property, $field ] = explode( '/', $params['facet']['source'] );
+            [
+                ,
+                $type,
+                $property,
+                $field,
+            ]
+                = explode( '/', $params['facet']['source'] );
 
             // skip field, if it doesn't currently exist - that should never happen :-)
             if ( ! $field = acf_get_field( $field ) )
@@ -154,7 +212,7 @@ class FacetWP
             }
 
             // load the actual data for the post
-            $field['value'] = get_metadata('post', $params['defaults']['post_id'] , $field['name'] ,true);
+            $field['value'] = get_metadata( 'post', $params['defaults']['post_id'], $field['name'], true );
 
             $params['source'] = (object) [
                 'type'     => $type,

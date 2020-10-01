@@ -12,7 +12,8 @@ use WPGeonames\ApiQuery;
 use WPGeonames\Core;
 
 class Geoname
-    extends Field
+    extends
+    Field
 {
 
 // constants
@@ -68,14 +69,20 @@ class Geoname
 
         add_filter(
             "tbp-acf-fields/facet/source/field/name=" . static::NAME,
-            [ $this, 'facetwp_facet_sources' ],
+            [
+                $this,
+                'facetwp_facet_sources',
+            ],
             10,
             3
         );
 
         add_filter(
             "tbp-acf-fields/facet/index/type=" . static::NAME,
-            [ $this, 'facetwp_indexer_row_data' ],
+            [
+                $this,
+                'facetwp_indexer_row_data',
+            ],
             10,
             2
         );
@@ -112,7 +119,10 @@ class Geoname
                 'allow_null'        => 0,
                 'default_value'     => true,
                 'ui'                => true,
-                'filterCallback'    => [ $this, 'filterHabitationOnly' ],
+                'filterCallback'    => [
+                    $this,
+                    'filterHabitationOnly',
+                ],
                 'conditional_logic' => [
                     [
                         [
@@ -148,7 +158,10 @@ class Geoname
                 'allow_null'        => 0,
                 'default_value'     => true,
                 'ui'                => true,
-                'filterCallback'    => [ $this, 'filterCountriesOnly' ],
+                'filterCallback'    => [
+                    $this,
+                    'filterCountriesOnly',
+                ],
                 'conditional_logic' => [
                     [
                         [
@@ -172,7 +185,10 @@ class Geoname
                     ),
                 'select_label'      => __( 'Select', 'tbp-acf-fields' ) . ' ' . __( 'feature class', 'tbp-acf-fields' ),
                 'instructions'      => '',
-                'choices'           => [ static::class, 'getFeatureClasses' ],
+                'choices'           => [
+                    static::class,
+                    'getFeatureClasses',
+                ],
                 'multiple'          => 1,
                 'ui'                => 1,
                 'allow_null'        => 1,
@@ -205,7 +221,10 @@ class Geoname
                     ),
                 'select_label'      => __( 'Select', 'tbp-acf-fields' ) . ' ' . __( 'Feature Code', 'tbp-acf-fields' ),
                 'instructions'      => '',
-                'choices'           => [ static::class, 'getFeatureCodes' ],
+                'choices'           => [
+                    static::class,
+                    'getFeatureCodes',
+                ],
                 'multiple'          => 1,
                 'ui'                => 1,
                 'allow_null'        => 1,
@@ -235,7 +254,10 @@ class Geoname
                 'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __( 'country', 'tbp-acf-fields' ),
                 'select_label'      => __( "All countries", 'tbp-acf-fields' ),
                 'instructions'      => '',
-                'choices'           => [ static::class, 'getCountryCodes' ],
+                'choices'           => [
+                    static::class,
+                    'getCountryCodes',
+                ],
                 'multiple'          => 1,
                 'ui'                => 1,
                 'allow_null'        => 1,
@@ -258,7 +280,10 @@ class Geoname
                 'caption'        => __( "Search", 'acf' ),
                 'placeholder'    => __( "Search...", 'acf' ),
                 'data-filter'    => 's',
-                'filterCallback' => [ $this, 'filterSearch' ],
+                'filterCallback' => [
+                    $this,
+                    'filterSearch',
+                ],
             ],
 
         ];
@@ -408,8 +433,21 @@ class Geoname
         ];
 
         // extra
-        add_action( 'wp_ajax_acf/fields/geoname/query', [ $this, 'ajax_query' ] );
-        add_action( 'wp_ajax_nopriv_acf/fields/geoname/query', [ $this, 'ajax_query' ] );
+        add_action(
+            'wp_ajax_acf/fields/geoname/query',
+            [
+                $this,
+                'ajax_query',
+            ]
+        );
+
+        add_action(
+            'wp_ajax_nopriv_acf/fields/geoname/query',
+            [
+                $this,
+                'ajax_query',
+            ]
+        );
 
         array_walk(
             self::$filters,
@@ -434,7 +472,10 @@ class Geoname
                         $filterSettings['filterCallback']
                     )
                         ? $filterSettings['filterCallback']
-                        : [ static::class, 'filterDefault' ],
+                        : [
+                        static::class,
+                        'filterDefault',
+                    ],
                     10,
                     2
                 );
@@ -480,6 +521,7 @@ class Geoname
             'is_search'     => false,
         ];
 
+        /** @noinspection CallableParameterUseCaseInTypeContextInspection */
         $options = wp_parse_args( $options, $defaults );
 
         // vars
@@ -1048,7 +1090,12 @@ class Geoname
         echo acf_esc_attrs( $attributes ); ?>>
 
             <?php
-            acf_hidden_input( [ 'name' => $field['name'], 'value' => '' ] ); ?>
+            acf_hidden_input(
+                [
+                    'name'  => $field['name'],
+                    'value' => '',
+                ]
+            ); ?>
 
             <?php
 
@@ -1517,7 +1564,13 @@ HTML
     public static function getCountryCodes( $country_codes = [] ): array
     {
 
-        return self::checkChoices( $country_codes, [ Core::class, 'getCountryCodes' ] );
+        return self::checkChoices(
+            $country_codes,
+            [
+                Core::class,
+                'getCountryCodes',
+            ]
+        );
     }
 
 
@@ -1588,14 +1641,26 @@ HTML
     public static function getFeatureClasses( $feature_classes = [] ): array
     {
 
-        return self::checkChoices( $feature_classes, [ Core::class, 'getFeatureClasses' ] );
+        return self::checkChoices(
+            $feature_classes,
+            [
+                Core::class,
+                'getFeatureClasses',
+            ]
+        );
     }
 
 
     public static function getFeatureCodes( $feature_codes = [] ): array
     {
 
-        return self::checkChoices( $feature_codes, [ Core::class, 'getFeatureCodes' ] );
+        return self::checkChoices(
+            $feature_codes,
+            [
+                Core::class,
+                'getFeatureCodes',
+            ]
+        );
     }
 
 

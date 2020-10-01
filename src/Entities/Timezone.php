@@ -3,7 +3,8 @@
 namespace Tbp\WP\Plugin\AcfFields\Entities;
 
 class Timezone
-    extends \WPGeonames\Entities\Timezone
+    extends
+    \WPGeonames\Entities\Timezone
 {
 
 }

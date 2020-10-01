@@ -5,8 +5,10 @@ namespace Tbp\WP\Plugin\AcfFields\Entities;
 use DateTimeInterface;
 
 class Location
-    extends \WPGeonames\Entities\Location
+    extends
+    \WPGeonames\Entities\Location
 {
+
 // protected properties
 
     /** @var string */
