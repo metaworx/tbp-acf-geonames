@@ -83,12 +83,16 @@ class DateTime
         $locale = null
     ) {
 
+        /**
+         * @var string $format
+         * @noinspection CallableParameterUseCaseInTypeContextInspection
+         */
         $format = ! empty( $format )
             ? \GuzzleHttp\json_encode( array_filter( $format ) )
             : 'undefined';
 
         return sprintf(
-            '<script type="application/javascript">(function() {const date = new Date(%d000); document.write("" + date.toLocaleString("%s", %s) + " (your time)");})();</script>',
+            '<script type="application/javascript">(function() {const date = new Date(%d000); document.write("" + date.toLocaleString("%s", %s));})();</script>',
             $this->getTimestamp(),
             $locale ?? "default",
             $format
