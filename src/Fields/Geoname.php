@@ -825,7 +825,7 @@ class Geoname
         object $context
     ): array {
 
-        if ( $context->field['countries_only'] )
+        if ( $context->field['countries_only'] ?? false )
         {
             $args ['feature_class'] = array_keys( Core::FEATURE_FILTERS['countriesOnly'] );
             $args ['feature_code']  = array_reduce(
