@@ -554,35 +554,64 @@ class Geoname
         $args = apply_filters( 'acf/fields/geoname/query/key=' . $field['key'], $args, $field, $options );
 
         // get locations grouped by top most ancestor
-        $locations = Core::getLiveSearch( $args, Location::class );
+        $searchResult = Core::getLiveSearch( $args, Location::class );
 
         // bail early if no posts
-        if ( empty( $locations ) )
+        if ( $searchResult->count === 0 )
         {
             return false;
         }
 
-        $results = [];
-        //$country = null;
+        $result = [];
 
-        // loop
-        /** @var Location $location */
-        while ( ( $location = array_shift( $locations ) ) && count( $results ) <= $args['maxRows'] ?? 20 )
-        {
+        array_walk(
+            $searchResult->result,
+            static function (
+                array &$locations,
+                string $type
+            ) use
+            (
+                &
+                $result
+            )
+            {
 
-            $entry = [
-                'id'   => $location->geonameId,
-                'text' => sprintf( '%s, %s', $location->name, $location->country->iso2 ),
-            ];
+                array_walk(
+                    $locations,
+                    static function ( Location &$location )
+                    use
+                    (
+                        &
+                        $result
+                    )
+                    {
 
-            // append to $results
-            $results[] = $entry;
-        }
+                        $entry = [
+                            'id'   => $location->geonameId,
+                            //'text' => sprintf( '%s, %s', $location->name, $location->country->iso2 ),
+                            'text' => sprintf(
+                                '%s, %s, %d',
+                                $location->getName(),
+                                $location->getCountry()
+                                         ->getIso2(),
+                                $location->getGeonameId()
+                            ),
+                        ];
+
+                        //** @noinspection CallableParameterUseCaseInTypeContextInspection */
+                        //$location = $entry;
+                        $result[] = $entry;
+                    }
+                );
+
+            }
+        );
 
         // vars
         $response = [
-            'results' => array_values( $results ),
             'limit'   => $args['maxRows'],
+            'more'    => $searchResult->total > $searchResult->count,
+            'results' => $result,
         ];
 
         // return

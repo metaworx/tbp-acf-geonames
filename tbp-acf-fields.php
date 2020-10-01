@@ -47,7 +47,7 @@ call_user_func(
             ],
             'wp-geonames/wp-geonames.php'    => [
                 'name'     => 'WP Geonames',
-                'version'  => '2.1.1',
+                'version'  => '3.0.0',
                 'url'      => 'https://wordpress.org/plugins/wp-geonames/',
                 'required' => false,
                 'fields'   => [
