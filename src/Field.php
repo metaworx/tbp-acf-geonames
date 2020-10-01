@@ -113,7 +113,7 @@ abstract class Field
                 break;
             }
 
-            $message .= "  Error on line $errLine in file $errFile";
+            $message .= "  Error in file $errFile:$errLine";
             $message .= ", PHP " . PHP_VERSION . " (" . PHP_OS . ")\n";
 
             if ( true || $report )
