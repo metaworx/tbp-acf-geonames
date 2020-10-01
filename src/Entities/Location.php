@@ -92,6 +92,7 @@ class Location
                 : null;
         }
 
+        return $wpml_locale;
     }
 
 }
