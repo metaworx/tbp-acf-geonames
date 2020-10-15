@@ -589,12 +589,19 @@ class Geoname
                         $entry = [
                             'id'   => $location->geonameId,
                             //'text' => sprintf( '%s, %s', $location->name, $location->country->iso2 ),
-                            'text' => sprintf(
-                                '%s, %s, %d',
-                                $location->getName(),
-                                $location->getCountry()
-                                         ->getIso2(),
-                                $location->getGeonameId()
+                            'text' => implode(
+                                ', ',
+                                array_filter(
+                                    [
+                                        $location->getName(),
+                                        (string) $location->getAdmin2()
+                                                 ->getName(),
+                                        (string) $location->getAdmin1()
+                                                 ->getName(),
+                                        (string) $location->getCountry()
+                                                 ->getIso2(),
+                                    ]
+                                )
                             ),
                         ];
 
