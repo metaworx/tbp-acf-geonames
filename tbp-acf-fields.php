@@ -3,8 +3,8 @@
 Plugin Name: Advanced Custom Fields: TBP Collection
 Plugin URI: PLUGIN_URL
 Description: List of worldwide locations based on geonames.org and the geonames plugin
-Version: 2.5.0
-Author: Bhujagendra Ishaya
+Version: 2.6.0
+Author: Bhujagendra Ishaya, The Bright Path
 Author URI: https://www.thebrightpath.com
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
