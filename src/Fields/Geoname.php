@@ -595,11 +595,11 @@ class Geoname
                                     [
                                         $location->getName(),
                                         (string) $location->getAdmin2()
-                                                 ->getName(),
+                                                          ->getName(),
                                         (string) $location->getAdmin1()
-                                                 ->getName(),
+                                                          ->getName(),
                                         (string) $location->getCountry()
-                                                 ->getIso2(),
+                                                          ->getIso2(),
                                     ]
                                 )
                             ),
