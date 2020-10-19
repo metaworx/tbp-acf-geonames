@@ -771,7 +771,9 @@ class Geoname
 
                 $row                        = $params['defaults'];
                 $row['facet_value']         = $location->getGeonameId();
-                $row['facet_display_value'] = $location->getAsciiName();
+                $row['facet_display_value'] = $location->getCountry( true, true )
+                                                       ->getNameIntl()
+                ;
 
                 $rows[] = $row;
 
