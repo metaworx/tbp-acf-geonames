@@ -732,29 +732,28 @@ class Geoname
      * @param  array  $params
      *
      * @return array
+     * @noinspection OnlyWritesOnParameterInspection
      */
     public function &facetwp_indexer_row_data_geoname(
         array &$rows,
         array &$params
     ): array {
 
-        $field = $params['source']->field;
-        /*
-        $post  = get_post( $params['defaults']['post_id'] );
+        $source = $params['source'];
+        $field  = $source->field;
 
-        if ( $post->post_type === 'events' )
+        if ( $source->type !== 'geoname' )
         {
-            echo '';
+            return $rows;
         }
-        */
+
+        $default                        = $params['defaults'];
+        $default['facet_value']         = 0;
+        $default['facet_display_value'] = 'N/A';
 
         if ( empty( $field['value'] ) )
         {
-            $row                        = $params['defaults'];
-            $row['facet_value']         = 0;
-            $row['facet_display_value'] = 'N/A';
-
-            $rows[] = $row;
+            $rows[] = $default;
 
             return $rows;
         }
@@ -765,6 +764,9 @@ class Geoname
             $locations,
             static function ( Location $location ) use
             (
+                $default,
+                &
+                $source,
                 &
                 $rows,
                 &
@@ -772,19 +774,39 @@ class Geoname
             )
             {
 
-                $row                        = $params['defaults'];
-                $row['facet_value']         = $location->getGeonameId();
-                $row['facet_display_value'] = $location->getCountry( true, true )
-                                                       ->getNameIntl()
-                ;
+                switch ( $source->property )
+                {
+                case 'name':
+                    $default['facet_value']         = $location->getGeonameId();
+                    $default['facet_display_value'] = $location->getName();
+                    break;
 
-                $rows[] = $row;
+                case 'admin1':
+                    if ( ! ( $admin = $location->getAdmin1() ) )
+                    {
+                        return;
+                    }
 
-//                $row                        = $params['defaults'];
-//                $row['facet_value']         = $location->getGeonameId();
-//                $row['facet_display_value'] = $location->getAsciiName();
-//
-//                $rows[] = $row;
+                    $default['facet_value']         = $admin->getGeonameId();
+                    $default['facet_display_value'] = $admin->getName();
+                    break;
+
+                case 'country':
+                    if ( ! ( $country = $location->getCountry() ) )
+                    {
+                        return;
+                    }
+
+                    $default['facet_value']         = $country->getGeonameId();
+                    $default['facet_display_value'] = $country->getNameIntl();
+                    break;
+
+                default:
+                    break;
+                }
+
+                $rows[] = $default;
+
             }
         );
 
