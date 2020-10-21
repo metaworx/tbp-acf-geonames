@@ -9,6 +9,7 @@ use Tbp\WP\Plugin\AcfFields\Field;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
 use Tbp\WP\Plugin\AcfFields\Plugin;
 use WPGeonames\Core;
+use WPGeonames\Entities\Location as WpGeonameLocation;
 use WPGeonames\Query\ApiQuery;
 
 class Geoname
@@ -762,7 +763,7 @@ class Geoname
 
         array_walk(
             $locations,
-            static function ( Location $location ) use
+            static function ( WpGeonameLocation $location ) use
             (
                 $default,
                 &
