@@ -90,7 +90,7 @@ class Geoname
     }
 
 
-    public function initialize()
+    public function initialize(): void
     {
 
         self::$filters = [
@@ -489,13 +489,13 @@ class Geoname
      *
      *  This function will return an array of data formatted for use in a select2 AJAX response
      *
-     * @date      15/10/2014
-     * @since     5.0.9
+     * @date         15/10/2014
+     * @since        5.0.9
      *
      * @param  array  $options
      *
      * @return    array|false
-     * @throws \ErrorException
+     * @noinspection PhpUnusedParameterInspection
      */
     public function getData( $options = [] )
     {
@@ -578,7 +578,7 @@ class Geoname
 
                 array_walk(
                     $locations,
-                    static function ( Location &$location )
+                    static function ( Location $location )
                     use
                     (
                         &
@@ -586,6 +586,10 @@ class Geoname
                     )
                     {
 
+                        /**
+                         * @noinspection UnnecessaryCastingInspection
+                         * @noinspection NullPointerExceptionInspection
+                         */
                         $entry = [
                             'id'   => $location->geonameId,
                             //'text' => sprintf( '%s, %s', $location->name, $location->country->iso2 ),
@@ -634,7 +638,6 @@ class Geoname
      * @date      2020-09-09
      *
      * @return   mixed
-     * @throws \ErrorException
      */
     public function ajax_query_helper()
     {
@@ -730,10 +733,10 @@ class Geoname
      *
      * @return array
      */
-    public function facetwp_indexer_row_data_geoname(
+    public function &facetwp_indexer_row_data_geoname(
         array &$rows,
         array &$params
-    ) {
+    ): array {
 
         $field = $params['source']->field;
         /*
@@ -800,7 +803,7 @@ class Geoname
      * @since          3.6
      * @date           23/01/13
      */
-    public function field_group_admin_enqueue_scripts()
+    public function field_group_admin_enqueue_scripts(): void
     {
 
     }
@@ -817,7 +820,7 @@ class Geoname
      * @since          3.6
      * @date           23/01/13
      */
-    public function field_group_admin_head()
+    public function field_group_admin_head(): void
     {
 
     }
@@ -952,6 +955,7 @@ class Geoname
             return $value;
         }
 
+        /** @noinspection DegradedSwitchInspection */
         switch ( $field['return_format'] )
         {
         case 'object':
@@ -973,7 +977,7 @@ class Geoname
      * @since          3.6
      * @date           23/01/13
      */
-    public function input_admin_enqueue_scripts()
+    public function input_admin_enqueue_scripts(): void
     {
 
         // vars
@@ -1000,7 +1004,7 @@ class Geoname
      * @since          3.6
      * @date           23/01/13
      */
-    public function input_admin_footer()
+    public function input_admin_footer(): void
     {
 
     }
@@ -1017,7 +1021,7 @@ class Geoname
      * @since          3.6
      * @date           23/01/13
      */
-    public function input_admin_head()
+    public function input_admin_head(): void
     {
 
     }
@@ -1083,7 +1087,7 @@ class Geoname
      *
      * @throws \ErrorException
      */
-    public function render_field( $field )
+    public function render_field( $field ): void
     {
 
         // field settings
@@ -1300,7 +1304,7 @@ HTML
      *
      * @return    void
      */
-    public function render_field_settings( array $field )
+    public function render_field_settings( array $field ): void
     {
 
         // vars
