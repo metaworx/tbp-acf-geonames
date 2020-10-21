@@ -71,7 +71,7 @@ class Geoname
             "tbp-acf-fields/facet/source/field/name=" . static::NAME,
             [
                 $this,
-                'facetwp_facet_sources',
+                'facetwp_facet_sources_geoname',
             ],
             10,
             3
@@ -81,7 +81,7 @@ class Geoname
             "tbp-acf-fields/facet/index/type=" . static::NAME,
             [
                 $this,
-                'facetwp_indexer_row_data',
+                'facetwp_indexer_row_data_geoname',
             ],
             10,
             2
@@ -654,7 +654,7 @@ class Geoname
      * @return array
      * @noinspection PhpUnusedParameterInspection
      */
-    public function facetwp_facet_sources(
+    public function facetwp_facet_sources_geoname(
         $sources,
         Field $field,
         array $acfFields
@@ -730,7 +730,7 @@ class Geoname
      *
      * @return array
      */
-    public function facetwp_indexer_row_data(
+    public function facetwp_indexer_row_data_geoname(
         array &$rows,
         array &$params
     ) {
