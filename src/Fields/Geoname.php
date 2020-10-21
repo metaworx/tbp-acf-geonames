@@ -1177,30 +1177,24 @@ class Geoname
                                 $filterSettings['choices'] = [
                                         '' => $filterSettings['select_label'],
                                     ]
-                                    + call_user_func_array(
-                                        $filterSettings['choices'],
-                                        [ acf_get_array( $field[ $filter ] ) ]
-                                    );
+                                    + $filterSettings['choices']( acf_get_array( $field[ $filter ] ) );
                                 break;
 
                             default:
                                 throw new ErrorException( "unknown filter input type $filter" );
                             }
 
-                            call_user_func_array(
-                                $function,
-                                [
-                                    array_intersect_key(
-                                        $filterSettings,
-                                        array_flip(
-                                            [
-                                                'placeholder',
-                                                'data-filter',
-                                                'choices',
-                                            ]
-                                        )
-                                    ),
-                                ]
+                            $function(
+                                array_intersect_key(
+                                    $filterSettings,
+                                    array_flip(
+                                        [
+                                            'placeholder',
+                                            'data-filter',
+                                            'choices',
+                                        ]
+                                    )
+                                )
                             );
 
                             ?>
