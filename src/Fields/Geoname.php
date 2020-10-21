@@ -8,8 +8,8 @@ use Tbp\WP\Plugin\AcfFields\Entities\Location;
 use Tbp\WP\Plugin\AcfFields\Field;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
 use Tbp\WP\Plugin\AcfFields\Plugin;
-use WPGeonames\ApiQuery;
 use WPGeonames\Core;
+use WPGeonames\Query\ApiQuery;
 
 class Geoname
     extends
