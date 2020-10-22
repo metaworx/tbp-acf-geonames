@@ -4,11 +4,13 @@
 namespace Tbp\WP\Plugin\AcfFields\Fields;
 
 use ErrorException;
+use Locale;
 use Tbp\WP\Plugin\AcfFields\Entities\Location;
 use Tbp\WP\Plugin\AcfFields\Field;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
 use Tbp\WP\Plugin\AcfFields\Plugin;
 use WPGeonames\Core;
+use WPGeonames\Entities\Country;
 use WPGeonames\Entities\Location as WpGeonameLocation;
 use WPGeonames\Query\ApiQuery;
 
@@ -83,6 +85,16 @@ class Geoname
             [
                 $this,
                 'facetwp_indexer_row_data_geoname',
+            ],
+            10,
+            2
+        );
+
+        add_filter(
+            "tbp-acf-fields/facet/render/type=" . static::NAME,
+            [
+                $this,
+                'facetwp_render_geoname',
             ],
             10,
             2
@@ -799,7 +811,7 @@ class Geoname
                     }
 
                     $default['facet_value']         = $country->getGeonameId();
-                    $default['facet_display_value'] = $country->getNameIntl();
+                    $default['facet_display_value'] = $country->getIso2();
                     break;
 
                 default:
@@ -812,6 +824,64 @@ class Geoname
         );
 
         return $rows;
+    }
+
+
+    /**
+     * Add ACF fields to the Data Sources dropdown
+     *
+     * This function is not called directly by FacetWP, but from
+     * \Tbp\WP\Plugin\AcfFields\Integration\FacetWP::facetwp_facet_render_args
+     *
+     * @see https://facetwp.com/documentation/developers/querying/facetwp_facet_render_args/
+     *
+     *
+     * @param  array   $args    $arguments as in original filter
+     * @param  object  $source  Source of facet data
+     *
+     * @return array
+     *
+     */
+    public function &facetwp_render_geoname(
+        array &$args,
+        object $source
+    ): array {
+
+        if ( $source->property === 'country' && ! empty( $args['values'] ) )
+        {
+
+            array_walk(
+                $args['values'],
+                static function (
+                    &$val,
+                    $key
+                ) {
+
+                    if ( $val['facet_value'] == 0 )
+                    {
+                        return;
+                    }
+
+                    $display_value = null;
+
+                    // WPML integration
+                    if ( defined( 'ICL_LANGUAGE_CODE' ) )
+                    {
+                        $display_value = Locale::getDisplayRegion(
+                            '-' . $val['facet_display_value'],
+                            ICL_LANGUAGE_CODE
+                        );
+                    }
+
+                    $val['facet_display_value'] = $display_value ?? Country::load( $val['facet_display_value'] )
+                                                                           ->getName()
+                    ;
+
+                }
+            );
+        }
+
+        return $args;
     }
 
 
