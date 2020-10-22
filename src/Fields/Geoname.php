@@ -79,7 +79,7 @@ class Geoname
         );
 
         add_filter(
-            "tbp-acf-fields/facet/index/type=" . static::NAME,
+            "tbp-acf-fields/facet/index/data/type=" . static::NAME,
             [
                 $this,
                 'facetwp_indexer_row_data_geoname',
