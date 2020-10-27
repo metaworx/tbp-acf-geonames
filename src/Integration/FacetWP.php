@@ -25,6 +25,22 @@ class FacetWP
 
         // load the filters only in case we really need them
         add_filter(
+            'facetwp_preload_url_vars',
+            [
+                $this,
+                'registerFilers',
+            ]
+        );
+
+       add_filter(
+            'facetwp_archive_abort_query',
+            [
+                $this,
+                'registerFilers',
+            ]
+        );
+
+        add_filter(
             'facetwp_load_assets',
             [
                 $this,
@@ -49,6 +65,16 @@ class FacetWP
             ],
             2
         );
+
+        add_filter(
+            'facetwp_facet_types',
+            [
+                $this,
+                'registerFilers',
+            ],
+            20
+        );
+
     }
 
 
@@ -373,8 +399,29 @@ class FacetWP
     public function registerFilers( $input )
     {
 
+        if ( ! class_exists( 'FacetWP_Integration_ACF', false ) )
+        {
+            return $input;
+        }
+
         // only run any of this once
         remove_filter(
+            'facetwp_preload_url_vars',
+            [
+                $this,
+                'registerFilers',
+            ]
+        );
+
+       remove_filter(
+            'facetwp_archive_abort_query',
+            [
+                $this,
+                'registerFilers',
+            ]
+        );
+
+         remove_filter(
             'facetwp_load_assets',
             [
                 $this,
@@ -398,6 +445,15 @@ class FacetWP
                 'registerFilers',
             ],
             2
+        );
+
+        remove_filter(
+            'facetwp_facet_types',
+            [
+                $this,
+                'registerFilers',
+            ],
+            20
         );
 
         if ( static::$facetAcf instanceof ACF )
