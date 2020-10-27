@@ -256,8 +256,8 @@ class FacetWP
 
 
     public function facetwp_index_row(
-        array &$params,
-        &$class
+        array $params,
+        $class
     ) {
 
         if ( $source = $this->acfSource(
@@ -327,8 +327,8 @@ class FacetWP
 
 
     public function facetwp_indexer_row_data(
-        array &$rows,
-        array &$params
+        array $rows,
+        array $params
     ) {
 
         if ( $source = $this->acfSource(

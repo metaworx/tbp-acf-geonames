@@ -748,8 +748,8 @@ class Geoname
      * @noinspection OnlyWritesOnParameterInspection
      */
     public function &facetwp_indexer_row_data_geoname(
-        array &$rows,
-        array &$params
+        array $rows,
+        array $params
     ): array {
 
         $source = $params['source'];
@@ -843,7 +843,7 @@ class Geoname
      *
      */
     public function &facetwp_render_geoname(
-        array &$args,
+        array $args,
         object $source
     ): array {
 
