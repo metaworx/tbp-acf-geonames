@@ -7,7 +7,8 @@ use Throwable;
 use WP_Error;
 
 abstract class Field
-    extends acf_field
+    extends
+    acf_field
 {
 
 // constants
