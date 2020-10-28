@@ -34,9 +34,10 @@
 		*  @return	n/a
 		*/
 
-		acf.add_action('ready_field/type=geoname', initialize_field);
 		acf.add_action('append_field/type=geoname', initialize_field);
-		
+		acf.add_action('append_field/type=language', initialize_field);
+		acf.add_action('ready_field/type=geoname', initialize_field);
+		acf.add_action('ready_field/type=language', initialize_field);	
 		
 	} else {
 		
@@ -131,7 +132,71 @@
 
 	});
 
-	acf.registerFieldType( Field );
+	acf.registerFieldType( Geoname );
+
+	var Language = acf.models.RelationshipField.extend({
+
+		type: 'language',
+
+		events: {
+			'keypress [data-filter]': 				'onKeypressFilter',
+			'change [data-filter]': 				'onChangeFilter',
+			'keyup [data-filter]': 					'onChangeFilter',
+			'click .choices-list .acf-rel-item': 	'onClickAdd',
+			'click [data-name="remove_item"]': 		'onClickRemove',
+		},
+
+		$control: function(){
+			return this.$('.tbp-acf-language');
+		},
+
+		getAjaxData: function(){
+
+			// load data based on element attributes
+			var ajaxData = this.$control().data();
+			for( var name in ajaxData ) {
+				ajaxData[ name ] = this.get( name );
+			}
+
+			// extra
+			ajaxData.action = 'acf/fields/language/query';
+			ajaxData.field_key = this.get('key');
+
+			// Filter.
+			ajaxData = acf.applyFilters( 'language_ajax_data', ajaxData, this );
+
+			// return
+			return ajaxData;
+		},
+
+		onClickAdd: function( e, $el ){
+
+			// vars
+			var val = this.val();
+			var max = parseInt( this.get('max') );
+			var allowReplace = parseInt( this.get('replaceSelected') );
+
+			// can be added?
+			if( $el.hasClass('disabled') ) {
+				return false;
+			}
+
+			if (max === 1 && allowReplace && val.length === 1) {
+
+				// vars
+				var $span = this.$listItem('values', val[0]);
+				var $a =  $span.find('.acf-icon[data-name="remove_item"]');
+
+				this.onClickRemove( e, $a);
+
+			}
+
+			acf.models.RelationshipField.prototype.onClickAdd.call(this, e, $el);
+		}
+
+	});
+
+	acf.registerFieldType( Language );
 
 })(jQuery);
 
