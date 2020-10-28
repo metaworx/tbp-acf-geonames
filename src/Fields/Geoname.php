@@ -1162,7 +1162,7 @@ class Geoname
         // div attributes
         $attributes = [
             'id'         => $field['id'],
-            'class'      => "acf-geoname {$field['class']}",
+            'class'      => "tbp-acf-relation-list tbp-acf-geoname {$field['class']}",
             'data-min'   => $field['min'],
             'data-max'   => $field['max'],
             'data-paged' => 1,

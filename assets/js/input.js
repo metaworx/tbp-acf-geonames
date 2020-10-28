@@ -69,7 +69,7 @@
 
 (function($, undefined){
 
-	var Field = acf.models.RelationshipField.extend({
+	var Geoname = acf.models.RelationshipField.extend({
 
 		type: 'geoname',
 
@@ -82,7 +82,7 @@
 		},
 
 		$control: function(){
-			return this.$('.acf-geoname');
+			return this.$('.tbp-acf-geoname');
 		},
 
 		getAjaxData: function(){
