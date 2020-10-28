@@ -103,7 +103,7 @@ class Geoname
     }
 
 
-    public function initialize(): void
+    public function initialize( ?string $forCompatibilityOnly = null ): void
     {
 
         self::$filters = [
@@ -462,38 +462,7 @@ class Geoname
             ]
         );
 
-        array_walk(
-            self::$filters,
-            static function (
-                $filterSettings,
-                $filter
-            ) {
-
-                if ( array_key_exists(
-                        'filterCallback',
-                        $filterSettings
-                    )
-                    && $filterSettings['filterCallback'] === false )
-                {
-                    return;
-                }
-
-                add_filter(
-                    "acf/fields/geoname/filter/name=$filter",
-                    array_key_exists( 'filterCallback', $filterSettings )
-                    && is_callable(
-                        $filterSettings['filterCallback']
-                    )
-                        ? $filterSettings['filterCallback']
-                        : [
-                        static::class,
-                        'filterDefault',
-                    ],
-                    10,
-                    2
-                );
-            }
-        );
+        parent::initialize( "acf/fields/geoname/filter/name=" );
     }
 
 
@@ -1652,40 +1621,6 @@ HTML
 
 
     /**
-     * @param  array   $args
-     * @param  object  $context
-     *
-     * @return array
-     */
-    public static function filterDefault(
-        array $args,
-        object $context
-    ): array {
-
-        $filters = acf_get_array( $context->field['filters'] );
-
-        if ( ! empty( $context->options[ $context->filter ] ) && in_array( $context->filter, $filters, true ) )
-        {
-
-            $args[ $context->filter ] = acf_get_array( $context->options[ $context->filter ] );
-        }
-        elseif ( ! empty( $context->field[ $context->filter ] ) )
-        {
-
-            $args[ $context->filter ] = acf_get_array( $context->field[ $context->filter ] );
-        }
-        else
-        {
-
-            $args[ $context->filter ] = null; // call_user_func( $getter );
-
-        }
-
-        return $args;
-    }
-
-
-    /**
      * @param  array  $country_codes
      *
      * @return array
@@ -1700,70 +1635,6 @@ HTML
                 'getCountryCodes',
             ]
         );
-    }
-
-
-    /** @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection */
-    protected static function getDefinitions(
-        $array,
-        $key
-    ) {
-
-        switch ( true )
-        {
-        case $key === null:
-            // no key given, return all keys
-            return $array;
-
-        case is_string( $key ):
-            // key is a single key name
-            return $array[ $key ];
-
-        case is_array( $key ):
-
-            // key is given, but empty. Return empty array
-            if ( empty( $key ) )
-            {
-                return [];
-            }
-
-            // key is a list of field names
-            if ( ! is_string( key( $key ) ) )
-            {
-
-                return array_intersect_key( $array, array_flip( $key ) );
-            }
-
-            // key is a set of properties to match
-            return array_filter(
-                $array,
-                static function ( &$item ) use
-                (
-                    &
-                    $key
-                )
-                {
-
-                    foreach ( array_keys( $key ) as $key )
-                    {
-
-                        if ( ! array_key_exists( $key, $item ) )/**/
-                        {
-                            return false;
-                        }
-
-                        if ( $item[ $key ] !== $key[ $key ] )
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-            );
-        }
-
-        return null;
     }
 
 
@@ -1792,19 +1663,5 @@ HTML
         );
     }
 
-
-    public static function getFieldSettingDefinitions( $setting = null )
-    {
-
-        return self::getDefinitions( self::$fieldSettings, $setting );
-
-    }
-
-
-    public static function getFilterDefinitions( $filter = null )
-    {
-
-        return self::getDefinitions( self::$filters, $filter );
-    }
 
 }
