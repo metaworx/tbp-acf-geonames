@@ -819,12 +819,21 @@ class Geoname
         if ( $source->property === 'country' && ! empty( $args['values'] ) )
         {
 
+            $languageCode = FWP()->facet->http_params['lang'] ?? ( defined( 'ICL_LANGUAGE_CODE' )
+                    ? ICL_LANGUAGE_CODE
+                    : null
+                );
+
             array_walk(
                 $args['values'],
                 static function (
                     &$val,
                     $key
-                ) {
+                ) use
+                (
+                    $languageCode
+                )
+                {
 
                     if ( $val['facet_value'] == 0 )
                     {
@@ -834,16 +843,16 @@ class Geoname
                     $display_value = null;
 
                     // WPML integration
-                    if ( defined( 'ICL_LANGUAGE_CODE' ) )
+                    if ( $languageCode )
                     {
                         $display_value = Locale::getDisplayRegion(
                             '-' . $val['facet_display_value'],
-                            ICL_LANGUAGE_CODE
+                            $languageCode
                         );
                     }
 
                     $val['facet_display_value'] = $display_value ?? Country::load( $val['facet_display_value'] )
-                                                                           ->getName()
+                                                                           ->getName($languageCode)
                     ;
 
                 }
