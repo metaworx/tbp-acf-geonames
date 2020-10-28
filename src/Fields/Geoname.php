@@ -1118,16 +1118,16 @@ class Geoname
      * @since          3.6
      * @date           23/01/13
      *
-     * @param  mixed  $value    the value found in the database
-     * @param  int    $post_id  the $post_id from which the value was loaded
-     * @param  array  $field    the field array holding all the field options
+     * @param  mixed       $value    the value found in the database
+     * @param  int|string  $post_id  the $post_id from which the value was loaded
+     * @param  array       $field    the field array holding all the field options
      *
      * @return mixed        $value
      * @noinspection   PhpUnusedParameterInspection
      */
     public function load_value(
         $value,
-        int $post_id,
+        $post_id,
         array $field
     ) {
 
@@ -1557,16 +1557,16 @@ HTML
      * @since          3.6
      * @date           23/01/13
      *
-     * @param  mixed  $value    the value found in the database
-     * @param  int    $post_id  the $post_id from which the value was loaded
-     * @param  array  $field    the field array holding all the field options
+     * @param  mixed       $value    the value found in the database
+     * @param  int|string  $post_id  the $post_id from which the value was loaded
+     * @param  array       $field    the field array holding all the field options
      *
      * @return   mixed      $value
      * @noinspection   PhpUnusedParameterInspection
      */
     public function update_value(
         $value,
-        int $post_id,
+        $post_id,
         array $field
     ) {
 
