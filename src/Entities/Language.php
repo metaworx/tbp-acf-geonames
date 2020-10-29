@@ -458,7 +458,7 @@ abstract class Language
 
         /** @var \Tbp\WP\Plugin\AcfFields\Entities\Language[] $posts */
 
-        if ( ! is_array( $ids ) )
+        if ( ! empty( $ids ) && ! is_array( $ids ) )
         {
             return reset( $cached );
         }
