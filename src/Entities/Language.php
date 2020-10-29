@@ -697,7 +697,6 @@ abstract class Language
                 'description'           => __( 'Details for Language Custom Post Type', 'tbp-acf-fields' ),
                 'acfe_display_title'    => '',
                 'acfe_autosync'         => [
-                    0 => 'json',
                 ],
                 'acfe_permissions'      => [
                     0 => 'administrator',
