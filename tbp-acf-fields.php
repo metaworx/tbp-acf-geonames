@@ -24,6 +24,21 @@ if ( ! defined( 'ABSPATH' ) )
     exit;
 }
 
+// ignore admin heartbeats
+if ( defined( 'TBP_IS_ADMIN_HEARTBEAT' )
+    ? TBP_IS_ADMIN_HEARTBEAT
+    : (
+        'heartbeat' === ( $_REQUEST['action'] ?? false )
+        && strpos(
+            $_SERVER['REQUEST_URI'],
+            '/wp-admin/admin-ajax.php'
+        ) >= 0 ) )
+{
+    define( 'TBP_IS_ADMIN_HEARTBEAT', true );
+
+    return;
+}
+
 require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 call_user_func(
