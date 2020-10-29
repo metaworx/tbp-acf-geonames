@@ -555,7 +555,7 @@ abstract class Language
 
         acf_add_local_field_group(
             [
-                'key'                   => 'group_language',
+                'key'                   => 'group_tbp-language',
                 'title'                 => 'Language',
                 'fields'                => [
                     [
