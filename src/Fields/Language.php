@@ -104,6 +104,25 @@ class Language
             ]
         );
 
+        add_filter(
+            "manage_language_posts_columns",
+            [
+                LanguagePost::class,
+                'adminLanguagePostColumns',
+            ],
+            PHP_INT_MAX
+        );
+
+        add_action(
+            "manage_language_posts_custom_column",
+            [
+                LanguagePost::class,
+                'adminLanguagePostColumnValues',
+            ],
+            10,
+            2
+        );
+
     }
 
 

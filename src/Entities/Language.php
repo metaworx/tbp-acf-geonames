@@ -271,6 +271,103 @@ abstract class Language
     }
 
 
+    public static function adminLanguagePostColumnValues(
+        $column,
+        $post_id
+    ) {
+
+        static $last_post_id = null;
+        static $last_language = null;
+
+        if ( $post_id !== $last_post_id )
+        {
+            $last_language = Language::load( $post_id );
+        }
+
+        switch ( $column )
+        {
+        case 'code':
+            echo $last_language->getCode();
+            break;
+
+        case 'native':
+            echo $last_language->getNativeName();
+            break;
+
+        case 'script':
+            echo $last_language->getDefaultScript();
+            break;
+
+        case 'locale':
+            echo $last_language->getDefaultLocale();
+            break;
+
+        case 'flag':
+            $flag = $last_language->getFlag();
+            if ( $flag )
+            {
+                /** @noinspection HtmlUnknownTarget */
+                printf( '<img alt="%s" src="%s" />', $last_language->getName(), $flag );
+            }
+            break;
+
+        }
+
+    }
+
+
+    public static function adminLanguagePostColumns( $cols )
+    {
+
+        $array_splice_assoc = static function (
+            &$input,
+            $keyOrOffset,
+            $length = 0,
+            $replacement = null
+        ) {
+
+            $keys   = array_keys( $input );
+            $offset = is_int( $keyOrOffset )
+                ? $keyOrOffset
+                : array_search( $keyOrOffset, $keys );
+
+            if ( $replacement )
+            {
+                $values             = array_values( $input );
+                $extracted_elements = array_combine(
+                    array_splice( $keys, $offset, $length, array_keys( $replacement ) ),
+                    array_splice( $values, $offset, $length, array_values( $replacement ) )
+                );
+                $input              = array_combine( $keys, $values );
+            }
+            else
+            {
+                $extracted_elements = array_slice( $input, $offset, $length );
+            }
+
+            return $extracted_elements;
+        };
+
+        //printf( "<pre>%s</pre>\n", print_r( $cols, true ) );
+
+        $array_splice_assoc(
+            $cols,
+            2,
+            0,
+            [
+                'code'   => __( 'Code', 'tbp-acf-fields' ),
+                'flag'   => __( 'Flag', 'tbp-acf-fields' ),
+                'locale' => __( 'Default Locale', 'tbp-acf-fields' ),
+                'script' => __( 'Default Script', 'tbp-acf-fields' ),
+                'native' => __( 'Native Name', 'tbp-acf-fields' ),
+
+            ]
+        );
+
+        return $cols;
+    }
+
+
     /**
      * $param array|int|string|object|null $param
      *
