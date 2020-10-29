@@ -318,7 +318,7 @@ class Plugin
                     continue 2;
                 }
 
-                static::$fields[ $base ] = new $class( $this->settings );
+                static::$fields[ $base ] = $class::Factory( $this->settings );
             }
         }
 

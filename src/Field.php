@@ -20,11 +20,12 @@ abstract class Field
 // protected properties
 
     /** @var static */
-    protected static $instance;
-    protected static $filters = [];
-    protected static $fieldSettings;
+    protected static $instance = [];
 
-    protected $settings = [];  // will hold info such as dir / path
+    protected $filters;
+    protected $fieldSettings;
+    protected $settings;  // will hold info such as dir / path
+    protected $filterBase;
 
 
     public function __construct( $settings = [] )
@@ -55,16 +56,84 @@ abstract class Field
     }
 
 
-    function initialize( ?string $filterBase = null )
+    public function initialize(): void
     {
 
-        if ( $filterBase === null )
+        /*
+        *  l10n (array) Array of strings that are used in JavaScript. This allows JS strings to be translated in PHP and loaded via:
+        *  var message = acf._e('geoname', 'error');
+        */
+        $this->l10n = [
+            'error' => __( 'Error! Please enter a higher value', 'tbp-acf-fields' ),
+        ];
+
+        // extra
+        add_action(
+            sprintf( 'wp_ajax_acf/fields/%s/query', static::NAME ),
+            [
+                $this,
+                'ajax_query',
+            ]
+        );
+
+        add_action(
+            sprintf( 'wp_ajax_nopriv_acf/fields/%s/query', static::NAME ),
+            [
+                $this,
+                'ajax_query',
+            ]
+        );
+
+        $this->filterBase = sprintf( 'acf/fields/%s/filter/name=', static::NAME );
+
+    }
+
+
+    public function getFieldSettings( $setting = null ): ?array
+    {
+
+        if ( $this->fieldSettings === null )
         {
-            $filterBase = "acf/fields/" . static::NAME . "/filter/name=";
+
+            $this->fieldSettings = $this->getFieldSettingsDefinition();
         }
 
+        return self::getDefinitions( $this->fieldSettings, $setting );
+
+    }
+
+
+    abstract protected function getFieldSettingsDefinition(): array;
+
+
+    abstract protected function getFilterDefinition(): array;
+
+
+    protected function getFilters( $filter = null ): ?array
+    {
+
+        if ( $this->filters === null )
+        {
+
+            $this->filters = $this->getFilterDefinition();
+        }
+
+        return self::getDefinitions( $this->filters, $filter );
+
+    }
+
+
+    protected function addFilterCallbacks(
+        array $filters,
+        ?string $filterBase = null
+    ) {
+
+        $filterBase = $filterBase
+            ?? $this->filterBase
+            ?? "acf/fields/" . static::NAME . "/filter/name=";
+
         array_walk(
-            self::$filters,
+            $filters,
             static function (
                 $filterSettings,
                 $filter
@@ -101,6 +170,7 @@ abstract class Field
             }
         );
 
+        return array_column( $filters, null, 'name' );
     }
 
 
@@ -300,8 +370,8 @@ abstract class Field
     public static function Factory( $settings ): self
     {
 
-        return self::$instance
-            ?: self::$instance = new static( $settings );
+        return self::$instance[ static::class ]
+            ?? self::$instance[ static::class ] = new static( $settings );
     }
 
 
@@ -340,9 +410,9 @@ abstract class Field
 
 
     protected static function getDefinitions(
-        $array,
+        &$array,
         $key
-    ) {
+    ): ?array {
 
         switch ( true )
         {
@@ -399,21 +469,6 @@ abstract class Field
         }
 
         return null;
-    }
-
-
-    public static function getFieldSettingDefinitions( $setting = null )
-    {
-
-        return self::getDefinitions( self::$fieldSettings, $setting );
-
-    }
-
-
-    public static function getFilterDefinitions( $filter = null )
-    {
-
-        return self::getDefinitions( self::$filters, $filter );
     }
 
 }

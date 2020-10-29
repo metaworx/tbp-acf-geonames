@@ -3,10 +3,10 @@
 
 namespace Tbp\WP\Plugin\AcfFields\Fields;
 
-use ErrorException;
 use Locale;
 use Tbp\WP\Plugin\AcfFields\Entities\Location;
 use Tbp\WP\Plugin\AcfFields\Field;
+use Tbp\WP\Plugin\AcfFields\FieldTypes\FieldRelational;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
 use Tbp\WP\Plugin\AcfFields\Plugin;
 use WPGeonames\Core;
@@ -16,17 +16,12 @@ use WPGeonames\Query\ApiQuery;
 
 class Geoname
     extends
-    Field
+    FieldRelational
 {
 
 // constants
-    public const CATEGORY = 'relational';
-    public const LABEL    = 'Geo Names';
-    public const NAME     = 'geoname';
-
-// protected properties
-    protected static $filters;
-    protected static $fieldSettings;
+    public const LABEL = 'Geo Names';
+    public const NAME  = 'geoname';
 
 
     /*
@@ -103,339 +98,8 @@ class Geoname
     }
 
 
-    public function initialize( ?string $forCompatibilityOnly = null ): void
+    public function initialize(): void
     {
-
-        self::$filters = [
-
-            // habitation only
-            'habitation_only' => [
-                'isSetting'         => true,
-                'type'              => 'true_false',
-                'name'              => 'habitation_only',
-                'caption'           => __( "Habitations only", 'tbp-acf-fields' ),
-                'label'             => __( 'Filter habitations only', 'tbp-acf-fields' ),
-                'instructions'      => 'If selected, only locations denominating a habitation (city, town, village, etc.) will be in the list. (Feature codes: ' . implode(
-                        ', ',
-                        array_reduce(
-                            Core::FEATURE_FILTERS['habitationOnly'],
-                            static function (
-                                $carry,
-                                $item
-                            ) {
-
-                                return $carry + $item;
-                            },
-                            []
-                        )
-                    ) . ')',
-                'allow_null'        => 0,
-                'default_value'     => true,
-                'ui'                => true,
-                'filterCallback'    => [
-                    $this,
-                    'filterHabitationOnly',
-                ],
-                'conditional_logic' => [
-                    [
-                        [
-                            'field'    => 'countries_only',
-                            'operator' => '!=',
-                            'value'    => '1',
-                        ],
-                    ],
-                ],
-            ],
-
-            // Countries only
-            'countries_only'  => [
-                'isSetting'         => true,
-                'type'              => 'true_false',
-                'name'              => 'countries_only',
-                'caption'           => __( "Countries only", 'tbp-acf-fields' ),
-                'label'             => __( 'Filter countries only', 'tbp-acf-fields' ),
-                'instructions'      => 'If selected, only locations denominating a country will be in the list. (Feature codes: ' . implode(
-                        ', ',
-                        array_reduce(
-                            Core::FEATURE_FILTERS['countriesOnly'],
-                            static function (
-                                $carry,
-                                $item
-                            ) {
-
-                                return $carry + $item;
-                            },
-                            []
-                        )
-                    ) . ')',
-                'allow_null'        => 0,
-                'default_value'     => true,
-                'ui'                => true,
-                'filterCallback'    => [
-                    $this,
-                    'filterCountriesOnly',
-                ],
-                'conditional_logic' => [
-                    [
-                        [
-                            'field'    => 'habitation_only',
-                            'operator' => '!=',
-                            'value'    => '1',
-                        ],
-                    ],
-                ],
-            ],
-
-            // feature_class
-            'feature_class'   => [
-                'isSetting'         => true,
-                'type'              => 'select',
-                'name'              => 'feature_class',
-                'caption'           => __( "Feature Class", 'tbp-acf-fields' ),
-                'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __(
-                        'feature class',
-                        'tbp-acf-fields'
-                    ),
-                'select_label'      => __( 'Select', 'tbp-acf-fields' ) . ' ' . __( 'feature class', 'tbp-acf-fields' ),
-                'instructions'      => '',
-                'choices'           => [
-                    static::class,
-                    'getFeatureClasses',
-                ],
-                'multiple'          => 1,
-                'ui'                => 1,
-                'allow_null'        => 1,
-                'placeholder'       => __( "All feature classes", 'tbp-acf-fields' ),
-                'conditional_logic' => [
-                    [
-                        [
-                            'field'    => 'habitation_only',
-                            'operator' => '!=',
-                            'value'    => '1',
-                        ],
-                        [
-                            'field'    => 'countries_only',
-                            'operator' => '!=',
-                            'value'    => '1',
-                        ],
-                    ],
-                ],
-            ],
-
-            // feature_code
-            'feature_code'    => [
-                'isSetting'         => true,
-                'type'              => 'select',
-                'name'              => 'feature_code',
-                'caption'           => __( "Feature Code", 'tbp-acf-fields' ),
-                'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __(
-                        'Feature Code',
-                        'tbp-acf-fields'
-                    ),
-                'select_label'      => __( 'Select', 'tbp-acf-fields' ) . ' ' . __( 'Feature Code', 'tbp-acf-fields' ),
-                'instructions'      => '',
-                'choices'           => [
-                    static::class,
-                    'getFeatureCodes',
-                ],
-                'multiple'          => 1,
-                'ui'                => 1,
-                'allow_null'        => 1,
-                'placeholder'       => __( "All feature codes", 'tbp-acf-fields' ),
-                'conditional_logic' => [
-                    [
-                        [
-                            'field'    => 'habitation_only',
-                            'operator' => '!=',
-                            'value'    => '1',
-                        ],
-                        [
-                            'field'    => 'countries_only',
-                            'operator' => '!=',
-                            'value'    => '1',
-                        ],
-                    ],
-                ],
-            ],
-
-            // country
-            'country_code'    => [
-                'isSetting'         => true,
-                'name'              => 'country_code',
-                'type'              => 'select',
-                'caption'           => __( "Country", 'tbp-acf-fields' ),
-                'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __( 'country', 'tbp-acf-fields' ),
-                'select_label'      => __( "All countries", 'tbp-acf-fields' ),
-                'instructions'      => '',
-                'choices'           => [
-                    static::class,
-                    'getCountryCodes',
-                ],
-                'multiple'          => 1,
-                'ui'                => 1,
-                'allow_null'        => 1,
-                'placeholder'       => __( "All countries", 'tbp-acf-fields' ),
-                'conditional_logic' => [
-                    [
-                        [
-                            'field'    => 'countries_only',
-                            'operator' => '!=',
-                            'value'    => '1',
-                        ],
-                    ],
-                ],
-            ],
-
-            // search
-            'search'          => [
-                'type'           => 'text',
-                'name'           => 'search',
-                'caption'        => __( "Search", 'acf' ),
-                'placeholder'    => __( "Search...", 'acf' ),
-                'data-filter'    => 's',
-                'filterCallback' => [
-                    $this,
-                    'filterSearch',
-                ],
-            ],
-
-        ];
-
-        self::$fieldSettings = [
-
-            // filter layout
-            'one_filter_per_row' => [
-                'type'       => 'true_false',
-                'name'       => 'one_filter_per_row',
-                'label'      => __( 'Display one filter per row', 'tbp-acf-fields' ),
-                'ui'         => 1,
-                'allow_null' => 0,
-                'default'    => false,
-            ],
-
-            // choice layout
-            'choice_on_new_line' => [
-                'type'       => 'true_false',
-                'name'       => 'choice_on_new_line',
-                'label'      => __( 'Display selected values on new line', 'tbp-acf-fields' ),
-                'ui'         => 1,
-                'allow_null' => 0,
-                'default'    => false,
-            ],
-
-            'selection_choices_display_instruction' => [
-                'type'       => 'true_false',
-                'name'       => 'selection_choices_display_instruction',
-                'label'      => __( 'Display instruction for available choices', 'tbp-acf-fields' ),
-                'ui'         => 1,
-                'allow_null' => 0,
-                'default'    => 1,
-            ],
-
-            'selection_choices_instruction_text' => [
-                'type'              => 'text',
-                'name'              => 'selection_choices_instruction_text',
-                'label'             => __( 'Choices instructions', 'tbp-acf-fields' ),
-                'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
-                'placeholder'       => __(
-                    'Click on one of the entries to add it to the selection.',
-                    'tbp-acf-fields'
-                ),
-                'allow_null'        => 1,
-                'default'           => null,
-                'conditional_logic' => [
-                    [
-                        [
-                            'field'    => 'selection_choices_display_instruction',
-                            'operator' => '==',
-                            'value'    => '1',
-                        ],
-                    ],
-                ],
-            ],
-
-            'selection_values_display_instruction' => [
-                'type'       => 'true_false',
-                'name'       => 'selection_values_display_instruction',
-                'label'      => __( 'Display instruction for selected values', 'tbp-acf-fields' ),
-                'ui'         => 1,
-                'allow_null' => 0,
-                'default'    => 1,
-            ],
-
-            'selection_values_instruction_text' => [
-                'type'              => 'text',
-                'name'              => 'selection_values_instruction_text',
-                'label'             => __( 'Selection instructions', 'tbp-acf-fields' ),
-                'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
-                'placeholder'       => __(
-                    'This is/are the current selected values. To remove an entry, click on the minus-symbol at the end of the line.',
-                    'tbp-acf-fields'
-                ),
-                'allow_null'        => 1,
-                'default'           => null,
-                'conditional_logic' => [
-                    [
-                        [
-                            'field'    => 'selection_values_display_instruction',
-                            'operator' => '==',
-                            'value'    => '1',
-                        ],
-                    ],
-                ],
-            ],
-
-            // min
-            'min'                               => [
-                'type'         => 'number',
-                'name'         => 'min',
-                'label'        => __( 'Minimum locations', 'tbp-acf-fields' ),
-                'instructions' => '',
-            ],
-
-            // max
-            'max'                               => [
-                'type'         => 'number',
-                'name'         => 'max',
-                'label'        => __( 'Maximum locations', 'tbp-acf-fields' ),
-                'instructions' => '',
-            ],
-
-            'replace_selected_value' => [
-                'type'              => 'true_false',
-                'name'              => 'replace_selected_value',
-                'label'             => __( 'Replace selected value', 'tbp-acf-fields' ),
-                'instructions'      => __(
-                    'If there is only one choice allowed and this setting is set to true, the selected value is automatically replaced. If this setting is set to false, the user has to first remove the current selection.',
-                    'tbp-acf-fields'
-                ),
-                'ui'                => 1,
-                'allow_null'        => 0,
-                'default'           => true,
-                'conditional_logic' => [
-                    [
-                        [
-                            'field'    => 'max',
-                            'operator' => '==',
-                            'value'    => '1',
-                        ],
-                    ],
-                ],
-            ],
-
-            // return_format
-            'return_format'          => [
-                'type'         => 'radio',
-                'name'         => 'return_format',
-                'label'        => __( 'Return Format', 'acf' ),
-                'instructions' => '',
-                'choices'      => [
-                    'object' => __( "Geoname Location Object", 'tbp-acf-fields' ),
-                    'id'     => __( "Geoname ID", 'tbp-acf-fields' ),
-                ],
-                'layout'       => 'horizontal',
-            ],
-        ];
 
         /*
         *  l10n (array) Array of strings that are used in JavaScript. This allows JS strings to be translated in PHP and loaded via:
@@ -462,7 +126,7 @@ class Geoname
             ]
         );
 
-        parent::initialize( "acf/fields/geoname/filter/name=" );
+        $this->filterBase = "acf/fields/geoname/filter/name=";
     }
 
 
@@ -515,7 +179,7 @@ class Geoname
 
         $context = (object) [
             'field'          => &$field,
-            'filters'        => static::getFilterDefinitions(),
+            'filters'        => $this->getFilters(),
             'options'        => &$options,
             'filter'         => null,
             'filterSettings' => null,
@@ -609,6 +273,264 @@ class Geoname
 
         // return
         return $response;
+    }
+
+
+    protected function getFieldSettingsDefinition(): array
+    {
+
+        $searchTypes = [];
+
+        foreach ( ApiQuery::SEARCH_TYPES as $searchTypeBitmask => $searchTypeName )
+        {
+            $searchTypes[ $searchTypeBitmask ] = __( $searchTypeName, 'tbp-acf-fields' );
+        }
+
+        $fieldSettings = parent::getFieldSettingsDefinition()
+            + array_column(
+                [
+                    [
+                        'isSetting'    => true,
+                        'name'         => 'searchTypeDefaults',
+                        'type'         => 'checkbox',
+                        'label'        => __( 'Default search mode', 'tbp-acf-fields' ),
+                        'instructions' => '',
+                        'choices'      => $searchTypes,
+                    ],
+                    [
+                        'type'         => 'true_false',
+                        'name'         => 'searchTypesAllowUser',
+                        'label'        => __( 'User-defined Search Mode', 'tbp-acf-fields' ),
+                        'instructions' => __(
+                            'Allow user to select from the following search types.',
+                            'tbp-acf-fields'
+                        ),
+                        'ui'           => 1,
+                        'allow_null'   => 0,
+                        'default'      => 0,
+                    ],
+                    [
+                        'isSetting'         => true,
+                        'name'              => 'searchTypeUserEditable',
+                        'type'              => 'checkbox',
+                        'label'             => __( 'Available Search Modes', 'tbp-acf-fields' ),
+                        'instructions'      => __( 'Allow user to select from these search modes.', 'tbp-acf-fields' ),
+                        'choices'           => $searchTypes,
+                        'conditional_logic' => [
+                            [
+                                'field'    => 'searchTypesAllowUser',
+                                'operator' => '!=',
+                                'value'    => '0',
+                            ],
+                        ],
+
+                    ],
+                ],
+                null,
+                'name'
+            );
+
+        return $fieldSettings;
+    }
+
+
+    public function getFilterDefinition(): array
+    {
+
+        return $this->addFilterCallbacks(
+            [
+                // search
+                $this->getFilterDefinitionSearch(),
+
+                // habitation only
+                [
+                    'isSetting'         => true,
+                    'type'              => 'true_false',
+                    'name'              => 'habitation_only',
+                    'caption'           => __( "Habitations only", 'tbp-acf-fields' ),
+                    'label'             => __( 'Filter habitations only', 'tbp-acf-fields' ),
+                    'instructions'      => 'If selected, only locations denominating a habitation (city, town, village, etc.) will be in the list. (Feature codes: ' . implode(
+                            ', ',
+                            array_reduce(
+                                Core::FEATURE_FILTERS['habitationOnly'],
+                                static function (
+                                    $carry,
+                                    $item
+                                ) {
+
+                                    return $carry + $item;
+                                },
+                                []
+                            )
+                        ) . ')',
+                    'allow_null'        => 0,
+                    'default_value'     => true,
+                    'ui'                => true,
+                    'filterCallback'    => [
+                        $this,
+                        'filterHabitationOnly',
+                    ],
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'countries_only',
+                                'operator' => '!=',
+                                'value'    => '1',
+                            ],
+                        ],
+                    ],
+                ],
+
+                // Countries only
+                [
+                    'isSetting'         => true,
+                    'type'              => 'true_false',
+                    'name'              => 'countries_only',
+                    'caption'           => __( "Countries only", 'tbp-acf-fields' ),
+                    'label'             => __( 'Filter countries only', 'tbp-acf-fields' ),
+                    'instructions'      => 'If selected, only locations denominating a country will be in the list. (Feature codes: ' . implode(
+                            ', ',
+                            array_reduce(
+                                Core::FEATURE_FILTERS['countriesOnly'],
+                                static function (
+                                    $carry,
+                                    $item
+                                ) {
+
+                                    return $carry + $item;
+                                },
+                                []
+                            )
+                        ) . ')',
+                    'allow_null'        => 0,
+                    'default_value'     => true,
+                    'ui'                => true,
+                    'filterCallback'    => [
+                        $this,
+                        'filterCountriesOnly',
+                    ],
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'habitation_only',
+                                'operator' => '!=',
+                                'value'    => '1',
+                            ],
+                        ],
+                    ],
+                ],
+
+                // feature_class
+                [
+                    'isSetting'         => true,
+                    'type'              => 'select',
+                    'name'              => 'feature_class',
+                    'caption'           => __( "Feature Class", 'tbp-acf-fields' ),
+                    'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __(
+                            'feature class',
+                            'tbp-acf-fields'
+                        ),
+                    'select_label'      => __( 'Select', 'tbp-acf-fields' ) . ' ' . __(
+                            'feature class',
+                            'tbp-acf-fields'
+                        ),
+                    'instructions'      => '',
+                    'choices'           => [
+                        static::class,
+                        'getFeatureClasses',
+                    ],
+                    'multiple'          => 1,
+                    'ui'                => 1,
+                    'allow_null'        => 1,
+                    'placeholder'       => __( "All feature classes", 'tbp-acf-fields' ),
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'habitation_only',
+                                'operator' => '!=',
+                                'value'    => '1',
+                            ],
+                            [
+                                'field'    => 'countries_only',
+                                'operator' => '!=',
+                                'value'    => '1',
+                            ],
+                        ],
+                    ],
+                ],
+
+                // feature_code
+                [
+                    'isSetting'         => true,
+                    'type'              => 'select',
+                    'name'              => 'feature_code',
+                    'caption'           => __( "Feature Code", 'tbp-acf-fields' ),
+                    'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __(
+                            'Feature Code',
+                            'tbp-acf-fields'
+                        ),
+                    'select_label'      => __( 'Select', 'tbp-acf-fields' ) . ' ' . __(
+                            'Feature Code',
+                            'tbp-acf-fields'
+                        ),
+                    'instructions'      => '',
+                    'choices'           => [
+                        static::class,
+                        'getFeatureCodes',
+                    ],
+                    'multiple'          => 1,
+                    'ui'                => 1,
+                    'allow_null'        => 1,
+                    'placeholder'       => __( "All feature codes", 'tbp-acf-fields' ),
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'habitation_only',
+                                'operator' => '!=',
+                                'value'    => '1',
+                            ],
+                            [
+                                'field'    => 'countries_only',
+                                'operator' => '!=',
+                                'value'    => '1',
+                            ],
+                        ],
+                    ],
+                ],
+
+                // country
+                [
+                    'isSetting'         => true,
+                    'name'              => 'country_code',
+                    'type'              => 'select',
+                    'caption'           => __( "Country", 'tbp-acf-fields' ),
+                    'label'             => __( 'Filter by', 'tbp-acf-fields' ) . ' ' . __(
+                            'country',
+                            'tbp-acf-fields'
+                        ),
+                    'select_label'      => __( "All countries", 'tbp-acf-fields' ),
+                    'instructions'      => '',
+                    'choices'           => [
+                        static::class,
+                        'getCountryCodes',
+                    ],
+                    'multiple'          => 1,
+                    'ui'                => 1,
+                    'allow_null'        => 1,
+                    'placeholder'       => __( "All countries", 'tbp-acf-fields' ),
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'countries_only',
+                                'operator' => '!=',
+                                'value'    => '1',
+                            ],
+                        ],
+                    ],
+                ],
+
+            ]
+        );
     }
 
 
@@ -852,7 +774,7 @@ class Geoname
                     }
 
                     $val['facet_display_value'] = $display_value ?? Country::load( $val['facet_display_value'] )
-                                                                           ->getName($languageCode)
+                                                                           ->getName( $languageCode )
                     ;
 
                 }
@@ -1144,396 +1066,29 @@ class Geoname
     }
 
 
-    /**
-     *  render_field()
-     *
-     *  Create the HTML interface for your field
-     *
-     * @since          3.6
-     * @date           23/01/13
-     *
-     * @param    $field  (array) the $field being rendered
-     *
-     * @method-type    action
-     *
-     * @throws \ErrorException
-     */
-    public function render_field( $field ): void
-    {
+    protected function render_field_values(
+        array &$field,
+        callable $render
+    ): void {
 
-        // field settings
-        $fieldSettings = static::getFieldSettingDefinitions();
-
-        // filters
-        $filters      = static::getFilterDefinitions( acf_get_array( $field['filters'] ) );
-        $filter_count = count( $filters );
-
-        // div attributes
-        $attributes = [
-            'id'         => $field['id'],
-            'class'      => "tbp-acf-relation-list tbp-acf-geoname {$field['class']}",
-            'data-min'   => $field['min'],
-            'data-max'   => $field['max'],
-            'data-paged' => 1,
-        ];
-
-        if ( $field['max'] === 1 )
+        if ( ! empty( $field['value'] ) )
         {
-            $attributes['data-replace-selected'] = $field['replace_selected_value']
-                ? 1
-                : 0;
-        }
 
-        array_walk(
-            $filters,
-            static function ( &$filter ) use
-            (
-                &
-                $attributes
-            )
+            // get locations
+            $locations = Location::load( $field['value'] );
+
+            /**
+             * loop
+             *
+             * @var Location $location
+             */
+            foreach ( $locations as $location )
             {
-
-                $filter['data-filter']                          = $filter['data-filter'] ?? $filter['name'];
-                $attributes[ 'data-' . $filter['data-filter'] ] = '';
+                $dataId  = $location->geonameId;
+                $caption = $location->name . ', ' . $location->countryCode;
+                $render( $dataId, $caption );
             }
-        );
-
-        ?>
-        <div <?php
-        echo acf_esc_attrs( $attributes ); ?>>
-
-            <?php
-            acf_hidden_input(
-                [
-                    'name'  => $field['name'],
-                    'value' => '',
-                ]
-            ); ?>
-
-            <?php
-
-            /* filters */
-            if ( $filter_count )
-            {
-                ?>
-                <div class="filters -f<?php
-                echo $field['one_filter_per_row']
-                    ? 4
-                    : $filter_count; ?>">
-                    <?php
-
-                    foreach ( $filters as $filter => $filterSettings )
-                    {
-                        ?>
-                        <div class="filter-instruction -<?php
-                        echo esc_attr( $filter ); ?>"><?php
-
-                            if ( $field[ $filter . '_display_instruction' ] )
-                            {
-                                echo $field[ $filter . '_instruction_text' ] ?? $filterSettings['instructions'];
-                            }
-                            ?></div>
-                        <div class="filter -<?php
-                        echo esc_attr( $filter ); ?>">
-                            <?php
-
-                            switch ( $filterSettings['type'] )
-                            {
-                            case 'text':
-                                $function = 'acf_text_input';
-                                break;
-
-                            case 'select':
-                                $function                  = 'acf_select_input';
-                                $filterSettings['choices'] = [
-                                        '' => $filterSettings['select_label'],
-                                    ]
-                                    + $filterSettings['choices']( acf_get_array( $field[ $filter ] ) );
-                                break;
-
-                            default:
-                                throw new ErrorException( "unknown filter input type $filter" );
-                            }
-
-                            $function(
-                                array_intersect_key(
-                                    $filterSettings,
-                                    array_flip(
-                                        [
-                                            'placeholder',
-                                            'data-filter',
-                                            'choices',
-                                        ]
-                                    )
-                                )
-                            );
-
-                            ?>
-                        </div>
-                        <?php
-                    }
-
-                    ?>
-                </div>
-                <?php
-            }
-
-            $width  = ( $field['choice_on_new_line'] ?? false )
-                ? 100
-                : 50;
-            $height = ( $width === 100 && (int) ( $field['max'] ?? 0 ) === 1 )
-                ? 'single-line'
-                : '';
-
-            ?>
-
-            <div class="selection">
-                <div class="selection-instruction choices-instruction"><?php
-
-                    if ( $field['selection_choices_display_instruction'] )
-                    {
-                        echo $field['selection_choices_instruction_text']
-                            ?: $fieldSettings['selection_choices_instruction_text']['placeholder'];
-                    }
-                    ?></div>
-                <div class="choices choices-<?php
-                echo $width; ?>">
-                    <ul class="acf-bl list choices-list"></ul>
-                </div>
-                <div class="selection-instruction values-instruction"><?php
-
-                    if ( $field['selection_values_display_instruction'] )
-                    {
-                        echo $field['selection_values_instruction_text']
-                            ?: $fieldSettings['selection_values_instruction_text']['placeholder'];
-                    }
-                    ?></div>
-                <div class="values values-<?php
-                echo $width; ?>">
-                    <ul class="acf-bl list values-list <?php
-                    echo $height; ?>">
-                        <?php
-                        if ( ! empty( $field['value'] ) )
-                        {
-
-                            // get posts
-                            $locations = Location::load( $field['value'] );
-
-                            // loop
-                            /** @var Location $location */
-                            foreach ( $locations as $location )
-                            {
-                                $dataId  = $location->geonameId;
-                                $caption = $location->name . ', ' . $location->countryCode;
-
-                                printf(
-                                    <<<HTML
-                               <li>
-                                    %s
-                                    <span class="acf-rel-item" data-id="%s" >
-							            %s
-							            <a href="#" class="acf-icon -minus small dark" data-name="remove_item"></a>
-                                    </span>
-                                </li>
-HTML
-                                    ,
-                                    acf_get_hidden_input(
-                                        [
-                                            'name'  => $field['name'] . '[]',
-                                            'value' => $dataId,
-                                        ]
-                                    ),
-                                    esc_attr( $dataId ),
-                                    acf_esc_html( $caption )
-                                );
-                            }
-                        } ?>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <?php
-    }
-
-
-    /**
-     *  render_field_settings()
-     *
-     *  Create extra settings for your field. These are visible when editing a field
-     *
-     * @method-type    action
-     * @since          3.6
-     * @date           23/01/13
-     *
-     * @param  array  $field  the $field being edited
-     *
-     * @return    void
-     */
-    public function render_field_settings( array $field ): void
-    {
-
-        // vars
-        $field['min']  = empty( $field['min'] )
-            ? ''
-            : $field['min'];
-        $field['max']  = empty( $field['max'] )
-            ? ''
-            : $field['max'];
-        $filterChoices = [];
-
-        foreach ( self::getFilterDefinitions() as $filter => $setting )
-        {
-
-            $filterChoices[ $filter ] = $setting['caption'];
-
-            if ( array_key_exists( 'choices', $setting ) && is_callable( $setting['choices'] ) )
-            {
-                $setting['choices'] = $setting['choices']();
-            }
-
-            ?>
-            <tr>
-                <td>
-                    <?php
-                    echo $setting['caption'];
-                    ?>
-                </td>
-                <td>
-                    <table class="acf-table">
-                        <?php
-
-                        if ( $setting['isSetting'] ?? false )
-                        {
-                            acf_render_field_setting( $field, $setting );
-                        }
-
-                        $logic = $setting['conditional_logic'] ?? [];
-
-                        acf_render_field_setting(
-                            $field,
-                            [
-                                'type'              => 'true_false',
-                                'name'              => $filter . '_display_instruction',
-                                'label'             => __( 'Display instruction', 'tbp-acf-fields' ),
-                                'ui'                => 1,
-                                'allow_null'        => 0,
-                                'default'           => 1,
-                                'conditional_logic' => $logic,
-                            ]
-                        );
-
-                        if ( empty( $logic ) )
-                        {
-                            $logic = [ [] ];
-                        }
-
-                        array_walk(
-                            $logic,
-                            static function ( &$condition ) use
-                            (
-                                $filter
-                            )
-                            {
-
-                                $condition[] = [
-                                    'field'    => $filter . '_display_instruction',
-                                    'operator' => '!=',
-                                    'value'    => '0',
-                                ];
-                            }
-                        );
-
-                        //echo "<pre>" . print_r($logic, true) . "</pre>";
-
-                        acf_render_field_setting(
-                            $field,
-                            [
-                                'type'              => 'text',
-                                'name'              => $filter . '_instruction_text',
-                                'label'             => __( 'Filter instructions', 'tbp-acf-fields' ),
-                                'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
-                                'placeholder'       => $setting['instructions'],
-                                'conditional_logic' => $logic,
-                            ]
-                        );
-                        ?>
-                    </table>
-                </td>
-            </tr>
-            <?php
         }
-
-        // filters
-        acf_render_field_setting(
-            $field,
-            [
-                'isSetting'    => true,
-                'name'         => 'filters',
-                'type'         => 'checkbox',
-                'label'        => __( 'Filters', 'acf' ),
-                'instructions' => '',
-                'choices'      => $filterChoices,
-            ]
-        );
-
-        $searchTypes = [];
-
-        foreach ( ApiQuery::SEARCH_TYPES as $searchTypeBitmask => $searchTypeName )
-        {
-            $searchTypes[ $searchTypeBitmask ] = __( $searchTypeName, 'tbp-acf-fields' );
-        }
-
-        acf_render_field_setting(
-            $field,
-            [
-                'isSetting'    => true,
-                'name'         => 'searchTypeDefaults',
-                'type'         => 'checkbox',
-                'label'        => __( 'Default search mode', 'tbp-acf-fields' ),
-                'instructions' => '',
-                'choices'      => $searchTypes,
-            ]
-        );
-
-        acf_render_field_setting(
-            $field,
-            [
-                'type'         => 'true_false',
-                'name'         => 'searchTypesAllowUser',
-                'label'        => __( 'User-defined Search Mode', 'tbp-acf-fields' ),
-                'instructions' => __( 'Allow user to select from the following search types.', 'tbp-acf-fields' ),
-                'ui'           => 1,
-                'allow_null'   => 0,
-                'default'      => 0,
-            ]
-        );
-
-        acf_render_field_setting(
-            $field,
-            [
-                'isSetting'         => true,
-                'name'              => 'searchTypeUserEditable',
-                'type'              => 'checkbox',
-                'label'             => __( 'Available Search Modes', 'tbp-acf-fields' ),
-                'instructions'      => __( 'Allow user to select from these search modes.', 'tbp-acf-fields' ),
-                'choices'           => $searchTypes,
-                'conditional_logic' => [
-                    [
-                        'field'    => 'searchTypesAllowUser',
-                        'operator' => '!=',
-                        'value'    => '0',
-                    ],
-                ],
-
-            ]
-        );
-
-        foreach ( self::getFieldSettingDefinitions() as $fieldName => $setting )
-        {
-
-            acf_render_field_setting( $field, $setting );
-        }
-
     }
 
 
@@ -1671,6 +1226,5 @@ HTML
             ]
         );
     }
-
 
 }
