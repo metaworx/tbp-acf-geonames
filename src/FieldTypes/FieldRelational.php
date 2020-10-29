@@ -26,10 +26,11 @@ abstract class FieldRelational
                     'label'        => __( 'Layout', 'tbp-acf-fields' ),
                     'instructions' => '',
                     'choices'      => [
-                        'list'    => __( "List", 'tbp-acf-fields' ),
-                        'fSelect' => __( "Dynamic Selection", 'tbp-acf-fields' ),
+                        'list'   => __( "List", 'tbp-acf-fields' ),
+                        'select' => __( "Dynamic Selection", 'tbp-acf-fields' ),
                     ],
                     'layout'       => 'vertical',
+                    'default'      => 'list',
                 ],
 
                 // selection limit
@@ -311,6 +312,42 @@ abstract class FieldRelational
             $field['min'] = 1;
         }
 
+        switch ( $field['choice_layout'] ?? $fieldSettings['choice_layout']['default'] )
+        {
+        case 'list':
+            $this->render_fieldAsList( $field, $fieldSettings );
+            break;
+
+        case 'fSelect':
+        case 'select':
+            $this->render_fieldAsSelect( $field, $fieldSettings );
+            break;
+
+        default:
+            break;
+        }
+    }
+
+
+    /**
+     *  render_field()
+     *
+     *  Create the HTML interface for your field
+     *
+     * @since          3.6
+     * @date           23/01/13
+     *
+     * @param    $field  (array) the $field being rendered
+     *
+     * @method-type    action
+     *
+     * @throws \ErrorException
+     */
+    public function render_fieldAsList(
+        array &$field,
+        array &$fieldSettings
+    ): void {
+
         // filters
         $filters      = $this->getFilters( acf_get_array( $field['filters'] ) );
         $filter_count = count( $filters );
@@ -319,8 +356,7 @@ abstract class FieldRelational
         $attributes = [
             'id'         => $field['id'],
             'class'      => sprintf(
-                "tbp-acf-relation tbp-acf-relation-%s tbp-acf-%s %s",
-                $field['choice_layout'],
+                "tbp-acf-relation tbp-acf-relation-list tbp-acf-%s %s",
                 static::NAME,
                 $field['class']
             ),
@@ -509,6 +545,41 @@ HTML
             </div>
         </div>
         <?php
+    }
+
+
+
+    public function render_fieldAsSelect(
+        array &$field,
+        array &$fieldSettings
+    ): void {
+
+        // Change Field into a select.
+        $field['type']    = 'select';
+        $field['ui']      = 1;
+        $field['ajax']    = 1;
+        $field['choices'] = [];
+
+        // Populate choices.
+
+        $this->render_field_values(
+            $field,
+            static function (
+                string $dataId,
+                string $caption,
+                ?string $template = null
+            ) use
+            (
+                &
+                $field
+            )
+            {
+                $field['choices'][ $dataId ] = $caption;
+            }
+        );
+
+        // Render.
+        acf_render_field( $field );
     }
 
 
