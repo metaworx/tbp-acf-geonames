@@ -232,18 +232,37 @@ class Language
         }
 
         $results = [];
+        $s       = $options['s']
+            ?: null;
+        $x       = strtolower( $s );
 
         // loop
         foreach ( $languages as $language )
         {
+            $code    = $language->getCode();
+            $caption = $language->getCaption();
+
+            if ( $s !== null
+                && false === \strpos( $code, $x )
+                && false === \stripos( $caption, $x )
+            )
+            {
+                continue;
+            }
+
             $data = [
-                'id'   => $language->getId(),
-                'text' => $language->getCaption(),
+                'id'   => $code,
+                'text' => $caption,
             ];
 
             // append to $results
             $results[] = $data;
 
+        }
+
+        if ( $s !== null )
+        {
+            // ToDo: sort by weight
         }
 
         // vars
