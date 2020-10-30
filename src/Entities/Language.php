@@ -372,37 +372,98 @@ abstract class Language
      * $param array|int|string|object|null $param
      *
      * @return   \Tbp\WP\Plugin\AcfFields\Entities\Language|\Tbp\WP\Plugin\AcfFields\Entities\Language[]|null
+     * @noinspection AdditionOperationOnArraysInspection
      */
     public static function load(
         $ids,
         $param = []
     ) {
 
+        static $cachedAll = false;
+
         $keyed   = array_flip( (array) $ids );
         $cached  = array_intersect_key( static::$allLanguages, $keyed );
         $missing = array_diff_key( $keyed, $cached );
-        $posts   = null;
+        $posts   = [];
 
-        if ( ! empty( $missing ) || empty( $ids ) )
+        /** @noinspection CallableParameterUseCaseInTypeContextInspection */
+        $param = wp_parse_args(
+            $param,
+            [
+                'posts_per_page'         => - 1,
+                'paged'                  => 0,
+                'post_type'              => static::POST_TYPE,
+                'orderby'                => 'menu_order title',
+                'order'                  => 'ASC',
+                'post_status'            => 'any',
+                'suppress_filters'       => false,
+                'update_post_meta_cache' => false,
+            ]
+        );
+
+        if ( empty( $ids ) )
         {
-            /** @noinspection CallableParameterUseCaseInTypeContextInspection */
-            $param = wp_parse_args(
-                $param,
-                [
-                    'posts_per_page'         => - 1,
-                    'paged'                  => 0,
-                    'post_type'              => static::POST_TYPE,
-                    'orderby'                => 'menu_order title',
-                    'order'                  => 'ASC',
-                    'post_status'            => 'any',
-                    'suppress_filters'       => false,
-                    'update_post_meta_cache' => false,
-                    'include'                => array_flip( $missing ),
-                ]
+            if ( $cachedAll )
+            {
+                $cached = array_filter(
+                    static::$allLanguages,
+                    static function ( $key )
+                    {
+
+                        /** @noinspection CallableParameterUseCaseInTypeContextInspection */
+                        return is_string( $key );
+                    },
+                    ARRAY_FILTER_USE_KEY
+                );
+            }
+            else
+            {
+                $posts     = get_posts( $param );
+                $cachedAll = true;
+            }
+        }
+        elseif ( ! empty( $missing ) )
+        {
+            // get all missing languages by id
+            $missingIds = array_filter(
+                $missing,
+                static function ( $key )
+                {
+
+                    return is_numeric( $key );
+                },
+                ARRAY_FILTER_USE_KEY
             );
 
-            $missing = null;
-            $posts   = get_posts( $param );
+            // get all missing languages by slug
+            $missingSlugs = array_filter(
+                $missing,
+                static function ( $key )
+                {
+
+                    return is_string( $key );
+                },
+                ARRAY_FILTER_USE_KEY
+            );
+
+            // lookup by id
+            if ( ! empty( $missingIds ) )
+            {
+                $param['include'] = array_keys( $missingIds );
+
+                $missing = null;
+                $posts   += get_posts( $param );
+
+                unset( $param['include'] );
+            }
+
+            // lookup by slug
+            if ( ! empty( $missingSlugs ) )
+            {
+                $param['post_name__in'] = array_keys( $missingSlugs );
+
+                $posts += get_posts( $param );
+            }
         }
 
         if ( ! empty( $posts ) )
@@ -432,7 +493,11 @@ abstract class Language
                      * @noinspection CallableParameterUseCaseInTypeContextInspection
                      * @noinspection PhpUndefinedFieldInspection
                      */
-                    static::$allLanguages[ $post->ID ] = $post = new $class( $post, $language_info );
+                    $post = new $class( $post, $language_info );
+
+                    // cache languages by id and by language code
+                    static::$allLanguages[ $post->getId() ]   = $post;
+                    static::$allLanguages[ $post->getCode() ] = $post;
                 }
             );
 
@@ -729,10 +794,16 @@ abstract class Language
      */
     public static function translateLanguageIds(
         $object_id,
-        $language_code = null
+        $language_code = null,
+        $returnFormat = 'id'
     ) {
 
-        return static::translateObjectIds( $object_id, static::POST_TYPE, $language_code );
+        return static::translateObjectIds(
+            $object_id,
+            static::POST_TYPE,
+            $language_code,
+            $returnFormat
+        );
     }
 
 
@@ -755,15 +826,45 @@ abstract class Language
     public static function translateObjectIds(
         $object_id,
         $type = 'any',
-        $language_code = null
+        $language_code = null,
+        $returnFormat = 'id'
     ) {
+
+        if ( $object_id instanceof Language )
+        {
+
+            if ( $returnFormat === 'id' )
+            {
+                return $object_id->getId();
+            }
+
+            if ( property_exists( $object_id, $returnFormat ) )
+            {
+                return $object_id->$returnFormat;
+            }
+
+            if ( method_exists( $object_id, $returnFormat )
+                && is_callable(
+                    [
+                        $object_id,
+                        $returnFormat,
+                    ]
+                ) )
+            {
+                return $object_id->$returnFormat();
+            }
+
+            throw new \ErrorException(
+                sprintf( 'Invalid return_format "%s" given as 4th argument to %s', $returnFormat, __METHOD__ )
+            );
+        }
 
         if ( is_array( $object_id ) )
         {
             $translated_object_ids = [];
             foreach ( $object_id as $id )
             {
-                $translated_object_ids[] = static::translateObjectIds( $id, $type, $language_code );
+                $translated_object_ids[] = static::translateObjectIds( $id, $type, $language_code, $returnFormat );
             }
 
             return $translated_object_ids;
@@ -783,14 +884,26 @@ abstract class Language
                 $object_id = explode( ',', $object_id );
 
                 // translate
-                $translated_object_ids = static::translateObjectIds( $object_id, $type, $language_code );
+                $translated_object_ids = static::translateObjectIds( $object_id, $type, $language_code, $returnFormat );
 
                 // make sure the output is a comma separated string (the same way it came in!)
                 return implode( ',', $translated_object_ids );
             }
 
-            // if we don't find a comma in the string then this is a single ID
-            return static::translateObjectIds( (int) $object_id, $type, $language_code );
+            if ( is_numeric( $object_id ) )
+            {
+                // if we don't find a comma in the string then this is a single ID
+                return static::translateObjectIds( (int) $object_id, $type, $language_code, $returnFormat );
+            }
+
+            if ( strlen( $object_id ) !== 2 )
+            {
+                throw new \ErrorException(
+                    sprintf( 'Invalid object_id "%s" given as first argument to %s', $object_id, __METHOD__ )
+                );
+            }
+
+            return static::translateObjectIds( Language::load( $object_id ), $type, $language_code, $returnFormat );
         }
 
         if ( $language_code === true || $language_code === 'true' )
@@ -807,7 +920,14 @@ abstract class Language
             $language_code = $language_info->source_language_code ?? $language_info->language_code;
         }
 
-        return apply_filters( 'wpml_object_id', $object_id, $type, true, $language_code );
+        $object_id = apply_filters( 'wpml_object_id', $object_id, $type, true, $language_code );
+
+        if ( $returnFormat === 'id' )
+        {
+            return $object_id;
+        }
+
+        return static::translateObjectIds( Language::load( $object_id ), $type, $language_code, $returnFormat );
     }
 
 }

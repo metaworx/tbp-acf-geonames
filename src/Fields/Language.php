@@ -523,7 +523,7 @@ class Language
         array $field
     ) {
 
-        $value = LanguagePost::translateLanguageIds( $value, true );
+        $value = LanguagePost::translateLanguageIds( $value, true, 'getCode' );
 
         return $value;
     }
