@@ -895,9 +895,10 @@ HTML
     ): void {
 
         // Change Field into a select.
-        $field['type']    = 'select';
-        $field['ui']      = 1;
-        $field['ajax']    = 1;
+        $field['type']       = 'select';
+        $field['ui']         = $field['ui'] ?? $fieldSettings['ui']['default'] ?? 1;
+        $field['ajax']       = $field['ajax'] ?? $fieldSettings['ajax']['default'] ?? 0;
+        $field['allow_null'] = $field['allow_null'] ?? $fieldSettings['allow_null']['default'] ?? 1;;
         $field['choices'] = [];
 
         // Populate choices.

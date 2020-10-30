@@ -138,12 +138,21 @@
 
 		type: 'language',
 
+		select2: false,
+
+		wait: 'load',
+
 		events: {
+			'removeField': 'onRemove',
 			'keypress [data-filter]': 				'onKeypressFilter',
 			'change [data-filter]': 				'onChangeFilter',
 			'keyup [data-filter]': 					'onChangeFilter',
 			'click .choices-list .acf-rel-item': 	'onClickAdd',
 			'click [data-name="remove_item"]': 		'onClickRemove',
+		},
+
+		$input: function(){
+			return this.$('select');
 		},
 
 		$control: function(){
@@ -192,11 +201,44 @@
 			}
 
 			acf.models.RelationshipField.prototype.onClickAdd.call(this, e, $el);
-		}
+		},
 
+		initialize: function(){
+
+			// vars
+			var $select = this.$input();
+
+			// inherit data
+			this.inherit( $select );
+
+			// select2
+			if( this.get('ui') ) {
+
+				// populate ajax_data (allowing custom attribute to already exist)
+				var ajaxAction = this.get('ajax_action');
+				if( !ajaxAction ) {
+					ajaxAction = 'acf/fields/' + this.get('type') + '/query';
+				}
+
+				// select2
+				this.select2 = acf.newSelect2($select, {
+					field: this,
+					ajax: this.get('ajax'),
+					multiple: this.get('multiple'),
+					placeholder: this.get('placeholder'),
+					allowNull: this.get('allow_null'),
+					ajaxAction: ajaxAction,
+				});
+			}
+		},
+
+		onRemove: function(){
+			if( this.select2 ) {
+				this.select2.destroy();
+			}
+		}
 	});
 
 	acf.registerFieldType( Language );
 
 })(jQuery);
-
