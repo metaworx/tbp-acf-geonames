@@ -899,6 +899,11 @@ HTML
         $field['ui']         = $field['ui'] ?? $fieldSettings['ui']['default'] ?? 1;
         $field['ajax']       = $field['ajax'] ?? $fieldSettings['ajax']['default'] ?? 0;
         $field['allow_null'] = $field['allow_null'] ?? $fieldSettings['allow_null']['default'] ?? 1;;
+        // $field['readonly']
+        // $field['disabled']
+        // $field['ajax_action']
+        // $field['id'],
+        // $field['class']
         $field['choices'] = [];
 
         // Populate choices.
@@ -915,6 +920,7 @@ HTML
                 $field
             )
             {
+
                 $field['choices'][ $dataId ] = $caption;
             }
         );
