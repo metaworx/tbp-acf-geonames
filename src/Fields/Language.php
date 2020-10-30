@@ -553,6 +553,53 @@ class Language
         // register & include CSS
         wp_register_style( 'tbp-acf-fields', "{$url}assets/css/input.css", [ 'acf-input' ], $version );
         wp_enqueue_style( 'tbp-acf-fields' );
+
+        // bail early if no enqueue
+        //if( !acf_get_setting('enqueue_select2') ) return;
+
+        // globals
+        global $wp_scripts, $wp_styles;
+
+        // vars
+        $min     = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG
+            ? ''
+            : '.min';
+        $major   = acf_get_setting( 'select2_version' );
+        $version = '';
+        $script  = '';
+        $style   = '';
+
+        // attempt to find 3rd party Select2 version
+        // - avoid including v3 CSS when v4 JS is already enququed
+        if ( isset( $wp_scripts->registered['select2'] ) )
+        {
+
+            $major = (int) $wp_scripts->registered['select2']->ver;
+
+        }
+
+        // v4
+        if ( $major == 4 )
+        {
+
+            $version = '4.0';
+            $script  = acf_get_url( "assets/inc/select2/4/select2.full{$min}.js" );
+            $style   = acf_get_url( "assets/inc/select2/4/select2{$min}.css" );
+
+            // v3
+        }
+        else
+        {
+
+            $version = '3.5.2';
+            $script  = acf_get_url( "assets/inc/select2/3/select2{$min}.js" );
+            $style   = acf_get_url( "assets/inc/select2/3/select2.css" );
+
+        }
+
+        // enqueue
+        wp_enqueue_script( 'select2', $script, [ 'jquery' ], $version );
+        wp_enqueue_style( 'select2', $style, '', $version );
     }
 
 
