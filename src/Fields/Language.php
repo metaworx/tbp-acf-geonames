@@ -5,7 +5,6 @@ namespace Tbp\WP\Plugin\AcfFields\Fields;
 
 use Locale;
 use Tbp\WP\Plugin\AcfFields\Entities\Language as LanguagePost;
-use Tbp\WP\Plugin\AcfFields\Entities\Location;
 use Tbp\WP\Plugin\AcfFields\FieldTypes\FieldRelational;
 use WPGeonames\Entities\Country;
 
@@ -200,7 +199,7 @@ class Language
 
         $context = (object) [
             'field'          => &$field,
-            'filters'        => static::getFilterDefinitions(),
+            'filters'        => $this->getFilters(),
             'options'        => &$options,
             'filter'         => null,
             'filterSettings' => null,
@@ -480,7 +479,8 @@ class Language
         switch ( $field['return_format'] )
         {
         case 'object':
-            $value = Location::load( $value );
+            $value = LanguagePost::load( $value );
+
         }
 
         // return
