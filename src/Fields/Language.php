@@ -515,21 +515,22 @@ class Language
         callable $render
     ): void {
 
-        if ( ! empty( $field['value'] ) )
+        //if ( ! empty( $field['value'] ) )
+        //{
+
+        // get language posts
+        //$languages = LanguagePost::load( $field['value'] );
+        $languages = LanguagePost::load( null );
+
+        // loop
+        /** @var LanguagePost $language */
+        foreach ( $languages as $language )
         {
-
-            // get language posts
-            $languages = LanguagePost::load( $field['value'] );
-
-            // loop
-            /** @var LanguagePost $language */
-            foreach ( $languages as $language )
-            {
-                $dataId  = $language->getId();
-                $caption = $language->getCaption();
-                $render( $dataId, $caption );
-            }
+            $dataId  = $language->getCode();
+            $caption = $language->getCaption();
+            $render( $dataId, $caption );
         }
+        //}
     }
 
 
