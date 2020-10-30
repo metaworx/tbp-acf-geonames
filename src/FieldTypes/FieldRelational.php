@@ -36,7 +36,7 @@ abstract class FieldRelational
                 // selection limit
                 [
                     'type'         => 'true_false',
-                    'name'         => 'multi_select',
+                    'name'         => 'multiple',
                     'label'        => __( 'Select multiple values?', 'acf' ),
                     'instructions' => '',
                     'ui'           => 1,
@@ -53,7 +53,7 @@ abstract class FieldRelational
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'multi_select',
+                                'field'    => 'multiple',
                                 'operator' => '==',
                                 'value'    => '1',
                             ],
@@ -70,7 +70,7 @@ abstract class FieldRelational
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'multi_select',
+                                'field'    => 'multiple',
                                 'operator' => '==',
                                 'value'    => '1',
                             ],
@@ -99,7 +99,7 @@ abstract class FieldRelational
                         ],
                         [
                             [
-                                'field'    => 'multi_select',
+                                'field'    => 'multiple',
                                 'operator' => '==',
                                 'value'    => '0',
                             ],
@@ -302,7 +302,7 @@ abstract class FieldRelational
         // field settings
         $fieldSettings = $this->getFieldSettings();
 
-        if ( $field['multi_select'] ?? $fieldSettings['multi_select']['default'] )
+        if ( $field['multiple'] ?? $fieldSettings['multiple']['default'] )
         {
             $field['max'] = 1;
         }
