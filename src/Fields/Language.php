@@ -283,13 +283,7 @@ class Language
 
 
     /**
-     *  ajax_query_helper
-     *
-     *  description
-     *
-     * @date      2020-09-09
-     *
-     * @return   mixed
+     * @inheritDoc
      */
     public function ajax_query_helper()
     {
@@ -422,40 +416,6 @@ class Language
 
 
     /**
-     *  field_group_admin_enqueue_scripts()
-     *
-     *  This action is called in the admin_enqueue_scripts action on the edit screen where your field is edited.
-     *  Use this action to add CSS + JavaScript to assist your render_field_options() action.
-     *
-     * @see            http://codex.wordpress.org/Plugin_API/Action_Reference/admin_enqueue_scripts
-     * @method-type    action (admin_enqueue_scripts)
-     * @since          3.6
-     * @date           23/01/13
-     */
-    public function field_group_admin_enqueue_scripts(): void
-    {
-
-    }
-
-
-    /**
-     *  field_group_admin_head()
-     *
-     *  This action is called in the admin_head action on the edit screen where your field is edited.
-     *  Use this action to add CSS and JavaScript to assist your render_field_options() action.
-     *
-     * @see            http://codex.wordpress.org/Plugin_API/Action_Reference/admin_head
-     * @method-type    action (admin_head)
-     * @since          3.6
-     * @date           23/01/13
-     */
-    public function field_group_admin_head(): void
-    {
-
-    }
-
-
-    /**
      * @param  array   $args
      * @param  object  $context
      *
@@ -503,7 +463,6 @@ class Language
      *
      * @noinspection   PhpUnusedParameterInspection
      */
-
     public function format_value(
         $value,
         int $post_id,
@@ -530,158 +489,8 @@ class Language
 
 
     /**
-     *  input_admin_enqueue_scripts()
-     *
-     *  This action is called in the admin_enqueue_scripts action on the edit screen where your field is created.
-     *  Use this action to add CSS + JavaScript to assist your render_field() action.
-     *
-     * @method-type    action (admin_enqueue_scripts)
-     * @since          3.6
-     * @date           23/01/13
+     * @inheritDoc
      */
-    public function input_admin_enqueue_scripts(): void
-    {
-
-        // vars
-        $url     = $this->settings['url'];
-        $version = $this->settings['version'];
-
-        // register & include JS
-        wp_register_script( 'tbp-acf-fields', "{$url}assets/js/input.js", [ 'acf-input' ], $version );
-        wp_enqueue_script( 'tbp-acf-fields' );
-
-        // register & include CSS
-        wp_register_style( 'tbp-acf-fields', "{$url}assets/css/input.css", [ 'acf-input' ], $version );
-        wp_enqueue_style( 'tbp-acf-fields' );
-
-        // bail early if no enqueue
-        //if( !acf_get_setting('enqueue_select2') ) return;
-
-        // globals
-        global $wp_scripts, $wp_styles;
-
-        // vars
-        $min     = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG
-            ? ''
-            : '.min';
-        $major   = acf_get_setting( 'select2_version' );
-        $version = '';
-        $script  = '';
-        $style   = '';
-
-        // attempt to find 3rd party Select2 version
-        // - avoid including v3 CSS when v4 JS is already enququed
-        if ( isset( $wp_scripts->registered['select2'] ) )
-        {
-
-            $major = (int) $wp_scripts->registered['select2']->ver;
-
-        }
-
-        // v4
-        if ( $major == 4 )
-        {
-
-            $version = '4.0';
-            $script  = acf_get_url( "assets/inc/select2/4/select2.full{$min}.js" );
-            $style   = acf_get_url( "assets/inc/select2/4/select2{$min}.css" );
-
-            // v3
-        }
-        else
-        {
-
-            $version = '3.5.2';
-            $script  = acf_get_url( "assets/inc/select2/3/select2{$min}.js" );
-            $style   = acf_get_url( "assets/inc/select2/3/select2.css" );
-
-        }
-
-        // enqueue
-        wp_enqueue_script( 'select2', $script, [ 'jquery' ], $version );
-        wp_enqueue_style( 'select2', $style, '', $version );
-    }
-
-
-    /**
-     *  input_admin_footer()
-     *
-     *  This action is called in the admin_footer action on the edit screen where your field is created.
-     *  Use this action to add CSS and JavaScript to assist your render_field() action.
-     *
-     * @method-type    action (admin_footer)
-     * @since          3.6
-     * @date           23/01/13
-     */
-    public function input_admin_footer(): void
-    {
-
-    }
-
-
-    /**
-     *  input_admin_head()
-     *
-     *  This action is called in the admin_head action on the edit screen where your field is created.
-     *  Use this action to add CSS and JavaScript to assist your render_field() action.
-     *
-     * @see            http://codex.wordpress.org/Plugin_API/Action_Reference/admin_head
-     * @method-type    action (admin_head)
-     * @since          3.6
-     * @date           23/01/13
-     */
-    public function input_admin_head(): void
-    {
-
-    }
-
-
-    /**
-     *  load_field()
-     *
-     *  This filter is applied to the $field after it is loaded from the database
-     *
-     * @method-type    filter
-     * @date           23/01/2013
-     * @since          3.6.0
-     *
-     * @param  array  $field  (the field array holding all the field options
-     *
-     * @return array         $field
-     */
-    public function load_field( array $field ): array
-    {
-
-        return $field;
-    }
-
-
-    /**
-     *  load_value()
-     *
-     *  This filter is applied to the $value after it is loaded from the db
-     *
-     * @method-type    filter
-     * @since          3.6
-     * @date           23/01/13
-     *
-     * @param  mixed       $value    the value found in the database
-     * @param  int|string  $post_id  the $post_id from which the value was loaded
-     * @param  array       $field    the field array holding all the field options
-     *
-     * @return mixed        $value
-     * @noinspection   PhpUnusedParameterInspection
-     */
-    public function load_value(
-        $value,
-        $post_id,
-        array $field
-    ) {
-
-        return $value;
-    }
-
-
     protected function render_field_values(
         array &$field,
         callable $render
@@ -706,40 +515,7 @@ class Language
 
 
     /**
-     *  update_field()
-     *
-     *  This filter is applied to the $field before it is saved to the database
-     *
-     * @method-type    filter
-     * @date           23/01/2013
-     * @since          3.6.0
-     *
-     * @param  array  $field  the field array holding all the field options
-     *
-     * @return  array       $field
-     */
-    public function update_field( array $field ): array
-    {
-
-        return $field;
-    }
-
-
-    /**
-     *  update_value()
-     *
-     *  This filter is applied to the $value before it is saved in the db
-     *
-     * @method-type    filter
-     * @since          3.6
-     * @date           23/01/13
-     *
-     * @param  mixed       $value    the value found in the database
-     * @param  int|string  $post_id  the $post_id from which the value was loaded
-     * @param  array       $field    the field array holding all the field options
-     *
-     * @return   mixed      $value
-     * @noinspection   PhpUnusedParameterInspection
+     * @inheritDoc
      */
     public function update_value(
         $value,

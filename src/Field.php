@@ -285,6 +285,15 @@ abstract class Field
     }
 
 
+    /**
+     *  ajax_query_helper
+     *
+     *  description
+     *
+     * @date      2020-09-09
+     *
+     * @return   mixed
+     */
     abstract protected function ajax_query_helper();
 
 
