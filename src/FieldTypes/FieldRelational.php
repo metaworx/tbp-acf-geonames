@@ -92,12 +92,22 @@ abstract class FieldRelational
                     'conditional_logic' => [
                         [
                             [
+                                'field'    => 'choice_layout',
+                                'operator' => '==',
+                                'value'    => 'list',
+                            ],
+                            [
                                 'field'    => 'max',
                                 'operator' => '==',
                                 'value'    => '1',
                             ],
                         ],
                         [
+                            [
+                                'field'    => 'choice_layout',
+                                'operator' => '==',
+                                'value'    => 'list',
+                            ],
                             [
                                 'field'    => 'multiple',
                                 'operator' => '==',
@@ -241,6 +251,147 @@ abstract class FieldRelational
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
+                        ],
+                    ],
+                ],
+
+                // select options
+
+                [
+                    'type'              => 'true_false',
+                    'name'              => 'allow_null',
+                    'label'             => __( 'Allow Null?', 'acf' ),
+                    'allow_null'        => 0,
+                    'ui'                => 1,
+                    'default'           => 0,
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'choice_layout',
+                                'operator' => '==',
+                                'value'    => 'select',
+                            ],
+                        ],
+                    ],
+                ],
+
+                [
+                    'type'              => 'true_false',
+                    'name'              => 'ui',
+                    'label'             => __( 'Stylised UI', 'acf' ),
+                    'allow_null'        => 0,
+                    'ui'                => 1,
+                    'default'           => 1,
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'choice_layout',
+                                'operator' => '==',
+                                'value'    => 'select',
+                            ],
+                        ],
+                    ],
+                ],
+
+                [
+                    'type'              => 'true_false',
+                    'name'              => 'ajax',
+                    'label'             => __( 'Use AJAX to lazy load choices?', 'acf' ),
+                    'allow_null'        => 0,
+                    'ui'                => 1,
+                    'default'           => 1,
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'choice_layout',
+                                'operator' => '==',
+                                'value'    => 'select',
+                            ],
+                            [
+                                'field'    => 'ui',
+                                'operator' => '==',
+                                'value'    => '1',
+                            ],
+                        ],
+                    ],
+                ],
+
+                [
+                    'type'              => 'true_false',
+                    'name'              => 'allow_custom',
+                    'label'             => __( 'Allow Custom', 'acf' ),
+                    'message'           => __( "Allow 'custom' values to be added", 'acf' ),
+                    'allow_null'        => 0,
+                    'ui'                => 1,
+                    'default'           => 1,
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'choice_layout',
+                                'operator' => '==',
+                                'value'    => 'select',
+                            ],
+                            [
+                                'field'    => 'ui',
+                                'operator' => '==',
+                                'value'    => '1',
+                            ],
+                        ],
+                    ],
+                ],
+
+                [
+                    'type'              => 'text',
+                    'name'              => 'placeholder',
+                    'label'             => __( 'Placeholder', 'acf' ),
+                    'instructions'      => __( 'Appears within the input', 'acf' ),
+                    'allow_null'        => 1,
+                    'ui'                => 0,
+                    'conditional_logic' => [
+                        [
+                            'field'    => 'choice_layout',
+                            'operator' => '==',
+                            'value'    => 'list',
+                        ],
+                    ],
+                    [
+                        [
+                            'field'    => 'choice_layout',
+                            'operator' => '==',
+                            'value'    => 'select',
+                        ],
+                        [
+                            'field'    => 'ui',
+                            'operator' => '==',
+                            'value'    => '1',
+                        ],
+                    ],
+                ],
+
+                [
+                    'type'              => 'text',
+                    'name'              => 'search_placeholder',
+                    'label'             => __( 'Search Input Placeholder', 'acf' ),
+                    'instructions'      => __( 'Appears within the search input', 'acf' ),
+                    'allow_null'        => 1,
+                    'ui'                => 0,
+                    'conditional_logic' => [
+                        [
+                            'field'    => 'choice_layout',
+                            'operator' => '==',
+                            'value'    => 'list',
+                        ],
+                    ],
+                    [
+                        [
+                            'field'    => 'choice_layout',
+                            'operator' => '==',
+                            'value'    => 'select',
+                        ],
+                        [
+                            'field'    => 'ui',
+                            'operator' => '==',
+                            'value'    => '1',
                         ],
                     ],
                 ],
