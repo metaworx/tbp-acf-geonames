@@ -405,8 +405,10 @@ abstract class FieldRelational
                     'choices'      => [
                         'object' => __( static::LABEL . " Object", 'tbp-acf-fields' ),
                         'id'     => __( static::LABEL . " ID", 'tbp-acf-fields' ),
+                        'value'  => __( "Value", 'acf' ),
+                        'label'  => __( "Label", 'acf' ),
+                        'array'  => __( "Both (Array)", 'acf' ),
                     ],
-                    'layout'       => 'horizontal',
                 ],
             ],
             null,

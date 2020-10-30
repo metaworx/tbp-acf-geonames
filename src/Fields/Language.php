@@ -511,7 +511,7 @@ class Language
     ) {
 
         // bail early if no value
-        if ( empty( $value ) || ! array_key_exists( 'return_format', $field ) )
+        if ( empty( $value ) )
         {
 
             return $value;
