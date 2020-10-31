@@ -1141,7 +1141,7 @@ HTML
      * @date           23/01/13
      *
      * @param  mixed       $value    the value found in the database
-     * @param  int|string  $post_id  the $post_id from which the value was loaded
+     * @param  int|string  $post_id  the $post_id from which the value was loaded or user_$userID for users
      * @param  array       $field    the field array holding all the field options
      *
      * @return   mixed      $value
