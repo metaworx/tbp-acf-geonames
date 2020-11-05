@@ -543,8 +543,6 @@ class Language
         array $field
     ) {
 
-        $value = LanguagePost::translateLanguageIds( $value, true, 'getCode' );
-
         return $value;
     }
 

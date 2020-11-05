@@ -2,18 +2,25 @@
 
 namespace Tbp\WP\Plugin\AcfFields\Entities;
 
-abstract class Language
+use WP_Post;
+
+class Language
+    extends
+    LanguageBase
 {
 
 // constants
+
     public const POST_TYPE = 'language';
 
-// protected properties
+//  public properties
 
     /**
-     * @var \Tbp\WP\Plugin\AcfFields\Entities\Language[]
+     * @var \Tbp\WP\Plugin\AcfFields\Entities\LanguageBase[]
      */
-    static protected $allLanguages = [];
+    public static $allLanguages = [];
+
+// protected properties
 
     /** @var int|null
      *
@@ -25,73 +32,21 @@ abstract class Language
      */
     protected $post;
 
-    /**
-     * @var \Tbp\WP\Plugin\AcfFields\Entities\Language
-     */
-    protected $current;
-
-    /**
-     * @var object
-     */
-    protected $languageInfo;
-
-    protected $nativeName;
-
 
     /**
      * Language constructor.
      *
-     * @param  \WP_Post  $post
-     * @param  object    $languageInfo  Object
-     *                                  (
-     *                                  [element_id] => 15152
-     *                                  [trid] => 65536
-     *                                  [language_code] => en
-     *                                  [source_language_code] =>
-     *                                  )
+     * @param  string         $languageCode
+     * @param  \WP_Post|null  $post
      */
     protected function __construct(
-        \WP_Post $post,
-        object $languageInfo
+        string $languageCode,
+        WP_Post $post = null
     ) {
 
-        $this->setPost( $post );
-        $this->languageInfo = $languageInfo;
+        self::setPost( $post, $this );
 
-    }
-
-
-    public function getCaption( ?string $languageCode = null ): ?string
-    {
-
-        $caption = $this->getName( $languageCode );
-        $native  = $this->getNativeName();
-
-        if ( $native && $native !== $caption )
-        {
-            $caption .= " ($native)";
-        }
-
-        return $caption;
-    }
-
-
-    public function getCode(): ?string
-    {
-
-        return $this->getField( 'code' );
-    }
-
-
-    public function getCurrent(): Language
-    {
-
-        if ( $this->current !== null )
-        {
-            return $this->current;
-        }
-
-        return $this->current = $this->getLanguage();
+        parent::__construct( $languageCode );
     }
 
 
@@ -112,7 +67,8 @@ abstract class Language
     protected function getField( $name ): ?string
     {
 
-        $field = get_field( $name, $this->getOriginal()->post_id );
+        $field = $this->post->$name
+            ?? get_field( $name, $this->post_id );
 
         return $field
             ?: null;
@@ -137,57 +93,26 @@ abstract class Language
     }
 
 
-    abstract public function getLanguage( $languageCode = null ): Language;
-
-
-    public function getName( ?string $languageCode = '' ): string
-    {
-
-        if ( $languageCode === '' )
-        {
-            return $this->getPost()->post_title;
-        }
-
-        return $this->getLanguage( $languageCode )
-                    ->getName()
-            ;
-    }
-
-
-    public function getNativeName(): ?string
-    {
-
-        return $this->getField( 'name' );
-    }
-
-
-    /**
-     * @return \Tbp\WP\Plugin\AcfFields\Entities\LanguageOriginal
-     */
-    public abstract function getOriginal(): LanguageOriginal;
-
-
-    public function getPost()
+    public function getPost(): WP_Post
     {
 
         if ( $this->post === null && $this->post_id !== null )
         {
-            $this->setPost( \WP_Post::get_instance( $this->post_id ) );
+            $this->setPost( WP_Post::get_instance( $this->post_id ) );
         }
 
-        return $this->post
-            ?: null;
+        return $this->post;
     }
 
 
     public function getSlug(): string
     {
 
-        return '';
+        return $this->getPost()->post_name;
     }
 
 
-    function getTitle(
+    public function getTitle(
         $post,
         $field
     ) {
@@ -216,7 +141,7 @@ abstract class Language
             );
 
             // icon
-            if ( $thumbnail['type'] == 'icon' )
+            if ( $thumbnail['type'] === 'icon' )
             {
 
                 $class .= ' -' . $thumbnail['type'];
@@ -252,15 +177,14 @@ abstract class Language
 
 
     /**
-     * @param  bool|\WP_Post|null  $get_instance
+     * @param  \WP_Post|null  $get_instance
      *
      * @return \Tbp\WP\Plugin\AcfFields\Entities\Language
      */
     private function setPost( $get_instance ): Language
     {
 
-        $this->post       = $get_instance;
-        $this->nativeName = null;
+        $this->post = $get_instance;
 
         if ( $this->post )
         {
@@ -368,10 +292,45 @@ abstract class Language
     }
 
 
+    public static function getCurrentLanguage(): string
+    {
+
+        // WPML integration
+        if ( defined( 'ICL_LANGUAGE_CODE' ) )
+        {
+            return ICL_LANGUAGE_CODE;
+        }
+
+        if ( isset( $_REQUEST )
+            && isset( $_REQUEST['icl_post_language'] )
+            && $GLOBALS['sitepress'] instanceof \SitePress
+        )
+        {
+            return $GLOBALS['sitepress']->get_current_language();
+        }
+
+        return 'en';
+    }
+
+
+    public static function getLanguagesExisting(): array
+    {
+
+        return static::load( null );
+    }
+
+
+    public static function getLanguagesMissing(): array
+    {
+
+        return array_diff_key( static::getLanguagesAll(), static::getLanguagesExisting() );
+    }
+
+
     /**
      * $param array|int|string|object|null $param
      *
-     * @return   \Tbp\WP\Plugin\AcfFields\Entities\Language|\Tbp\WP\Plugin\AcfFields\Entities\Language[]|null
+     * @return   \Tbp\WP\Plugin\AcfFields\Entities\LanguageBase|\Tbp\WP\Plugin\AcfFields\Entities\Language|\Tbp\WP\Plugin\AcfFields\Entities\LanguageBase[]|\Tbp\WP\Plugin\AcfFields\Entities\Language[]|null
      * @noinspection AdditionOperationOnArraysInspection
      */
     public static function load(
@@ -451,8 +410,12 @@ abstract class Language
             {
                 $param['include'] = array_keys( $missingIds );
 
-                $missing = null;
-                $posts   += get_posts( $param );
+                $missingIds = get_posts( $param );
+                $missingIds = array_column( $missingIds, null, 'ID' );
+
+                $missing = array_diff_key( $missing, $missingIds );
+
+                $posts += $missingIds;
 
                 unset( $param['include'] );
             }
@@ -462,38 +425,31 @@ abstract class Language
             {
                 $param['post_name__in'] = array_keys( $missingSlugs );
 
-                $posts += get_posts( $param );
+                $missingSlugs = get_posts( $param );
+                $missingSlugs = array_column( $missingSlugs, null, 'post_name' );
+
+                $missing = array_diff_key( $missing, $missingSlugs );
+
+                $posts += $missingSlugs;
             }
         }
 
         if ( ! empty( $posts ) )
         {
 
-            $posts = array_column( $posts, null, 'ID' );
+            $posts = array_column( $posts, null, 'post_name' );
 
             array_walk(
                 $posts,
-                static function ( \WP_Post &$post )
-                {
-
-                    $language_info = apply_filters(
-                        'wpml_element_language_details',
-                        null,
-                        [
-                            'element_id'   => $post->ID,
-                            'element_type' => 'post_' . $post->post_type,
-                        ]
-                    );
-
-                    $class = $language_info === null || $language_info->source_language_code === null
-                        ? LanguageOriginal::class
-                        : LanguageTranslated::class;
+                static function (
+                    WP_Post &$post,
+                    string $post_name
+                ) {
 
                     /**
                      * @noinspection CallableParameterUseCaseInTypeContextInspection
-                     * @noinspection PhpUndefinedFieldInspection
                      */
-                    $post = new $class( $post, $language_info );
+                    $post = new static( $post_name, $post );
 
                     // cache languages by id and by language code
                     static::$allLanguages[ $post->getId() ]   = $post;
@@ -505,6 +461,23 @@ abstract class Language
 
         }
 
+        // return missing languages as LanguageBase object
+        if ( ! empty( $missing ) )
+        {
+            array_walk(
+                $missing,
+                static function (
+                    &$lang,
+                    string $code
+                ) {
+
+                    $lang = new LanguageBase( $code );
+                }
+            );
+
+            $cached = array_replace( $cached, $missing );
+        }
+
         // order posts by search
         if ( ( $param['s'] ?? false ) && empty( $args['orderby'] ) )
         {
@@ -512,8 +485,8 @@ abstract class Language
             $cached = array_column( $cached, null, 'getCaption' );
             $sort   = array_column( $cached, 'post_title', 'ID' );
 
-            //ToDo: replace function with a verion that respectes spaces,
-            //      so when serarching for "g", "Bulgarian" comes after "Swiss German",
+            //ToDo: replace function with a version that respects spaces,
+            //      so when searching for "g", "Bulgarian" comes after "Swiss German",
             //      despite the fact that the g is closer to the beginning in the former
             $sort = acf_order_by_search( $sort, $param['s'] );
 
@@ -521,7 +494,7 @@ abstract class Language
 
         }
 
-        /** @var \Tbp\WP\Plugin\AcfFields\Entities\Language[] $posts */
+        /** @var \Tbp\WP\Plugin\AcfFields\Entities\LanguageBase[] $posts */
 
         if ( ! empty( $ids ) && ! is_array( $ids ) )
         {
@@ -533,7 +506,7 @@ abstract class Language
     }
 
 
-    public static function registerCustomPostType()
+    public static function registerCustomPostType(): void
     {
 
         /** @noinspection SqlResolve */
@@ -601,16 +574,195 @@ abstract class Language
             "menu_position"         => 6,
             "menu_icon"             => "dashicons-format-status",
             "supports"              => [
-                "title",
                 "page-attributes",
             ],
         ];
 
-        register_post_type( static::POST_TYPE, $args );
+        register_post_type( self::POST_TYPE, $args );
+
+        // remove title field
+        add_action(
+            'admin_init',
+            function ()
+            {
+
+                remove_post_type_support( self::POST_TYPE, 'title' );
+            }
+        );
+
+        // register update hook
+        add_filter(
+            'wp_insert_post_data',
+            /**
+             * Filters slashed post data just before it is inserted into the database.
+             *
+             * @since 2.7.0
+             * @since 5.4.1 `$unsanitized_postarr` argument added.
+             *
+             * @param  array  $data                 An array of slashed, sanitized, and processed post data.
+             * @param  array  $postarr              An array of sanitized (and slashed) but otherwise unmodified post data.
+             * @param  array  $unsanitized_postarr  An array of slashed yet *unsanitized* and unprocessed post data as
+             *                                      originally passed to wp_insert_post().
+             */
+            static function (
+                $data,
+                $postarr,
+                $unsanitized_postarr
+            ) {
+
+                if ( $data['post_type'] !== self::POST_TYPE
+                    || in_array(
+                        $data['post_status'],
+                        [
+                            'auto-draft',
+                            // 'publish',
+                            'trash',
+                            'inherit',
+                        ]
+                    ) )
+                {
+                    return $data;
+                }
+
+                $language = ! empty( $postarr['acf'] ) && ! empty( $postarr['acf']['field_tbpLanguageCode'] )
+                    ? new LanguageBase( $postarr['acf']['field_tbpLanguageCode'] )
+                    : null;
+
+                if ( $language === null )
+                {
+                    return $data;
+                }
+
+                // set the post name/slug to the language code
+                $data['guid'] = str_replace( $data['post_name'], $language, $data['guid'] );
+
+                // set the post name/slug to the language code
+                $data['post_name'] = $language->getCode();
+
+                // set the post name/slug to the language code
+                $data['post_title'] = $language->getCaption( 'en' );
+
+                return $data;
+            },
+            10,
+            6
+        );
+
+        // make sure the post_name/slug is the language code
+        add_filter(
+            'wp_insert_post_empty_content',
+            /**
+             * Filters whether the post should be considered "empty".
+             *
+             * The post is considered "empty" if both:
+             * 1. The post type supports the title, editor, and excerpt fields
+             * 2. The title, editor, and excerpt fields are all empty
+             *
+             * Returning a truthy value from the filter will effectively short-circuit
+             * the new post being inserted and return 0. If $wp_error is true, a WP_Error
+             * will be returned instead.
+             *
+             * @since 3.3.0
+             *
+             * @param  bool   $maybe_empty  Whether the post should be considered "empty".
+             * @param  array  $postarr      Array of post data.
+             */
+            static function (
+                $maybe_empty,
+                $postarr
+            ) {
+
+                // return if not language post_type or unwanted post_status
+                if ( empty( $postarr['post_type'] )
+                    || $postarr['post_type'] !== static::POST_TYPE
+                    || in_array(
+                        $postarr['post_status'],
+                        [
+                            'inherit',
+                            'trash',
+                            'auto-draft',
+                        ],
+                        true
+                    ) )
+                {
+                    return $maybe_empty;
+                }
+
+                // get the language
+                try
+                {
+
+                    $lang = new LanguageBase( $_REQUEST['acf']['field_tbpLanguageCode'] );
+                }
+                catch ( \ErrorException $e )
+                {
+                    return true;
+                }
+
+                // ad a sanitize filter that will always return the language code
+                add_filter(
+                    'sanitize_title',
+                    /**
+                     * Filters a sanitized title string.
+                     *
+                     * @since 1.2.0
+                     *
+                     * @param  string  $title      Sanitized title.
+                     * @param  string  $raw_title  The title prior to sanitization.
+                     * @param  string  $context    The context for which the title is being sanitized.
+                     */
+                    static function ()
+                    use
+                    (
+                        $lang
+                    )
+                    {
+
+                        return $lang->getCode();
+                    },
+                    5,
+                    0
+                );
+
+                return $maybe_empty;
+            },
+            5,
+            2
+        );
+
+        // add validation to make sure the language does not already exist
+        add_action(
+            'acf/validate_save_post',
+            static function ()
+            {
+
+                if ( ! isset( $_REQUEST['post_type'] )
+                    || $_REQUEST['post_type'] !== static::POST_TYPE
+                    || in_array(
+                        $_REQUEST['post_status'],
+                        [
+                            'inherit',
+                            'trash',
+                            'auto-draft',
+                        ],
+                        true
+                    ) )
+                {
+                    return;
+                }
+
+                $lang = static::load( $_REQUEST['acf']['field_tbpLanguageCode'] );
+
+                if ( $lang instanceof Language && $lang->getPost()->ID !== (int) $_REQUEST['post_ID'] )
+                {
+                    acf_add_validation_error( 'acf[field_tbpLanguageCode]', 'Language does already exist' );
+                }
+            }
+        );
     }
 
 
-    public static function registerLanguageCustomFields()
+    public static function registerLanguageCustomFields(): void
     {
 
         if ( ! function_exists( 'acf_add_local_field_group' ) )
@@ -618,39 +770,32 @@ abstract class Language
             return;
         }
 
+        $missingLanguages = LanguageBase::getLanguagesAll();
+        array_walk(
+            $missingLanguages,
+            static function (
+                LanguageBase &$lang,
+                string $code
+            ) {
+
+                /** @noinspection CallableParameterUseCaseInTypeContextInspection */
+                $lang = sprintf( '%s - %s', $code, $lang->getCaption() );
+            }
+        );
+
+        asort( $missingLanguages );
+
         acf_add_local_field_group(
             [
                 'key'                   => 'group_tbp-language',
                 'title'                 => 'Language',
                 'fields'                => [
                     [
-                        'key'                 => 'field_tbpLanguageNativeName',
-                        'label'               => 'Native Name',
-                        'name'                => 'name',
-                        'type'                => 'text',
-                        'instructions'        => 'Name of the Language',
-                        'required'            => 1,
-                        'conditional_logic'   => 0,
-                        'wrapper'             => [
-                            'width' => '',
-                            'class' => '',
-                            'id'    => '',
-                        ],
-                        'wpml_cf_preferences' => 0,
-                        'acfe_permissions'    => '',
-                        'default_value'       => '',
-                        'placeholder'         => '',
-                        'prepend'             => '',
-                        'append'              => '',
-                        'maxlength'           => '',
-                        'acfe_form'           => true,
-                    ],
-                    [
                         'key'                 => 'field_tbpLanguageCode',
-                        'label'               => 'Code',
-                        'name'                => 'code',
-                        'type'                => 'text',
-                        'instructions'        => 'ISO 639-1 Code (see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)',
+                        'label'               => 'Language',
+                        'name'                => 'lang',
+                        'type'                => 'select',
+                        'instructions'        => '',
                         'required'            => 1,
                         'conditional_logic'   => 0,
                         'wrapper'             => [
@@ -660,12 +805,14 @@ abstract class Language
                         ],
                         'wpml_cf_preferences' => 0,
                         'acfe_permissions'    => '',
-                        'default_value'       => '',
-                        'placeholder'         => 'ISO 639-1 Code',
-                        'prepend'             => '',
-                        'append'              => '',
-                        'maxlength'           => 2,
-                        'acfe_form'           => true,
+                        'choices'             => $missingLanguages,
+                        'default_value'       => false,
+                        'allow_null'          => 0,
+                        'multiple'            => 0,
+                        'ui'                  => 1,
+                        'return_format'       => 'value',
+                        'ajax'                => 0,
+                        'placeholder'         => 'Select new language',
                     ],
                     [
                         'key'                 => 'field_tbpLanguageFlat',
@@ -791,6 +938,7 @@ abstract class Language
      *
      * @return int|string|array
      *
+     * @throws \ErrorException
      */
     public static function translateLanguageIds(
         $object_id,
@@ -830,12 +978,16 @@ abstract class Language
         $returnFormat = 'id'
     ) {
 
-        if ( $object_id instanceof Language )
+        static $temporaryId = 0;
+
+        if ( $object_id instanceof LanguageBase )
         {
 
             if ( $returnFormat === 'id' )
             {
-                return $object_id->getId();
+                return $object_id instanceof Language
+                    ? $object_id->getId()
+                    : ++ $temporaryId;
             }
 
             if ( property_exists( $object_id, $returnFormat ) )
