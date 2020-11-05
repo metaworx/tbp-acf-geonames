@@ -177,14 +177,14 @@ class Language
 
 
     /**
-     * @param  \WP_Post|null  $get_instance
+     * @param  \WP_Post  $post
      *
      * @return \Tbp\WP\Plugin\AcfFields\Entities\Language
      */
-    private function setPost( $get_instance ): Language
+    private function setPost( WP_Post $post ): Language
     {
 
-        $this->post = $get_instance;
+        $this->post = $post;
 
         if ( $this->post )
         {
@@ -1016,7 +1016,12 @@ class Language
             $translated_object_ids = [];
             foreach ( $object_id as $id )
             {
-                $translated_object_ids[] = static::translateObjectIds( $id, $type, $language_code, $returnFormat );
+                $translated_object_ids[] = static::translateObjectIds(
+                    $id,
+                    $type,
+                    $language_code,
+                    $returnFormat
+                );
             }
 
             return $translated_object_ids;
@@ -1036,7 +1041,12 @@ class Language
                 $object_id = explode( ',', $object_id );
 
                 // translate
-                $translated_object_ids = static::translateObjectIds( $object_id, $type, $language_code, $returnFormat );
+                $translated_object_ids = static::translateObjectIds(
+                    $object_id,
+                    $type,
+                    $language_code,
+                    $returnFormat
+                );
 
                 // make sure the output is a comma separated string (the same way it came in!)
                 return implode( ',', $translated_object_ids );
@@ -1055,7 +1065,12 @@ class Language
                 );
             }
 
-            return static::translateObjectIds( Language::load( $object_id ), $type, $language_code, $returnFormat );
+            return static::translateObjectIds(
+                Language::load( $object_id ),
+                $type,
+                $language_code,
+                $returnFormat
+            );
         }
 
         if ( $language_code === true || $language_code === 'true' )
@@ -1079,7 +1094,12 @@ class Language
             return $object_id;
         }
 
-        return static::translateObjectIds( Language::load( $object_id ), $type, $language_code, $returnFormat );
+        return static::translateObjectIds(
+            Language::load( $object_id ),
+            $type,
+            $language_code,
+            $returnFormat
+        );
     }
 
 }
