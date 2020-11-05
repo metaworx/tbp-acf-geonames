@@ -811,7 +811,10 @@ class Geoname
                 []
             );
 
-            unset ( $context->filters['feature_class'], $context->filters['feature_code'], $context->filters['habitation_only'] );
+            unset ( $context->filters['feature_class'] );
+            unset ( $context->filters['feature_code'] );
+            unset ( $context->filters['habitation_only'] );
+            unset ( $context->filters['country_code'] );
         }
 
         return $args;
