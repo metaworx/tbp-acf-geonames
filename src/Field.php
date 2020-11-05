@@ -132,6 +132,8 @@ abstract class Field
             ?? $this->filterBase
             ?? "acf/fields/" . static::NAME . "/filter/name=";
 
+        $filters = array_column( $filters, null, 'name' );
+
         array_walk(
             $filters,
             static function (
@@ -170,7 +172,7 @@ abstract class Field
             }
         );
 
-        return array_column( $filters, null, 'name' );
+        return $filters;
     }
 
 
