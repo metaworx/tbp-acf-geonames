@@ -895,9 +895,9 @@ class Geoname
      * @since          3.6
      * @date           23/01/13
      *
-     * @param  mixed  $value    the value which was loaded from the database
-     * @param  int    $post_id  the $post_id from which the value was loaded
-     * @param  array  $field    the field array holding all the field options
+     * @param  mixed       $value      the value which was loaded from the database
+     * @param  int|string  $object_id  the $post_id from which the value was loaded, or user_$userId
+     * @param  array       $field      the field array holding all the field options
      *
      * @return mixed the modified $value
      *
@@ -906,7 +906,7 @@ class Geoname
 
     public function format_value(
         $value,
-        int $post_id,
+        $object_id,
         array $field
     ) {
 
