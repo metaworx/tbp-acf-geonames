@@ -1,8 +1,8 @@
 {
   "name": "thebrightpath/tbp-acf-fields",
-  "version": "2.10.1",
+  "version": "2.10.2",
   "description": "description",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "license": "GPL-3.0-or-later",
   "authors": [
     {
@@ -25,5 +25,11 @@
   "config": {
     "optimize-autoloader": true,
     "classmap-authoritative": true
+  },
+  "repositories": {
+    "gitlab.com/8978522": {
+      "type": "composer",
+      "url": "https://gitlab.com/api/v4/group/8978522/-/packages/composer/packages.json"
+    }
   }
 }
