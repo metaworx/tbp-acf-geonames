@@ -473,17 +473,15 @@ class Language
      * @since          3.6
      * @date           23/01/13
      *
-     * @param  mixed       $value    the value which was loaded from the database
-     * @param  int|string  $post_id  the $post_id from which the value was loaded or user_$userId for users
-     * @param  array       $field    the field array holding all the field options
+     * @param  mixed       $value      the value which was loaded from the database
+     * @param  int|string  $object_id  the $post_id from which the value was loaded or user_$userId for users
+     * @param  array       $field      the field array holding all the field options
      *
      * @return mixed the modified $value
-     *
-     * @noinspection   PhpUnusedParameterInspection
      */
     public function format_value(
         $value,
-        $post_id,
+        $object_id,
         array $field
     ) {
 
@@ -503,7 +501,7 @@ class Language
         }
 
         // return
-        return $value;
+        return parent::format_value( $value, $object_id, $field );
     }
 
 

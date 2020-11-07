@@ -470,6 +470,48 @@ abstract class FieldRelational
 
 
     /**
+     *  format_value()
+     *
+     *  This filter is applied to the $value after it is loaded from the db and before it is returned to the template
+     *
+     * @method-type    filter
+     * @since          3.6
+     * @date           23/01/13
+     *
+     * @param  mixed       $value      the value which was loaded from the database
+     * @param  int|string  $object_id  the $post_id from which the value was loaded, or user_$userId
+     * @param  array       $field      the field array holding all the field options
+     *
+     * @return mixed the modified $value
+     *
+     * @noinspection   PhpUnusedParameterInspection
+     */
+
+    public function format_value(
+        $value,
+        $object_id,
+        array $field
+    ) {
+
+        // bail early if no value
+        if ( empty( $value ) || ! array_key_exists( 'return_format', $field ) )
+        {
+
+            return $value;
+        }
+
+        if ( is_array( $value )
+            && ( ( $field['multiple'] ?? 0 ) === 0 || ( $field['max'] ?? null ) === 1 ) )
+        {
+            $value = reset( $value );
+        }
+
+        // return
+        return $value;
+    }
+
+
+    /**
      *  input_admin_enqueue_scripts()
      *
      *  This action is called in the admin_enqueue_scripts action on the edit screen where your field is created.

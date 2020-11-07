@@ -900,8 +900,6 @@ class Geoname
      * @param  array       $field      the field array holding all the field options
      *
      * @return mixed the modified $value
-     *
-     * @noinspection   PhpUnusedParameterInspection
      */
 
     public function format_value(
@@ -925,7 +923,7 @@ class Geoname
         }
 
         // return
-        return $value;
+        return parent::format_value( $value, $object_id, $field );
     }
 
 
