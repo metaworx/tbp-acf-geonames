@@ -852,7 +852,7 @@ class Language
                         'placeholder'         => '',
                         'prepend'             => '',
                         'append'              => '',
-                        'maxlength'           => 7,
+                        'maxlength'           => 30,
                         'acfe_form'           => true,
                     ],
                     [
