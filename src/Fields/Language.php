@@ -533,19 +533,6 @@ class Language
 
 
     /**
-     * @inheritDoc
-     */
-    public function update_value(
-        $value,
-        $post_id,
-        array $field
-    ) {
-
-        return $value;
-    }
-
-
-    /**
      * @param  array          $choices
      * @param  callable       $getter
      * @param  callable|null  $formatter

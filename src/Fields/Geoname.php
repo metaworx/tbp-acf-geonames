@@ -936,7 +936,7 @@ class Geoname
         {
 
             // get locations
-            $locations = Location::load( $field['value'] );
+            $locations = Location::load( (array) $field['value'] );
 
             /**
              * loop

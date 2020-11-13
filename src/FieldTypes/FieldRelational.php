@@ -1195,6 +1195,16 @@ HTML
         array $field
     ) {
 
+        if ( empty( $value ) )
+        {
+            return null;
+        }
+
+        if ( is_array( $value ) && ( ( $field['multiple'] ?? 1 ) === 0 || ( $field['max'] ?? 0 ) === 1 ) )
+        {
+            $value = reset( $value );
+        }
+
         return $value;
     }
 
