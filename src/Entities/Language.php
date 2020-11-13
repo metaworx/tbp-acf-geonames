@@ -431,6 +431,8 @@ class Language
                 $missing = array_diff_key( $missing, $missingSlugs );
 
                 $posts += $missingSlugs;
+
+                unset( $param['post_name__in'] );
             }
         }
 
