@@ -8,4 +8,7 @@
 ehthumbs.db
 Thumbs.db
 
+# Composer files #
+##################
+/auth.json
 /vendor
