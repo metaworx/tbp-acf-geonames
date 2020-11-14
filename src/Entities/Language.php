@@ -817,7 +817,7 @@ class Language
                         'placeholder'         => 'Select new language',
                     ],
                     [
-                        'key'                 => 'field_tbpLanguageFlat',
+                        'key'                 => 'field_tbpLanguageFlaG',
                         'label'               => 'Flag',
                         'name'                => 'flag',
                         'type'                => 'url',
