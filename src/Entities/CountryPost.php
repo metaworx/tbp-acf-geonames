@@ -5,6 +5,7 @@ namespace Tbp\WP\Plugin\AcfFields\Entities;
 use ErrorException;
 use WP_Error;
 use WP_Post;
+use WPGeonames\Core;
 
 class CountryPost
     extends
@@ -12,13 +13,15 @@ class CountryPost
 {
 
 // constants
-
-    public const LOCATION_FIELD = 'location';
-    public const POST_TYPE      = 'location';
+    public const LOAD_NUMERIC_ID_AS_LOCATION_ID = 2;
+    public const LOAD_NUMERIC_ID_AS_POST_ID     = 1;
+    public const LOCATION_FIELD                 = 'location';
+    public const POST_TYPE                      = 'location';
 
 //  public properties
 
     public static $_countryClass = self::class;
+    public static $_returnFormat = self::class;
 
 // protected properties
 
@@ -33,10 +36,34 @@ class CountryPost
     protected $postId;
 
 
-    public function getNameAsSlug(): string
+    public function getGeonameId(): int
     {
 
-        $name = $this->getNameIntl( 'en' );
+        $geonameId = parent::getGeonameId();
+
+        if ( $geonameId )
+        {
+            return $geonameId;
+        }
+
+        $post = $this->getPost();
+
+        if ( $post === null )
+        {
+            return $geonameId;
+        }
+
+        $geonameId = get_field( static::LOCATION_FIELD, $post->ID, false );
+
+        return $geonameId
+            ?: 0;
+    }
+
+
+    public function getNameAsSlug( $autoload = true ): string
+    {
+
+        $name = $this->getNameIntl( 'en', $autoload );
         //$name  = sanitize_title( $name );
         $name = sanitize_title_with_dashes( $name, '', 'save' );
 
@@ -186,6 +213,28 @@ class CountryPost
     }
 
 
+    public function loadValues(
+        $values,
+        $defaults = [],
+        ?bool $ignoreNonExistingProperties = true
+    ): ?int {
+
+        if ( $values instanceof WP_Post )
+        {
+            $this->setPost( $values );
+
+            if ( empty( $defaults ) )
+            {
+                return parent::loadValues( $defaults );
+            }
+
+            return 0;
+        }
+
+        return parent::loadValues( $values, $defaults );
+    }
+
+
     public static function getCustomPostType(): array
     {
 
@@ -259,8 +308,10 @@ class CountryPost
      * @return array|false|mixed
      * @noinspection AdditionOperationOnArraysInspection
      */
-    protected static function getPosts( $countryIds )
-    {
+    protected static function getPosts(
+        $countryIds,
+        int $numericAs = self::LOAD_NUMERIC_ID_AS_LOCATION_ID
+    ) {
 
         // get all missing languages by id
         $missingIds = array_filter(
@@ -300,8 +351,8 @@ class CountryPost
             'update_post_meta_cache' => false,
         ];
 
-        // lookup by id
-        if ( ! empty( $missingIds ) )
+        // lookup by location field id
+        if ( ! empty( $missingIds ) && $numericAs === self::LOAD_NUMERIC_ID_AS_LOCATION_ID )
         {
             $param['meta_query'] = [
                 [
@@ -317,6 +368,20 @@ class CountryPost
             $posts += $missingIds;
 
             unset( $param['meta_query'] );
+            unset( $missingIds );
+        }
+
+        // lookup by post id
+        elseif ( ! empty( $missingIds ) && $numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID )
+        {
+            $param['post__in'] = $missingIds;
+
+            $missingIds = get_posts( $param );
+            $missingIds = array_column( $missingIds, null, 'ID' );
+
+            $posts += $missingIds;
+
+            unset( $param['post__in'] );
             unset( $missingIds );
         }
 
@@ -343,6 +408,38 @@ class CountryPost
     }
 
 
+    /**
+     * @param        $ids
+     * @param  null  $output
+     *
+     * @return array|mixed|null
+     * @throws \ErrorException
+     */
+    public static function load(
+        $ids = null,
+        $output = null,
+        int $numericAs = self::LOAD_NUMERIC_ID_AS_LOCATION_ID
+    ) {
+
+        $countries = $numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID
+            ? static::getPosts( $ids, self::LOAD_NUMERIC_ID_AS_POST_ID )
+            : static::loadRecords( $ids );
+
+        if ( empty( $countries ) )
+        {
+            return $ids === null
+                ? []
+                : null;
+        }
+
+        Core::$wpdb::formatOutput( $countries, $output ?? static::$_returnFormat );
+
+        return ( $ids === null || is_array( $ids ) )
+            ? $countries
+            : reset( $countries );
+    }
+
+
     public static function loadRecords(
         $ids = null,
         ?array $countryFeatures = null
@@ -350,9 +447,11 @@ class CountryPost
 
         $countries = parent::loadRecords( $ids, $countryFeatures );
 
-        if ( $countries === null )
+        if ( empty( $countries ) )
         {
-            return null;
+            return $ids === null
+                ? []
+                : null;
         }
 
         $countries = array_column( $countries, null, 'geonameId' );
