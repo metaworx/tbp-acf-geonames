@@ -7,6 +7,20 @@ class InactiveField
     Field
 {
 
+    protected function getFieldSettingsDefinition(): array
+    {
+
+        return [];
+    }
+
+
+    protected function getFilterDefinition(): array
+    {
+
+        return [];
+    }
+
+
     protected function ajax_query_helper()
     {
     }
