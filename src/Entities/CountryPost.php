@@ -431,7 +431,7 @@ class CountryPost
     ) {
 
         $countries = $numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID
-            ? static::getPosts( $ids, self::LOAD_NUMERIC_ID_AS_POST_ID )
+            ? static::getPosts( (array) $ids, self::LOAD_NUMERIC_ID_AS_POST_ID )
             : static::loadRecords( $ids );
 
         if ( empty( $countries ) )
