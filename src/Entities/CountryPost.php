@@ -55,8 +55,17 @@ class CountryPost
 
         $geonameId = get_field( static::LOCATION_FIELD, $post->ID, false );
 
-        return $geonameId
-            ?: 0;
+        if ( ! empty( $geonameId ) )
+        {
+            if ( is_array( $geonameId ) )
+            {
+                $geonameId = reset( $geonameId );
+            }
+
+            $this->setGeonameId( $geonameId );
+        }
+
+        return parent::getGeonameId();
     }
 
 
