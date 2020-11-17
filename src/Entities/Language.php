@@ -205,6 +205,7 @@ class Language
 
         if ( $post_id !== $last_post_id )
         {
+            $last_post_id  = $post_id;
             $last_language = Language::load( $post_id );
         }
 
