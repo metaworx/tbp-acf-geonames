@@ -339,7 +339,7 @@ class CountryPost
             static function ( $key )
             {
 
-                return !is_numeric( $key );
+                return ! is_numeric( $key );
             },
             ARRAY_FILTER_USE_BOTH
         );
