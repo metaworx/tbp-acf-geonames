@@ -237,7 +237,7 @@ class Geoname
                          * @noinspection NullPointerExceptionInspection
                          */
                         $entry = [
-                            'id'   => $location->geonameId,
+                            'id'   => $location->getGeonameId(),
                             //'text' => sprintf( '%s, %s', $location->name, $location->country->iso2 ),
                             'text' => implode(
                                 ', ',
