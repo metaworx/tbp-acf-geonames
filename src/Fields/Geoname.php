@@ -90,7 +90,7 @@ class Geoname
             "tbp-acf-fields/facet/render/type=" . static::NAME,
             [
                 $this,
-                'facetwp_render_geoname',
+                'facetwpRender',
             ],
             10,
             2
@@ -775,7 +775,7 @@ class Geoname
      * @return array
      *
      */
-    public function &facetwp_render_geoname(
+    public function &facetwpRender(
         array $args,
         object $source
     ): array {
@@ -815,9 +815,23 @@ class Geoname
                         );
                     }
 
-                    $val['facet_display_value'] = $display_value ?? Country::load( $val['facet_display_value'] )
-                                                                           ->getName( $languageCode )
-                    ;
+                    if ( $display_value === null )
+                    {
+                        $country = Country::load( $val['facet_display_value'] ?? '--' );
+
+                        if ( $country !== null )
+                        {
+                            $display_value = $country->getName( $languageCode );
+                        }
+
+                        if ( $display_value === null )
+                        {
+                            return;
+                        }
+
+                    }
+
+                    $val['facet_display_value'] = $display_value;
 
                 }
             );

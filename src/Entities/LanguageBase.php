@@ -76,6 +76,32 @@ class LanguageBase
     }
 
 
+    public static function get(
+        ?string $languageCode,
+        bool $returnNullIfNotExists = false
+    ): ?LanguageBase {
+
+        if ( $languageCode === null )
+        {
+            return null;
+        }
+
+        try
+        {
+            return new static( $languageCode );
+        }
+        catch ( \ErrorException $e )
+        {
+            if ( $returnNullIfNotExists )
+            {
+                return null;
+            }
+
+            throw $e;
+        }
+    }
+
+
     public static function getLanguagesAll( bool $resolveExisting = true ): array
     {
 

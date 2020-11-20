@@ -414,7 +414,7 @@ class Language
         object $source
     ): array {
 
-        if ( $source->property === 'country' && ! empty( $args['values'] ) )
+        if ( $source->type === static::NAME && ! empty( $args['values'] ) )
         {
 
             array_walk(
@@ -424,25 +424,21 @@ class Language
                     $key
                 ) {
 
-                    if ( $val['facet_value'] == 0 )
+                    if ( $val['facet_value'] <= 0 )
                     {
+                        $val['facet_display_value'] = __( $val['facet_display_value'], 'tbp-acf-fields' );
+
                         return;
                     }
 
-                    $display_value = null;
+                    $display_value = LanguageBase::get( $val['facet_display_value'] ?? '--', true );
 
-                    // WPML integration
-                    if ( defined( 'ICL_LANGUAGE_CODE' ) )
+                    if ( $display_value !== null )
                     {
-                        $display_value = Locale::getDisplayRegion(
-                            '-' . $val['facet_display_value'],
-                            ICL_LANGUAGE_CODE
-                        );
+                        $display_value = $display_value->getCaption();
                     }
 
-                    $val['facet_display_value'] = $display_value ?? Country::load( $val['facet_display_value'] )
-                                                                           ->getName()
-                    ;
+                    $val['facet_display_value'] = $display_value ?? $val['facet_display_value'];
 
                 }
             );
