@@ -21,6 +21,7 @@ use Tbp\WP\Plugin\AcfFields\Plugin;
 // exit if accessed directly
 if ( ! defined( 'ABSPATH' ) )
 {
+    http_response_code( 404 );
     exit;
 }
 
