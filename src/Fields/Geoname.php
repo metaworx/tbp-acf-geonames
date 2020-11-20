@@ -224,7 +224,7 @@ class Geoname
 
                 array_walk(
                     $locations,
-                    static function ( Location $location )
+                    static function ( WpGeonameLocation $location )
                     use
                     (
                         &
