@@ -4,13 +4,13 @@
 namespace Tbp\WP\Plugin\AcfFields\Fields;
 
 use Locale;
+use Tbp\WP\Plugin\AcfFields\Entities\Country;
 use Tbp\WP\Plugin\AcfFields\Entities\Location;
 use Tbp\WP\Plugin\AcfFields\Field;
 use Tbp\WP\Plugin\AcfFields\FieldTypes\FieldRelational;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
 use Tbp\WP\Plugin\AcfFields\Plugin;
 use WPGeonames\Core;
-use WPGeonames\Entities\Country;
 use WPGeonames\Entities\Location as WpGeonameLocation;
 use WPGeonames\Query\ApiQuery;
 
@@ -936,7 +936,7 @@ class Geoname
         {
 
             // get locations
-            $locations = Location::load( (array) $field['value'] );
+            $locations = Location::load( (array) $field['value'], Location::class, Country::class );
 
             /**
              * loop

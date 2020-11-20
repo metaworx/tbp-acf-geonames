@@ -427,7 +427,8 @@ class CountryPost
     public static function load(
         $ids = null,
         $output = null,
-        int $numericAs = self::LOAD_NUMERIC_ID_AS_LOCATION_ID
+        $numericAs = self::LOAD_NUMERIC_ID_AS_LOCATION_ID,
+        $x = null
     ) {
 
         $countries = $numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID
@@ -451,10 +452,12 @@ class CountryPost
 
     public static function loadRecords(
         $ids = null,
-        ?array $countryFeatures = null
+        $countryFeatures = null,
+        $countryClass = null,
+        $additionalInterfaces = null
     ): ?array {
 
-        $countries = parent::loadRecords( $ids, $countryFeatures );
+        $countries = parent::loadRecords( $ids, $countryFeatures, $additionalInterfaces, $countryClass );
 
         if ( empty( $countries ) )
         {
