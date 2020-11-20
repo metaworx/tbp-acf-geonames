@@ -10,6 +10,7 @@ use Tbp\WP\Plugin\AcfFields\Field;
 use Tbp\WP\Plugin\AcfFields\FieldTypes\FieldRelational;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
 use Tbp\WP\Plugin\AcfFields\Plugin;
+use Throwable;
 use WPGeonames\Core;
 use WPGeonames\Entities\Location as WpGeonameLocation;
 use WPGeonames\Query\ApiQuery;
@@ -79,7 +80,7 @@ class Geoname
             "tbp-acf-fields/facet/index/data/type=" . static::NAME,
             [
                 $this,
-                'facetwp_indexer_row_data_geoname',
+                'facetwpIndexerRowData',
             ],
             10,
             2
@@ -549,8 +550,6 @@ class Geoname
         // get choices
         return $this->getData( $_POST );
     }
-
-
     /**
      * Add ACF fields to the Data Sources dropdown
      *
@@ -638,81 +637,124 @@ class Geoname
      * @return array
      * @noinspection OnlyWritesOnParameterInspection
      */
-    public function &facetwp_indexer_row_data_geoname(
+    public function &facetwpIndexerRowData(
         array $rows,
         array $params
     ): array {
 
         $source = $params['source'];
-        $field  = $source->field;
 
         if ( $source->type !== 'geoname' )
         {
             return $rows;
         }
 
+        $field                          = $source->field;
         $default                        = $params['defaults'];
         $default['facet_value']         = 0;
         $default['facet_display_value'] = 'N/A';
 
         if ( empty( $field['value'] ) )
         {
-            $rows[] = $default;
+            if ( $field["key"] !== 'field_tbpEventAdditionalCountries' )
+            {
+                $rows[] = $default;
+            }
 
             return $rows;
         }
 
-        $locations = Location::load( (array) $field['value'] );
+        try
+        {
+            $locations = Location::load( (array) ( $field['value'] ?? [] ) );
 
-        array_walk(
-            $locations,
-            static function ( WpGeonameLocation $location ) use
-            (
-                $default,
-                &
-                $source,
-                &
-                $rows,
-                &
-                $params
-            )
-            {
+        }
+        catch ( Throwable $e )
+        {
+            /** @noinspection ForgottenDebugOutputInspection */
+            error_log(
+                sprintf(
+                    'Invalid country information "%s" for post_id %d',
+                    print_r( $field['value'], true ),
+                    $default['post_id']
+                )
+            );
 
-                switch ( $source->property )
+            $default['facet_value']         = - 1;
+            $default['facet_display_value'] = 'Error';
+            $rows[]                         = $default;
+
+            return $rows;
+        }
+
+        try
+        {
+            array_walk(
+                $locations,
+                static function ( WpGeonameLocation $location ) use
+                (
+                    $default,
+                    &
+                    $source,
+                    &
+                    $rows,
+                    &
+                    $params
+                )
                 {
-                case 'name':
-                    $default['facet_value']         = $location->getGeonameId();
-                    $default['facet_display_value'] = $location->getName();
-                    break;
 
-                case 'admin1':
-                    if ( ! ( $admin = $location->getAdmin1() ) )
+                    switch ( $source->property )
                     {
-                        return;
+                    case 'name':
+                        $default['facet_value']         = $location->getGeonameId();
+                        $default['facet_display_value'] = $location->getName();
+                        break;
+
+                    case 'admin1':
+                        if ( ! ( $admin = $location->getAdmin1() ) )
+                        {
+                            return;
+                        }
+
+                        $default['facet_value']         = $admin->getGeonameId();
+                        $default['facet_display_value'] = $admin->getName();
+                        break;
+
+                    case 'country':
+                        if ( ! ( $country = $location->getCountry() ) )
+                        {
+                            return;
+                        }
+
+                        $default['facet_value']         = $country->getGeonameId();
+                        $default['facet_display_value'] = $country->getIso2();
+                        break;
+
+                    default:
+                        break;
                     }
 
-                    $default['facet_value']         = $admin->getGeonameId();
-                    $default['facet_display_value'] = $admin->getName();
-                    break;
+                    $rows[] = $default;
 
-                case 'country':
-                    if ( ! ( $country = $location->getCountry() ) )
-                    {
-                        return;
-                    }
-
-                    $default['facet_value']         = $country->getGeonameId();
-                    $default['facet_display_value'] = $country->getIso2();
-                    break;
-
-                default:
-                    break;
                 }
+            );
 
-                $rows[] = $default;
+        }
+        catch ( Throwable $e )
+        {
+            /** @noinspection ForgottenDebugOutputInspection */
+            error_log(
+                sprintf(
+                    'Error while processing country information "%s" for post_id %d',
+                    print_r( $field['value'], true ),
+                    $default['post_id']
+                )
+            );
 
-            }
-        );
+            $default['facet_value']         = - 2;
+            $default['facet_display_value'] = 'Error';
+            $rows[]                         = $default;
+        }
 
         return $rows;
     }

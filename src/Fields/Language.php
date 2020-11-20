@@ -3,10 +3,10 @@
 
 namespace Tbp\WP\Plugin\AcfFields\Fields;
 
-use Locale;
 use Tbp\WP\Plugin\AcfFields\Entities\Language as LanguagePost;
+use Tbp\WP\Plugin\AcfFields\Entities\LanguageBase;
 use Tbp\WP\Plugin\AcfFields\FieldTypes\FieldRelational;
-use WPGeonames\Entities\Country;
+use Throwable;
 
 class Language
     extends
@@ -329,13 +329,13 @@ class Language
     ): array {
 
         $source = $params['source'];
-        $field  = $source->field;
 
         if ( $source->type !== 'language' )
         {
             return $rows;
         }
 
+        $field                          = $source->field;
         $default                        = $params['defaults'];
         $default['facet_value']         = 0;
         $default['facet_display_value'] = 'N/A';
@@ -347,29 +347,48 @@ class Language
             return $rows;
         }
 
-        $languages = LanguagePost::load( (array) $field['value'] );
+        try
+        {
+            $languages = LanguagePost::load( (array) ( $field['value'] ?? [] ) );
 
-        array_walk(
-            $languages,
-            static function ( LanguagePost $language ) use
-            (
-                $default,
-                &
-                $source,
-                &
-                $rows,
-                &
-                $params
-            )
-            {
+            array_walk(
+                $languages,
+                static function ( LanguagePost $language ) use
+                (
+                    $default,
+                    &
+                    $source,
+                    &
+                    $rows,
+                    &
+                    $params
+                )
+                {
 
-                $default['facet_value']         = $language->getId();
-                $default['facet_display_value'] = $language->getCode();
+                    $default['facet_value']         = $language->getId();
+                    $default['facet_display_value'] = $language->getCode();
 
-                $rows[] = $default;
+                    $rows[] = $default;
 
-            }
-        );
+                }
+            );
+
+        }
+        catch ( Throwable $e )
+        {
+            /** @noinspection ForgottenDebugOutputInspection */
+            error_log(
+                sprintf(
+                    'Invalid language code "%s" for post_id %d',
+                    print_r( $field['value'], true ),
+                    $default['post_id']
+                )
+            );
+
+            $default['facet_value']         = - 1;
+            $default['facet_display_value'] = 'Error';
+            $rows[]                         = $default;
+        }
 
         return $rows;
     }
