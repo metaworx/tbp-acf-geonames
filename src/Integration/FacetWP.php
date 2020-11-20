@@ -2,6 +2,7 @@
 
 namespace Tbp\WP\Plugin\AcfFields\Integration;
 
+use Tbp\WP\Plugin\AcfFields\Entities\Country;
 use Tbp\WP\Plugin\AcfFields\Field;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP\ACF;
 use Tbp\WP\Plugin\AcfFields\Plugin;
@@ -326,6 +327,24 @@ class FacetWP
     }
 
 
+    public function facetwp_indexer_query_args( array $queryArgs )
+    {
+
+        // check if indexing single post, or all
+        $index_all = - 1 === $queryArgs['posts_per_page'];
+
+        if ( ! $index_all )
+        {
+            return $queryArgs;
+        }
+
+        // cache countries
+        Country::load();
+
+        return $queryArgs;
+    }
+
+
     public function facetwp_indexer_row_data(
         array $rows,
         array $params
@@ -501,7 +520,14 @@ class FacetWP
             10
         );
 
-        //add_filter( 'facetwp_indexer_query_args', [ $this, 'lookup_acf_fields' ] );
+        add_filter(
+            'facetwp_indexer_query_args',
+            [
+                $this,
+                'facetwp_indexer_query_args',
+            ]
+        );
+
         return $input;
 
     }
