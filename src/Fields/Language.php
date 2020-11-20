@@ -58,7 +58,7 @@ class Language
             "tbp-acf-fields/facet/source/field/name=" . static::NAME,
             [
                 $this,
-                'facetwpFacetSourcesLanguage',
+                'facetwpFacetSources',
             ],
             10,
             3
@@ -68,7 +68,7 @@ class Language
             "tbp-acf-fields/facet/index/data/type=" . static::NAME,
             [
                 $this,
-                'facetwpIndexerRowDataLanguage',
+                'facetwpIndexerRowData',
             ],
             10,
             2
@@ -78,7 +78,7 @@ class Language
             "tbp-acf-fields/facet/render/type=" . static::NAME,
             [
                 $this,
-                'facetwpRenderLanguage',
+                'facetwpRender',
             ],
             10,
             2
@@ -323,7 +323,7 @@ class Language
      * @return array
      * @noinspection OnlyWritesOnParameterInspection
      */
-    public function &facetwpIndexerRowDataLanguage(
+    public function &facetwpIndexerRowData(
         array $rows,
         array $params
     ): array {
@@ -409,7 +409,7 @@ class Language
      * @return array
      *
      */
-    public function facetwpRenderLanguage(
+    public function facetwpRender(
         array $args,
         object $source
     ): array {

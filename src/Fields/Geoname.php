@@ -70,7 +70,7 @@ class Geoname
             "tbp-acf-fields/facet/source/field/name=" . static::NAME,
             [
                 $this,
-                'facetwpFacetSourcesLanguage',
+                'facetwpFacetSources',
             ],
             10,
             3
@@ -80,7 +80,7 @@ class Geoname
             "tbp-acf-fields/facet/index/data/type=" . static::NAME,
             [
                 $this,
-                'facetwpIndexerRowDataGeoname',
+                'facetwpIndexerRowData',
             ],
             10,
             2
@@ -90,7 +90,7 @@ class Geoname
             "tbp-acf-fields/facet/render/type=" . static::NAME,
             [
                 $this,
-                'facetwpRenderGeoname',
+                'facetwpRender',
             ],
             10,
             2
@@ -562,7 +562,7 @@ class Geoname
      * @return array
      * @noinspection PhpUnusedParameterInspection
      */
-    public function facetwpFacetSourcesLanguage(
+    public function facetwpFacetSources(
         $sources,
         Field $field,
         array $acfFields
@@ -639,7 +639,7 @@ class Geoname
      * @return array
      * @noinspection OnlyWritesOnParameterInspection
      */
-    public function &facetwpIndexerRowDataGeoname(
+    public function &facetwpIndexerRowData(
         array $rows,
         array $params
     ): array {
@@ -777,7 +777,7 @@ class Geoname
      * @return array
      *
      */
-    public function &facetwpRenderGeoname(
+    public function &facetwpRender(
         array $args,
         object $source
     ): array {
