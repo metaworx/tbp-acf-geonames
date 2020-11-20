@@ -70,7 +70,7 @@ class Geoname
             "tbp-acf-fields/facet/source/field/name=" . static::NAME,
             [
                 $this,
-                'facetwp_facet_sources_geoname',
+                'facetwpFacetSourcesLanguage',
             ],
             10,
             3
@@ -80,7 +80,7 @@ class Geoname
             "tbp-acf-fields/facet/index/data/type=" . static::NAME,
             [
                 $this,
-                'facetwpIndexerRowData',
+                'facetwpIndexerRowDataGeoname',
             ],
             10,
             2
@@ -90,7 +90,7 @@ class Geoname
             "tbp-acf-fields/facet/render/type=" . static::NAME,
             [
                 $this,
-                'facetwpRender',
+                'facetwpRenderGeoname',
             ],
             10,
             2
@@ -550,6 +550,8 @@ class Geoname
         // get choices
         return $this->getData( $_POST );
     }
+
+
     /**
      * Add ACF fields to the Data Sources dropdown
      *
@@ -560,7 +562,7 @@ class Geoname
      * @return array
      * @noinspection PhpUnusedParameterInspection
      */
-    public function facetwp_facet_sources_geoname(
+    public function facetwpFacetSourcesLanguage(
         $sources,
         Field $field,
         array $acfFields
@@ -637,7 +639,7 @@ class Geoname
      * @return array
      * @noinspection OnlyWritesOnParameterInspection
      */
-    public function &facetwpIndexerRowData(
+    public function &facetwpIndexerRowDataGeoname(
         array $rows,
         array $params
     ): array {
@@ -775,7 +777,7 @@ class Geoname
      * @return array
      *
      */
-    public function &facetwpRender(
+    public function &facetwpRenderGeoname(
         array $args,
         object $source
     ): array {
