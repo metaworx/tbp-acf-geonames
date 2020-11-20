@@ -267,7 +267,7 @@ class Geoname
         // vars
         $response = [
             'limit'   => $args['maxRows'],
-            'more'    => $searchResult->total > $searchResult->count,
+            'more'    => $searchResult->total > $searchResult->processRecords,
             'results' => $result,
         ];
 
