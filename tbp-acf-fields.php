@@ -30,11 +30,9 @@ if ( ! defined( 'TBP_IS_ADMIN_HEARTBEAT' ) )
     define(
         'TBP_IS_ADMIN_HEARTBEAT',
         (
-            'heartbeat' === ( $_REQUEST['action'] ?? false )
-            && strpos(
-                $_SERVER['REQUEST_URI'],
-                '/wp-admin/admin-ajax.php'
-            ) >= 0 )
+            ( 'heartbeat' === $_REQUEST['action'] ?? false )
+            && ( '/wp-admin/admin-ajax.php' === $_SERVER['REQUEST_URI'] )
+        )
     );
 }
 
