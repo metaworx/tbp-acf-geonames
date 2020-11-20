@@ -33,7 +33,7 @@ class FacetWP
             ]
         );
 
-       add_filter(
+        add_filter(
             'facetwp_archive_abort_query',
             [
                 $this,
@@ -432,7 +432,7 @@ class FacetWP
             ]
         );
 
-       remove_filter(
+        remove_filter(
             'facetwp_archive_abort_query',
             [
                 $this,
@@ -440,7 +440,7 @@ class FacetWP
             ]
         );
 
-         remove_filter(
+        remove_filter(
             'facetwp_load_assets',
             [
                 $this,
@@ -531,6 +531,5 @@ class FacetWP
         return $input;
 
     }
-
 
 }

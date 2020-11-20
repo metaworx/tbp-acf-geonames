@@ -7,7 +7,8 @@ class LanguageBase
 
 // protected properties
 
-    protected string $languageCode;
+    /** @var string */
+    protected $languageCode;
 
 
     /**
