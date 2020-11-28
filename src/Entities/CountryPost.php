@@ -73,7 +73,6 @@ class CountryPost
     {
 
         $name = $this->getNameIntl( 'en', $autoload );
-        //$name  = sanitize_title( $name );
         $name = sanitize_title_with_dashes( $name, '', 'save' );
 
         return $name;
