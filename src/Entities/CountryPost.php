@@ -322,6 +322,13 @@ class CountryPost
         int $numericAs = self::LOAD_NUMERIC_ID_AS_LOCATION_ID
     ) {
 
+        $loadingAll = $countryIds === null;
+
+        if ( $countryIds === [] )
+        {
+            return $countryIds;
+        }
+
         // get all missing languages by id
         $missingIds = array_filter(
             (array) $countryIds,
@@ -348,14 +355,16 @@ class CountryPost
 
         $param
             = [
-            'posts_per_page'         => is_array( $countryIds )
+            'posts_per_page'         => $loadingAll || is_array( $countryIds )
                 ? - 1
                 : 1,
             'paged'                  => 0,
             'post_type'              => static::POST_TYPE,
             'orderby'                => 'ID',
             'order'                  => 'ASC',
-            'post_status'            => 'any',
+            'post_status'            => $loadingAll
+                ? 'publish'
+                : 'any',
             'suppress_filters'       => false,
             'update_post_meta_cache' => false,
         ];
@@ -381,9 +390,12 @@ class CountryPost
         }
 
         // lookup by post id
-        elseif ( ! empty( $missingIds ) && $numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID )
+        elseif ( $loadingAll || ( ! empty( $missingIds ) && $numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID ) )
         {
-            $param['post__in'] = $missingIds;
+            if ( ! empty( $missingIds ) )
+            {
+                $param['post__in'] = $missingIds;
+            }
 
             $missingIds = get_posts( $param );
             $missingIds = array_column( $missingIds, null, 'ID' );
@@ -408,7 +420,16 @@ class CountryPost
             unset( $missingSlugs );
         }
 
-        if ( ! is_array( $countryIds ) )
+        if ( ! empty( $posts ) )
+        {
+
+            // load geoname field
+            $missingIds = array_column( $posts, 'ID' );
+
+            update_meta_cache( 'post', $missingIds );
+        }
+
+        if ( ! $loadingAll && ! is_array( $countryIds ) )
         {
             return reset( $posts );
         }
@@ -433,7 +454,9 @@ class CountryPost
 
         $countries = $numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID
             ? static::getPosts( (array) $ids, self::LOAD_NUMERIC_ID_AS_POST_ID )
-            : static::loadRecords( $ids );
+            : $ids;
+
+        $countries = static::loadRecords( $countries );
 
         if ( empty( $countries ) )
         {
@@ -442,7 +465,7 @@ class CountryPost
                 : null;
         }
 
-        Core::$wpdb::formatOutput( $countries, $output ?? static::$_returnFormat );
+        Core::$wpdb::formatOutput( $countries, $output ?? static::$_returnFormat, null );
 
         return ( $ids === null || is_array( $ids ) )
             ? $countries
@@ -450,14 +473,51 @@ class CountryPost
     }
 
 
+    protected static function loadDetectId(
+        &$id,
+        $index,
+        object $options
+    ): void {
+
+        $options               = $options ?? new \stdClass();
+        $options->countryClass = $options->countryClass ?? static::$_countryClass;
+
+        if ( $id instanceof $options->countryClass )
+        {
+
+            return;
+        }
+
+        if ( $id instanceof WP_Post )
+        {
+
+            $countryId = get_field( static::LOCATION_FIELD, $id->ID, false );
+
+            if ( empty( $countryId ) )
+            {
+                throw new \ErrorException( "Invalid WP_Post as no location information found" );
+            }
+
+            $options->posts[ $countryId ] = $id;
+            $id                           = (int) $countryId;
+        }
+
+        parent::loadDetectId(
+            $id,
+            $index,
+            $options
+        );
+    }
+
+
     public static function loadRecords(
         $ids = null,
-        $countryFeatures = null,
-        $countryClass = null,
-        $additionalInterfaces = null
+        object $options = null
     ): ?array {
 
-        $countries = parent::loadRecords( $ids, $countryFeatures, $additionalInterfaces, $countryClass );
+        $options = $options ?? new \stdClass();
+
+        $countries = parent::loadRecords( $ids, $options );
 
         if ( empty( $countries ) )
         {
@@ -466,9 +526,111 @@ class CountryPost
                 : null;
         }
 
-        $countries = array_column( $countries, null, 'geonameId' );
-        $posts     = static::getPosts( array_keys( $countries ) );
-        $found     = [];
+        // find countries without post returning their geonameId
+        $missing = array_filter(
+            array_map(
+                static function ( $country ) use
+                (
+                    $options
+                )
+                {
+
+                    // ignore $countries that are not of class CountryPost or already have a post
+                    if ( ! $country instanceof self || $country->hasPost( false ) )
+                    {
+                        return null;
+                    }
+
+                    if ( array_key_exists( $countryId = $country->getGeonameId(), $options->posts ) )
+                    {
+                        $country->setPost( $options->posts[ $countryId ] );
+
+                        return null;
+                    }
+
+                    // if the post is missing, return the geonameId
+                    return $country->getGeonameId();
+                },
+                $countries
+            )
+        );
+
+        // bail early if no missing posts
+        if ( empty( $missing ) )
+        {
+            return $countries;
+        }
+
+        $posts   = static::getPosts( $missing );
+        $missing = array_flip( $missing );
+
+        // match the found posts with the countries
+        array_walk(
+            $posts,
+            static function ( WP_Post $post ) use
+            (
+                &
+                $countries,
+                &
+                $missing
+            )
+            {
+
+                $countryId = get_field( static::LOCATION_FIELD, $post->ID, false );
+
+                if ( ! $countryId )
+                {
+                    return;
+                }
+
+                /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $country */
+                $country = $countries["_$countryId"];
+
+                $country->setPost( $post );
+
+                unset( $missing[ $country->getGeonameId() ] );
+            }
+        );
+
+        // bail early if no missing posts
+        if ( empty( $missing ) )
+        {
+            return $countries;
+        }
+
+        unset ( $posts );
+
+        // find countries without post returning their slug
+        array_walk(
+            $missing,
+            static function (
+                &$value,
+                $countryId
+            ) use
+            (
+                &
+                $countries
+            )
+            {
+
+                /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $country */
+                $country = $countries["_$countryId"];
+
+                // ignore $countries that are not of class CountryPost or already have a post
+                if ( ! $country instanceof self )
+                {
+                    $value = null;
+
+                    return;
+                }
+
+                // if the post is missing, return the geonameId
+                $value = $country->getNameAsSlug( false );
+            }
+        );
+
+        $posts   = static::getPosts( $missing );
+        $missing = array_flip( $missing );
 
         array_walk(
             $posts,
@@ -477,49 +639,20 @@ class CountryPost
                 &
                 $countries,
                 &
-                $found
-            )
-            {
-
-                $countryId = get_field( static::LOCATION_FIELD, $post->ID, false );
-
-                /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $country */
-                $country = $countries[ $countryId ];
-
-                $country->setPost( $post );
-
-                $found[ $country->getGeonameId() ] = true;
-            }
-        );
-
-        if ( count( $countries ) === count( $found ) )
-        {
-            return $countries;
-        }
-
-        unset ( $posts );
-
-        $missing = array_diff_key( $countries, $found );
-        $missing = array_column( $missing, null, 'nameAsSlug' );
-
-        $posts = static::getPosts( array_keys( $missing ) );
-
-        array_walk(
-            $posts,
-            static function ( WP_Post $post ) use
-            (
-                &
                 $missing
             )
             {
 
+                $countryId = $missing[ $post->post_name ];
+
                 /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $country */
-                $country = $missing[ $post->post_name ];
+                $country = $countries["_$countryId"];
 
                 $country->setPost( $post );
 
                 $countryId = get_field( static::LOCATION_FIELD, $post->ID, false );
 
+                // assign that country to that post
                 if ( empty( $countryId ) )
                 {
                     update_field( static::LOCATION_FIELD, $country->getGeonameId(), $post->ID );

@@ -629,7 +629,7 @@ class Language
 
                 $language = ! empty( $postarr['acf'] ) && ! empty( $postarr['acf']['field_tbpLanguageCode'] )
                     ? new LanguageBase( $postarr['acf']['field_tbpLanguageCode'] )
-                    : null;
+                    : LanguageBase::get( $postarr['post_name'] ?? null, true );
 
                 if ( $language === null )
                 {
@@ -695,9 +695,13 @@ class Language
                 try
                 {
 
-                    $lang = new LanguageBase( $_REQUEST['acf']['field_tbpLanguageCode'] );
+                    $lang = new LanguageBase(
+                        $_REQUEST['acf']['field_tbpLanguageCode']
+                        ?? $postarr['post_name']
+                        ?? null
+                    );
                 }
-                catch ( \ErrorException $e )
+                catch ( \Throwable $e )
                 {
                     return true;
                 }
