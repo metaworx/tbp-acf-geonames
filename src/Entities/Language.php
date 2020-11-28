@@ -822,7 +822,7 @@ class Language
                         'placeholder'         => 'Select new language',
                     ],
                     [
-                        'key'                 => 'field_tbpLanguageFlaG',
+                        'key'                 => 'field_tbpLanguageFlag',
                         'label'               => 'Flag',
                         'name'                => 'flag',
                         'type'                => 'url',
