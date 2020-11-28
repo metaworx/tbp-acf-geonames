@@ -31,8 +31,8 @@ if ( ! defined( 'TBP_IS_ADMIN_HEARTBEAT' ) )
     define(
         'TBP_IS_ADMIN_HEARTBEAT',
         (
-            ( 'heartbeat' === $_REQUEST['action'] ?? false )
-            && ( '/wp-admin/admin-ajax.php' === $_SERVER['REQUEST_URI'] )
+            'heartbeat' === ( $_REQUEST['action'] ?? false )
+            && '/wp-admin/admin-ajax.php' === $_SERVER['REQUEST_URI']
         )
     );
 }
@@ -76,6 +76,14 @@ call_user_func(
                 'name'     => 'FacetWP',
                 'version'  => '3.6.0',
                 'url'      => 'https://facetwp.com/',
+                'required' => false,
+                'fields'   => [
+                ],
+            ],
+           'wpai-acf-add-on/wpai-acf-add-on.php'              => [
+                'name'     => 'WP All Import - ACF Add-On',
+                'version'  => '3.2.9',
+                'url'      => 'http://www.wpallimport.com/',
                 'required' => false,
                 'fields'   => [
                 ],
