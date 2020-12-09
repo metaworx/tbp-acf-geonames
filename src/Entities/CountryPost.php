@@ -208,7 +208,7 @@ class CountryPost
         $my_post = [
             'post_title'   => $this->getNameIntl( 'en' ),
             'post_content' => null,
-            'post_status'  => 'hidden',
+            'post_status'  => 'pending',
             'post_type'    => static::POST_TYPE,
         ];
 
