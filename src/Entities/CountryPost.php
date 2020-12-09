@@ -400,7 +400,13 @@ class CountryPost
         {
             if ( ! empty( $missingIds ) )
             {
-                $param['post__in'] = $missingIds;
+                $param['post__in']    = $missingIds;
+                $param['post_status'] = [
+                    'publish',
+                    'draft',
+                    'auto-draft',
+                    'trash',
+                ];
             }
 
             $missingIds = get_posts( $param );
