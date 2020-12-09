@@ -479,8 +479,6 @@ class CountryPost
                 : null;
         }
 
-        Core::$wpdb::formatOutput( $countries, $output ?? static::$_returnFormat, null );
-
         return ( $ids === null || is_array( $ids ) )
             ? $countries
             : reset( $countries );
