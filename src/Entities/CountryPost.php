@@ -474,7 +474,7 @@ class CountryPost
 
         if ( empty( $countries ) )
         {
-            return $ids === null
+            return $ids === null || $ids === []
                 ? []
                 : null;
         }
