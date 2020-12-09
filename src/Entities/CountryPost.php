@@ -541,22 +541,12 @@ class CountryPost
         // find countries without post returning their geonameId
         $missing = array_filter(
             array_map(
-                static function ( $country ) use
-                (
-                    $options
-                )
+                static function ( $country )
                 {
 
                     // ignore $countries that are not of class CountryPost or already have a post
                     if ( ! $country instanceof self || $country->hasPost( false ) )
                     {
-                        return null;
-                    }
-
-                    if ( array_key_exists( $countryId = $country->getGeonameId(), $options->posts ) )
-                    {
-                        $country->setPost( $options->posts[ $countryId ] );
-
                         return null;
                     }
 
