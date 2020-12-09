@@ -69,11 +69,18 @@ class CountryPost
     }
 
 
-    public function getNameAsSlug( $autoload = true ): string
-    {
+    public function getNameAsSlug(
+        $autoload = true,
+        $decode = false
+    ): string {
 
         $name = $this->getNameIntl( 'en', $autoload );
         $name = sanitize_title_with_dashes( $name, '', 'save' );
+
+        if ( $decode )
+        {
+            $name = urldecode( $name );
+        }
 
         return $name;
     }
@@ -626,7 +633,7 @@ class CountryPost
                 }
 
                 // if the post is missing, return the geonameId
-                $value = $country->getNameAsSlug( false );
+                $value = $country->getNameAsSlug( false, true );
             }
         );
 
