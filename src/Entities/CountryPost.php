@@ -5,7 +5,7 @@ namespace Tbp\WP\Plugin\AcfFields\Entities;
 use ErrorException;
 use WP_Error;
 use WP_Post;
-use WPGeonames\Core;
+use WPGeonames\Entities\Country;
 
 class CountryPost
     extends
