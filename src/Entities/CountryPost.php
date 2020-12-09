@@ -438,24 +438,26 @@ class CountryPost
 
 
     /**
-     * @param        $ids
-     * @param  null  $output
+     * @param  int|string|int[]|string[]|null  $ids
+     * @param  object|null                     $options
      *
      * @return array|mixed|null
      * @throws \ErrorException
      */
     public static function load(
         $ids = null,
-        $output = null,
-        $numericAs = self::LOAD_NUMERIC_ID_AS_LOCATION_ID,
-        $x = null
+        ?object $options = null
     ) {
 
-        $countries = $numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID
+        $options            = $options ?? new \stdClass();
+        $options->output    = $options->output ?? static::$_returnFormat;
+        $options->numericAs = $options->numericAs ?? self::LOAD_NUMERIC_ID_AS_LOCATION_ID;
+
+        $countries = $options->numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID
             ? static::getPosts( (array) $ids, self::LOAD_NUMERIC_ID_AS_POST_ID )
             : $ids;
 
-        $countries = static::loadRecords( $countries );
+        $countries = static::loadRecords( $countries, $options );
 
         if ( empty( $countries ) )
         {
