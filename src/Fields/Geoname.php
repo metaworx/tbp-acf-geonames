@@ -963,7 +963,7 @@ class Geoname
     public function format_value(
         $value,
         $object_id,
-        array $field
+        $field
     ) {
 
         // bail early if no value

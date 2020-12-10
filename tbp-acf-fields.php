@@ -61,6 +61,7 @@ call_user_func(
                 'required' => false,
                 'fields'   => [
                     'Tbp\WP\Plugin\AcfFields\Fields\Geoname' => true,
+                    'Tbp\WP\Plugin\AcfFields\Fields\Relationship' => true,
                 ],
             ],
             'wp-geonames/wp-geonames.php'    => [

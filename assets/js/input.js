@@ -36,8 +36,10 @@
 
 		acf.add_action('append_field/type=tbp_geoname', initialize_field);
 		acf.add_action('append_field/type=tbp_language', initialize_field);
+		acf.add_action('append_field/type=tbp_relationship', initialize_field);
 		acf.add_action('ready_field/type=tbp_geoname', initialize_field);
 		acf.add_action('ready_field/type=tbp_language', initialize_field);
+		acf.add_action('ready_field/type=tbp_relationship', initialize_field);
 
 	} else {
 		
@@ -188,5 +190,13 @@
 	});
 
 	acf.registerFieldType( TbpLanguage );
+
+	var TbpRelationship = TbpRelational.extend({
+
+		type: 'tbp_relationship',
+
+	});
+
+	acf.registerFieldType( TbpRelationship );
 
 })(jQuery);
