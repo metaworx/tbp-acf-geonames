@@ -15,7 +15,7 @@ class Language
 
 // constants
     public const LABEL = 'Languages';
-    public const NAME  = 'language';
+    public const NAME  = 'tbp_language';
 
 
     /*
@@ -135,7 +135,7 @@ class Language
 
         // extra
         add_action(
-            'wp_ajax_acf/fields/language/query',
+            'wp_ajax_acf/fields/tbp_language/query',
             [
                 $this,
                 'ajax_query',
@@ -143,14 +143,14 @@ class Language
         );
 
         add_action(
-            'wp_ajax_nopriv_acf/fields/language/query',
+            'wp_ajax_nopriv_acf/fields/tbp_language/query',
             [
                 $this,
                 'ajax_query',
             ]
         );
 
-        $this->filterBase = "acf/fields/language/filter/name=";
+        $this->filterBase = "acf/fields/tbp_language/filter/name=";
     }
 
 
@@ -215,12 +215,12 @@ class Language
             ) ) )
         {
 
-            $args = apply_filters( "acf/fields/language/filter/name={$context->filter}", $args, $context );
+            $args = apply_filters( "acf/fields/tbp_language/filter/name={$context->filter}", $args, $context );
         }
 
-        $args = apply_filters( 'acf/fields/language/query', $args, $field, $options );
-        $args = apply_filters( 'acf/fields/language/query/name=' . $field['name'], $args, $field );
-        $args = apply_filters( 'acf/fields/language/query/key=' . $field['key'], $args, $field, $options );
+        $args = apply_filters( 'acf/fields/tbp_language/query', $args, $field, $options );
+        $args = apply_filters( 'acf/fields/tbp_language/query/name=' . $field['name'], $args, $field );
+        $args = apply_filters( 'acf/fields/tbp_language/query/key=' . $field['key'], $args, $field, $options );
 
         // get posts grouped by post type
         $languages = LanguagePost::load( [], $args );

@@ -22,7 +22,7 @@ class Geoname
 
 // constants
     public const LABEL = 'Geo Names';
-    public const NAME  = 'geoname';
+    public const NAME  = 'tbp_geoname';
 
 
     /*
@@ -112,7 +112,7 @@ class Geoname
 
         // extra
         add_action(
-            'wp_ajax_acf/fields/geoname/query',
+            'wp_ajax_acf/fields/tbp_geoname/query',
             [
                 $this,
                 'ajax_query',
@@ -120,14 +120,14 @@ class Geoname
         );
 
         add_action(
-            'wp_ajax_nopriv_acf/fields/geoname/query',
+            'wp_ajax_nopriv_acf/fields/tbp_geoname/query',
             [
                 $this,
                 'ajax_query',
             ]
         );
 
-        $this->filterBase = "acf/fields/geoname/filter/name=";
+        $this->filterBase = "acf/fields/tbp_geoname/filter/name=";
     }
 
 
@@ -193,12 +193,12 @@ class Geoname
             ) ) )
         {
 
-            $args = apply_filters( "acf/fields/geoname/filter/name={$context->filter}", $args, $context );
+            $args = apply_filters( "acf/fields/tbp_geoname/filter/name={$context->filter}", $args, $context );
         }
 
-        $args = apply_filters( 'acf/fields/geoname/query', $args, $field, $options );
-        $args = apply_filters( 'acf/fields/geoname/query/name=' . $field['name'], $args, $field );
-        $args = apply_filters( 'acf/fields/geoname/query/key=' . $field['key'], $args, $field, $options );
+        $args = apply_filters( 'acf/fields/tbp_geoname/query', $args, $field, $options );
+        $args = apply_filters( 'acf/fields/tbp_geoname/query/name=' . $field['name'], $args, $field );
+        $args = apply_filters( 'acf/fields/tbp_geoname/query/key=' . $field['key'], $args, $field, $options );
 
         // get locations grouped by top most ancestor
         $searchResult = Core::getLiveSearch( $args, Location::class );
