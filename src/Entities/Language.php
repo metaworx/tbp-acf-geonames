@@ -341,6 +341,11 @@ class Language
 
         static $cachedAll = false;
 
+        if ( is_array( $ids ) && count( $ids ) === 0 )
+        {
+            return [];
+        }
+
         $keyed   = array_flip( (array) $ids );
         $cached  = array_intersect_key( static::$allLanguages, $keyed );
         $missing = array_diff_key( $keyed, $cached );
