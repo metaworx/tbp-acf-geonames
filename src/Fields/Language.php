@@ -287,19 +287,6 @@ class Language
     }
 
 
-    public function getFilterDefinition(): array
-    {
-
-        return $this->addFilterCallbacks(
-            [
-                // search
-                $this->getFilterDefinitionSearch(),
-
-            ]
-        );
-    }
-
-
     /**
      * @inheritDoc
      */
