@@ -8,6 +8,7 @@ namespace Tbp\WP\Plugin\AcfFields;
 use DirectoryIterator;
 use ErrorException;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
+use Tbp\WP\Plugin\AcfFields\Integration\WPAI;
 
 class Plugin
 {
@@ -27,6 +28,9 @@ class Plugin
 
     /** @var \Tbp\WP\Plugin\AcfFields\Integration\FacetWP|null */
     protected $facet;
+
+   /** @var \Tbp\WP\Plugin\AcfFields\Integration\WPAI|null */
+    protected $wpai;
 
 // private properties
 
@@ -136,6 +140,12 @@ class Plugin
             // use low priority (>10) to make sure ACF has already loaded
         {
             $this->facet = new FacetWP();
+        }
+
+       if ( ! array_key_exists( 'wpai-acf-add-on/wpai-acf-add-on.php', self::$missingPlugins ) )
+            // use low priority (>10) to make sure ACF has already loaded
+        {
+            $this->wpai = new WPAI();
         }
 
     }

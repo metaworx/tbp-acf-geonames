@@ -80,13 +80,53 @@ call_user_func(
                 'fields'   => [
                 ],
             ],
-           'wpai-acf-add-on/wpai-acf-add-on.php'              => [
-                'name'     => 'WP All Import - ACF Add-On',
-                'version'  => '3.2.9',
-                'url'      => 'http://www.wpallimport.com/',
-                'required' => false,
-                'fields'   => [
+            'wpai-acf-add-on/wpai-acf-add-on.php' => [
+                'name'      => 'WP All Import - ACF Add-On',
+                'version'   => '3.2.9',
+                'url'       => 'http://www.wpallimport.com/',
+                'required'  => false,
+                'fields'    => [
                 ],
+                'condition' => static function (): bool
+                {
+
+                    if ( ! preg_match(
+                        <<<'REGEX'
+@
+            ^/wp-admin/
+            (?:
+                (?<admin>admin\.php\?page=(?<pmxi>pmxi-admin-(?:manage|import|settings|history)))
+                |
+                (?<admin_ajax>admin-ajax\.php)
+                |
+                (?<plugins>plugin(?:s|-install|-editor)\.php\b)
+            )
+@x
+REGEX,
+                        $_SERVER['REQUEST_URI'],
+                        $requestURI
+                    ) )
+                    {
+                        return false;
+                    }
+
+                    if ( $requestURI['admin_ajax'] ?? false )
+                    {
+                        return ( $_REQUEST['action'] ?? false ) === 'search-install-plugins';
+                    }
+
+                    if ( $requestURI['pmxi'] ?? false )
+                    {
+                        return true;
+                    }
+
+                    if ( $requestURI['plugins'] ?? false )
+                    {
+                        return true;
+                    }
+
+                    return false;
+                },
             ],
         ];
 
@@ -116,6 +156,17 @@ call_user_func(
         {
             foreach ( $plugins as $plugin => &$plugin_data )
             {
+
+                if ( array_key_exists( 'condition', $plugin_data ) )
+                {
+                    if ( false === ( is_callable( $plugin_data['condition'] )
+                            ? $plugin_data['condition']()
+                            : $plugin_data['condition'] ) )
+                    {
+                        unset( $plugins[ $plugin ] );
+                        continue;
+                    }
+                }
 
                 if ( ! file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin ) )
                 {
