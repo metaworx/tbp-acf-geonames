@@ -54,7 +54,7 @@ call_user_func(
             : 'is_plugin_active';
 
         $plugins = [
-            'advanced-custom-fields/acf.php' => [
+            'advanced-custom-fields/acf.php'      => [
                 'name'     => 'Advanced Custom Fields',
                 'version'  => '5.0.0',
                 'url'      => 'https://www.advancedcustomfields.com',
@@ -64,7 +64,7 @@ call_user_func(
                     'Tbp\WP\Plugin\AcfFields\Fields\Relationship' => true,
                 ],
             ],
-            'wp-geonames/wp-geonames.php'    => [
+            'wp-geonames/wp-geonames.php'         => [
                 'name'     => 'WP Geonames',
                 'version'  => '4.0.0',
                 'url'      => 'https://wordpress.org/plugins/wp-geonames/',
@@ -73,7 +73,7 @@ call_user_func(
                     'Tbp\WP\Plugin\AcfFields\Fields\Geoname' => true,
                 ],
             ],
-            'facetwp/index.php'              => [
+            'facetwp/index.php'                   => [
                 'name'     => 'FacetWP',
                 'version'  => '3.6.0',
                 'url'      => 'https://facetwp.com/',

@@ -143,6 +143,7 @@ class Geoname
      *
      * @return    array|false
      * @noinspection PhpUnusedParameterInspection
+     * @throws \ErrorException
      */
     public function getData( $options = [] )
     {
