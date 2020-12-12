@@ -1206,7 +1206,6 @@ HTML
      * @param  array       $field    the field array holding all the field options
      *
      * @return   mixed      $value
-     * @noinspection   PhpUnusedParameterInspection
      */
     public function update_value(
         $value,

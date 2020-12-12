@@ -620,10 +620,6 @@ class Geoname
             }
         );
 
-//        echo "<pre>\n";
-//        print_r($sources['acf']);
-//        echo "</pre>\n";
-
         return $sources;
     }
 
