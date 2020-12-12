@@ -3,7 +3,7 @@
 namespace Tbp\WP\Plugin\AcfFields\Integration;
 
 use Tbp\WP\Plugin\AcfFields\Entities\Country;
-use Tbp\WP\Plugin\AcfFields\Field;
+use Tbp\WP\Plugin\AcfFields\FieldInterface;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP\ACF;
 use Tbp\WP\Plugin\AcfFields\Plugin;
 
@@ -199,7 +199,7 @@ class FacetWP
         array_walk(
             Plugin::$fields,
             static function (
-                Field $field
+                FieldInterface $field
             ) use
             (
                 &

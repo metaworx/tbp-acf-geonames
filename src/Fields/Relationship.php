@@ -4,6 +4,7 @@
 namespace Tbp\WP\Plugin\AcfFields\Fields;
 
 use acf_field_relationship;
+use Tbp\WP\Plugin\AcfFields\FieldInterface;
 use Tbp\WP\Plugin\AcfFields\FieldTypes\FieldRelational;
 use Tbp\WP\Plugin\AcfFields\Helpers\FieldTrait;
 use Tbp\WP\Plugin\AcfFields\Helpers\RelationalTrait;
@@ -18,6 +19,8 @@ if ( ! class_exists( 'acf_field_relationship' ) )
 class Relationship
     extends
     acf_field_relationship
+    implements
+    FieldInterface
 {
 
     use RelationalTrait;

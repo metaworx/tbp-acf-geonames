@@ -2,6 +2,9 @@
 
 namespace Tbp\WP\Plugin\AcfFields\Helpers;
 
+use Tbp\WP\Plugin\AcfFields\FieldInterface;
+use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
+
 trait FieldTrait
 {
 
@@ -236,7 +239,73 @@ trait FieldTrait
     }
 
 
-    public static function Factory( $settings ): self
+    /**
+     * Add ACF fields to the Data Sources dropdown
+     *
+     * @param                                           $sources
+     * @param  \Tbp\WP\Plugin\AcfFields\FieldInterface  $field
+     * @param  array                                    $acfFields
+     *
+     * @return array
+     */
+    public function facetwpFacetSources(
+        $sources,
+        FieldInterface $field,
+        array $acfFields
+    ): array {
+
+        array_walk(
+        /**
+         * @param  array   $field
+         * @param  string  $key
+         */
+            $acfFields,
+            static function (
+                $field,
+                $key
+            ) use
+            (
+                &
+                $sources
+            )
+            {
+
+                // get information from the current source
+                $field_id    = $field['hierarchy'];
+                $field_label = $sources['acf']['choices']["acf/$field_id"] ?? null;
+
+                if ( $field_label === null )
+                {
+                    return;
+                }
+
+                // remove the native acf entry
+                unset ( $sources['acf']['choices']["acf/$field_id"] );
+
+                // re-insert as our own entry
+
+                $field_id = sprintf(
+                    '%s/%s/%s/%s',
+                    FacetWP::SOURCE_IDENTIFIER,
+                    static::NAME,
+                    'name',
+                    $field['hierarchy']
+                );
+
+                $sources['acf']['choices'][ $field_id ] = $field_label;
+            }
+        );
+
+        return $sources;
+    }
+
+
+    /**
+     * @param $settings
+     *
+     * @return \Tbp\WP\Plugin\AcfFields\FieldInterface|self
+     */
+    public static function Factory( $settings ): FieldInterface
     {
 
         return self::$instance[ static::class ]

@@ -6,7 +6,7 @@ namespace Tbp\WP\Plugin\AcfFields\Fields;
 use Locale;
 use Tbp\WP\Plugin\AcfFields\Entities\Country;
 use Tbp\WP\Plugin\AcfFields\Entities\Location;
-use Tbp\WP\Plugin\AcfFields\Field;
+use Tbp\WP\Plugin\AcfFields\FieldInterface;
 use Tbp\WP\Plugin\AcfFields\FieldTypes\FieldRelational;
 use Tbp\WP\Plugin\AcfFields\Integration\FacetWP;
 use Tbp\WP\Plugin\AcfFields\Plugin;
@@ -556,16 +556,16 @@ class Geoname
     /**
      * Add ACF fields to the Data Sources dropdown
      *
-     * @param                                  $sources
-     * @param  \Tbp\WP\Plugin\AcfFields\Field  $field
-     * @param  array                           $acfFields
+     * @param                                           $sources
+     * @param  \Tbp\WP\Plugin\AcfFields\FieldInterface  $field
+     * @param  array                                    $acfFields
      *
      * @return array
      * @noinspection PhpUnusedParameterInspection
      */
     public function facetwpFacetSources(
         $sources,
-        Field $field,
+        FieldInterface $field,
         array $acfFields
     ): array {
 
