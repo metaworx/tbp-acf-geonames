@@ -396,7 +396,7 @@ class Language
      * @return array
      *
      */
-    public function facetwpRender(
+    public function &facetwpRender(
         array $args,
         object $source
     ): array {

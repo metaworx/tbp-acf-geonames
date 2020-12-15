@@ -301,6 +301,50 @@ trait FieldTrait
 
 
     /**
+     * Add ACF fields to the Data Sources dropdown
+     *
+     * This function is not called directly by FacetWP, but from
+     * \Tbp\WP\Plugin\AcfFields\Integration\FacetWP::facetwp_indexer_row_data
+     *
+     * @param  array  $rows
+     * @param  array  $params
+     *
+     * @return array
+     */
+    public function &facetwpIndexerRowData(
+        array $rows,
+        array $params
+    ): array {
+
+        return $rows;
+    }
+
+
+    /**
+     * Add ACF fields to the Data Sources dropdown
+     *
+     * This function is not called directly by FacetWP, but from
+     * \Tbp\WP\Plugin\AcfFields\Integration\FacetWP::facetwp_facet_render_args
+     *
+     * @see https://facetwp.com/documentation/developers/querying/facetwp_facet_render_args/
+     *
+     *
+     * @param  array   $args    $arguments as in original filter
+     * @param  object  $source  Source of facet data
+     *
+     * @return array
+     *
+     */
+    public function &facetwpRender(
+        array $args,
+        object $source
+    ): array {
+
+        return $args;
+    }
+
+
+    /**
      * @param $settings
      *
      * @return \Tbp\WP\Plugin\AcfFields\FieldInterface|self
