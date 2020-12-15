@@ -127,7 +127,7 @@ class Language
 
         /*
         *  l10n (array) Array of strings that are used in JavaScript. This allows JS strings to be translated in PHP and loaded via:
-        *  var message = acf._e('language', 'error');
+        *  var message = acf._e('tbp_language', 'error');
         */
         $this->l10n = [
             'error' => __( 'Error! Please enter a higher value', 'tbp-acf-fields' ),
@@ -206,7 +206,7 @@ class Language
         ];
 
         // post_type
-        $args['post_type'] = 'language';
+        $args['post_type'] = LanguagePost::POST_TYPE;
 
         // filters
         while ( ( $context->filter = key( $context->filters ) )
@@ -317,7 +317,7 @@ class Language
 
         $source = $params['source'];
 
-        if ( $source->type !== 'language' )
+        if ( $source->type !== static::NAME )
         {
             return $rows;
         }

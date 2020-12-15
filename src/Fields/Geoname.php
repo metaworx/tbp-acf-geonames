@@ -104,7 +104,7 @@ class Geoname
 
         /*
         *  l10n (array) Array of strings that are used in JavaScript. This allows JS strings to be translated in PHP and loaded via:
-        *  var message = acf._e('geoname', 'error');
+        *  var message = acf._e('tbp_geoname', 'error');
         */
         $this->l10n = [
             'error' => __( 'Error! Please enter a higher value', 'tbp-acf-fields' ),
@@ -643,7 +643,7 @@ class Geoname
 
         $source = $params['source'];
 
-        if ( $source->type !== 'geoname' )
+        if ( $source->type !== static::NAME )
         {
             return $rows;
         }
