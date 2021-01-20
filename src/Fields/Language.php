@@ -223,7 +223,7 @@ class Language
         $args = apply_filters( 'acf/fields/tbp_language/query/key=' . $field['key'], $args, $field, $options );
 
         // get posts grouped by post type
-        $languages = LanguagePost::load( [], $args );
+        $languages = LanguagePost::load( null, $args );
 
         // bail early if no posts
         if ( empty( $languages ) )
