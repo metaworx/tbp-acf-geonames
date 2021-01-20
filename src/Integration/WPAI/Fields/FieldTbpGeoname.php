@@ -55,7 +55,7 @@ class FieldTbpGeoname
 
         if (
             ! empty( $country )
-            && ( $countryId = getGeonameIdByCountryName( $country ) )
+            && ( $countryId = static::getGeonameIdByCountryName( $country ) )
             && ( $countryObject = Country::load( $countryId ) )
         )
         {
