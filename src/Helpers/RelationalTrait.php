@@ -975,7 +975,8 @@ HTML
         // Change Field into a select.
         $field['type']       = 'select';
         $field['ui']         = $field['ui'] ?? $fieldSettings['ui']['default'] ?? 1;
-        $field['ajax']       = $field['ajax'] ?? $fieldSettings['ajax']['default'] ?? 0;
+        $field['ajax']       = $field['ui']
+            && $field['ajax'] ?? $fieldSettings['ajax']['default'] ?? 0; // ajax can only work if UI is enabled
         $field['allow_null'] = $field['allow_null'] ?? $fieldSettings['allow_null']['default'] ?? 1;
         // $field['readonly']
         // $field['disabled']
