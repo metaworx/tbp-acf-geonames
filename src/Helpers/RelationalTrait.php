@@ -474,6 +474,25 @@ trait RelationalTrait
     }
 
 
+    public function field_wrapper_attributes(
+        $wrapper,
+        $field
+    ) {
+
+        if ( $field['type'] !== static::NAME )
+        {
+            return $wrapper;
+        }
+
+        if ( $field['choice_layout'] ?? false )
+        {
+            $wrapper['data-layout'] = $field['choice_layout'];
+        }
+
+        return $wrapper;
+    }
+
+
     /**
      *  format_value()
      *
@@ -495,6 +514,7 @@ trait RelationalTrait
         $object_id,
         $field
     ) {
+
         $value = \apply_filters( 'acf/format_value/name=' . $field['name'], $value, $object_id, $field );
 
         // bail early if no value
@@ -752,15 +772,16 @@ trait RelationalTrait
 
         // div attributes
         $attributes = [
-            'id'         => $field['id'],
-            'class'      => sprintf(
+            'id'          => $field['id'],
+            'class'       => sprintf(
                 "tbp-acf-relation tbp-acf-relation-list tbp-acf-%s %s",
                 static::NAME,
                 $field['class']
             ),
-            'data-min'   => $field['min'],
-            'data-max'   => $field['max'],
-            'data-paged' => 1,
+            'data-layout' => 'list',
+            'data-min'    => $field['min'],
+            'data-max'    => $field['max'],
+            'data-paged'  => 1,
         ];
 
         if ( $field['max'] === 1 )
@@ -960,7 +981,8 @@ HTML
         // $field['disabled']
         // $field['ajax_action']
         // $field['id'],
-        // $field['class']
+        $field['wrapper']['class'] = ( $field['wrapper']['class'] ?? '' ) . ' tbp-acf-relation-select';
+        $field['class']            = $field['wrapper']['class'];
 
         if ( empty( $field['ajax'] ) )
         {
@@ -986,8 +1008,20 @@ HTML
             );
         }
 
-        // Render.
+        // render.
+        ob_start();
         acf_render_field( $field );
+        $html = ob_get_clean();
+
+        $attrs = [
+            'data-layout' => 'select',
+        ];
+
+        $attr = acf_esc_attrs( $attrs );
+
+        $html = preg_replace( '/ data-/', " $attr data-", $html, 1 );
+
+        echo $html;
     }
 
 

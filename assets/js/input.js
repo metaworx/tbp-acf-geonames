@@ -13,10 +13,6 @@
 	 */
 
 	function initialize_field( $field ) {
-
-		console.debug( $field );
-		console.debug( 'done initialize_field' );
-
 	}
 
 
@@ -52,7 +48,6 @@
 		*  @return	n/a
 		*/
 
-		window.alert( 'acf/setup_fields' );
 		$( document ).on( 'acf/setup_fields', function ( e, postbox ) {
 
 			// find all relevant fields
@@ -77,18 +72,7 @@
 
 		wait: 'load',
 
-		events: {
-			'removeField': 'onRemove',
-			'keypress [data-filter]': 'onKeypressFilter',
-			'change [data-filter]': 'onChangeFilter',
-			'keyup [data-filter]': 'onChangeFilter',
-			'click .choices-list .acf-rel-item': 'onClickAdd',
-			'click [data-name="remove_item"]': 'onClickRemove',
-		},
-
-		$input: function () {
-			return this.$( 'select' );
-		},
+		events: {},
 
 		$control: function () {
 			return this.$( '.tbp-acf-' + this.get( 'type' ) );
@@ -115,15 +99,15 @@
 
 		onClickAdd: function ( e, $el ) {
 
-			// vars
-			var val = this.val();
-			var max = parseInt( this.get( 'max' ) );
-			var allowReplace = parseInt( this.get( 'replaceSelected' ) );
-
 			// can be added?
 			if ( $el.hasClass( 'disabled' ) ) {
 				return false;
 			}
+
+			// vars
+			var val = this.val();
+			var max = parseInt( this.get( 'max' ) );
+			var allowReplace = parseInt( this.get( 'replaceSelected' ) );
 
 			if ( max === 1 && allowReplace && val.length === 1 ) {
 
@@ -132,7 +116,6 @@
 				var $a = $span.find( '.acf-icon[data-name="remove_item"]' );
 
 				this.onClickRemove( e, $a );
-
 			}
 
 			acf.models.RelationshipField.prototype.onClickAdd.call( this, e, $el );
@@ -140,38 +123,40 @@
 
 		initialize: function () {
 
-			// vars
-			var $select = this.$input();
+			switch ( this.data.layout ) {
 
-			// inherit data
-			this.inherit( $select );
+				case 'select':
 
-			// select2
-			if ( this.get( 'ui' ) ) {
+					//console.log( 'select field' );
 
-				// populate ajax_data (allowing custom attribute to already exist)
-				var ajaxAction = this.get( 'ajax_action' );
-				if ( !ajaxAction ) {
-					ajaxAction = 'acf/fields/' + this.get( 'type' ) + '/query';
-				}
+					this.events = acf.models.SelectField.events
+					this.$input = acf.models.SelectField.prototype.$input;
 
-				// select2
-				this.select2 = acf.newSelect2( $select, {
-					field: this,
-					ajax: this.get( 'ajax' ),
-					multiple: this.get( 'multiple' ),
-					placeholder: this.get( 'placeholder' ),
-					allowNull: this.get( 'allow_null' ),
-					ajaxAction: ajaxAction,
-				} );
+					acf.models.SelectField.prototype.initialize.call( this );
+
+					break
+
+
+				case 'list':
+
+					//console.log( 'list field' );
+
+					this.events = acf.models.RelationshipField.events
+					this.getValue = acf.models.RelationshipField.prototype.getValue
+
+					acf.models.RelationshipField.prototype.initialize.call( this );
+
+					break
 			}
+
+			//console.log( this )
+			//console.log( 'end field' );
 		},
 
-		onRemove: function () {
-			if ( this.select2 ) {
-				this.select2.destroy();
-			}
-		}
+		onRemove: acf.models.SelectField.prototype.onRemove,
+
+		onDuplicate: acf.models.SelectField.prototype.onDuplicate
+
 	} );
 
 	var TbpGeoname = TbpRelational.extend( {

@@ -28,6 +28,7 @@ class Relationship
     {
         __construct as private _FieldTrait__construct;
         load_value as private _FieldTrait_load_value;
+        RelationalTrait::field_wrapper_attributes insteadof FieldTrait;
     }
 
 // constants

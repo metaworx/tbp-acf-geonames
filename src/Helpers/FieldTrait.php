@@ -38,6 +38,17 @@ trait FieldTrait
 
         parent::__construct();
 
+        // value
+        add_filter(
+            'acf/field_wrapper_attributes',
+            [
+                $this,
+                'field_wrapper_attributes',
+            ],
+            10,
+            2
+        );
+
     }
 
 
@@ -341,6 +352,15 @@ trait FieldTrait
     ): array {
 
         return $args;
+    }
+
+
+    public function field_wrapper_attributes(
+        $wrapper,
+        $field
+    ) {
+
+        return $wrapper;
     }
 
 
