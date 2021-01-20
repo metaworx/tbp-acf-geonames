@@ -241,7 +241,7 @@ class Language
     }
 
 
-    public static function adminLanguagePostColumns( $cols )
+    public static function adminLanguagePostColumns( array $cols )
     {
 
         $array_splice_assoc = static function (
