@@ -414,7 +414,7 @@ class CountryPost
 
         $cached = [];
 
-        // get all missing languages by id
+        // get all missing countries by id
         $missingIds = array_filter(
             (array) $countryIds,
             static function ( $key ) use
@@ -443,7 +443,7 @@ class CountryPost
             ARRAY_FILTER_USE_BOTH
         );
 
-        // get all missing languages by slug
+        // get all missing countries by slug
         $missingSlugs = array_filter(
             (array) $countryIds,
             static function ( $key ) use
