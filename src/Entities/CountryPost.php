@@ -105,44 +105,53 @@ class CountryPost
 
         // lookup by ID
 
-        if ( $this->post === null && $this->postId !== null )
+        if ( $this->postId !== null )
         {
-            $this->setPost( WP_Post::get_instance( $this->postId ) );
+            $post = WP_Post::get_instance( $this->postId );
+
+            if ( $post instanceof WP_Post )
+            {
+                $this->setPost( $post );
+
+                return $this->post;
+            }
         }
 
         // lookup by geonameId
 
-        if ( $this->post === null
-            && $this->geonameId !== null
+        if ( $this->geonameId !== null
             && ! in_array( $this->geonameId, $lastGeonameLookup, true )
         )
         {
             $lastGeonameLookup[] = $this->geonameId;
-            $posts               = static::getPosts( $this->geonameId );
+            $post                = static::getPosts( $this->geonameId );
 
-            if ( ! empty( $posts ) )
+            if ( $post instanceof WP_Post )
             {
-                $this->setPost( $posts );
+                $this->setPost( $post );
+
+                return $this->post;
             }
         }
 
         // lookup by post_type
 
-        if ( $this->post === null
-            && ( $name = $this->getNameAsSlug() ) !== null
+        if ( ( $name = $this->getNameAsSlug() ) !== null
             && ! in_array( $name, $lastGeonameLookup, true )
         )
         {
             $lastGeonameLookup[] = $name;
-            $posts               = static::getPosts( $name );
+            $post                = static::getPosts( $name );
 
-            if ( ! empty( $posts ) )
+            if ( $post instanceof WP_Post )
             {
-                $this->setPost( $posts );
+                $this->setPost( $post );
+
+                return $this->post;
             }
         }
 
-        return $this->post;
+        return null;
     }
 
 
