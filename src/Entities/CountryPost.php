@@ -25,6 +25,11 @@ class CountryPost
 // protected properties
 
     /**
+     * @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost[]
+     */
+    protected static $_countryPosts = [];
+
+    /**
      * @var \WP_Post|null
      */
     protected $post;
@@ -149,8 +154,43 @@ class CountryPost
     public function setPost( WP_Post $post ): self
     {
 
-        $this->post   = $post;
-        $this->postId = $post->ID;
+        $this->post = $post;
+        $this->setPostId( $post->ID );
+
+        $slug = $this->post->post_name;
+
+        if ( empty( $slug ) )
+        {
+            $slug = $this->post->post_name = $this->getNameAsSlug();
+
+            if ( empty( $slug ) )
+            {
+                throw new \ErrorException( "Empty slug!" );
+            }
+
+            $result = wp_update_post( $this->post );
+
+            if ( $result instanceof WP_Error )
+            {
+                throw new \ErrorException(
+                    sprintf(
+                        "could not update country's slug with $slug: %s",
+                        implode( " ", $result->get_error_messages() )
+                    )
+                );
+            }
+
+            if ( $result === 0 )
+            {
+                throw new \ErrorException(
+                    sprintf( "could not update country's slug with $slug" )
+                );
+            }
+        }
+
+        self::$_countryPosts[ $slug ] = $this;
+
+        ksort( self::$_countryPosts );
 
         return $this;
     }
@@ -174,7 +214,35 @@ class CountryPost
     public function setPostId( int $postId ): CountryPost
     {
 
+        $old = null;
+
+        if ( $this->postId && array_key_exists( "_$this->postId", self::$_countryPosts ) )
+        {
+            $old = self::$_countryPosts["_$this->postId"];
+
+            if ( $old === $this )
+            {
+                if ( $this->postId === $postId )
+                {
+                    // nothing changed
+                    return $this;
+                }
+
+                if ( $postId === null )
+                {
+                    // remove entry
+                    unset( self::$_countryPosts["_$this->postId"] );
+                }
+            }
+
+        }
+
         $this->postId = $postId;
+
+        if ( $this->postId && $old !== $this )
+        {
+            self::$_countryPosts["_$this->postId"] = $this;
+        }
 
         return $this;
     }
@@ -334,13 +402,33 @@ class CountryPost
             return $countryIds;
         }
 
+        $cached = [];
+
         // get all missing languages by id
         $missingIds = array_filter(
             (array) $countryIds,
-            static function ( $key )
+            static function ( $key ) use
+            (
+                &
+                $cached
+            )
             {
 
-                return is_numeric( $key );
+                if ( ! is_numeric( $key ) )
+                {
+                    return false;
+                }
+
+                /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $post */
+                if ( ( $post = self::$_countryPosts["_$key"] ?? null )
+                    && $post->hasPost( false ) )
+                {
+                    $cached["_$key"] = $post->getPost();
+
+                    return false;
+                }
+
+                return true;
             },
             ARRAY_FILTER_USE_BOTH
         );
@@ -348,10 +436,28 @@ class CountryPost
         // get all missing languages by slug
         $missingSlugs = array_filter(
             (array) $countryIds,
-            static function ( $key )
+            static function ( $key ) use
+            (
+                &
+                $cached
+            )
             {
 
-                return ! is_numeric( $key );
+                if ( is_numeric( $key ) )
+                {
+                    return false;
+                }
+
+                /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $post */
+                if ( ( $post = self::$_countryPosts[ $key ] ?? null )
+                    && $post->hasPost( false ) )
+                {
+                    $cached[ $key ] = $post->getPost();
+
+                    return false;
+                }
+
+                return true;
             },
             ARRAY_FILTER_USE_BOTH
         );
@@ -439,6 +545,8 @@ class CountryPost
 
             update_meta_cache( 'post', $missingIds );
         }
+
+        $posts += $cached;
 
         if ( ! $loadingAll && ! is_array( $countryIds ) )
         {
