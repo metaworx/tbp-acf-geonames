@@ -508,6 +508,7 @@ class CountryPost
                 $param['post__in']    = $missingIds;
                 $param['post_status'] = [
                     'publish',
+                    'pending',
                     'draft',
                     'auto-draft',
                     'trash',
