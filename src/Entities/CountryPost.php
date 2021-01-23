@@ -274,6 +274,7 @@ class CountryPost
         // Create post object
         $my_post = [
             'post_title'   => $this->getNameIntl( 'en' ),
+            'post_name'    => $this->getNameAsSlug( 'en' ),
             'post_content' => null,
             'post_status'  => 'pending',
             'post_type'    => static::POST_TYPE,
