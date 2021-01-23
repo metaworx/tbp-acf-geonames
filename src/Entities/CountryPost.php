@@ -576,7 +576,7 @@ class CountryPost
         $options->numericAs = $options->numericAs ?? self::LOAD_NUMERIC_ID_AS_LOCATION_ID;
 
         $countries = $options->numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID
-            ? static::getPosts( (array) $ids, self::LOAD_NUMERIC_ID_AS_POST_ID )
+            ? static::getPosts( $ids, self::LOAD_NUMERIC_ID_AS_POST_ID )
             : $ids;
 
         $countries = static::loadRecords( $countries, $options );
