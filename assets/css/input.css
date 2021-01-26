@@ -1,177 +1,217 @@
 .tbp-acf-relation-list {
-    background:#fff;
-    border:#ccd0d4 solid 1px
+    background: #fff;
+    border:#ccd0d4 solid 1px;
 }
+
 .tbp-acf-relation-list .filters {
-    border-bottom:#ccd0d4 solid 1px;
-    background:#fff
+    border-bottom: #ccd0d4 solid 1px;
+    background: #fff;
 }
+
 .tbp-acf-relation-list .filters:after {
-    display:block;
-    clear:both;
-    content:""
+    display: block;
+    clear: both;
+    content: "";
 }
+
 .tbp-acf-relation-list .filters .filter {
-    margin:0;
-    padding:0;
-    float:left;
-    width:100%;
-    box-sizing:border-box;
-    padding:7px 7px 7px 0
+    margin: 0;
+    float: left;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px 7px 7px 0;
 }
+
 .tbp-acf-relation-list .filters .filter:first-child {
-    padding-left:7px
+    padding-left: 7px;
 }
+
 .tbp-acf-relation-list .filters .filter input,
 .tbp-acf-relation-list .filters .filter select {
-    margin:0;
-    float:none
+    margin: 0;
+    float: none;
 }
+
 .tbp-acf-relation-list .filters .filter input:focus,
 .tbp-acf-relation-list .filters .filter input:active,
 .tbp-acf-relation-list .filters .filter select:focus,
 .tbp-acf-relation-list .filters .filter select:active {
-    outline:none;
-    box-shadow:none
+    outline: none;
+    box-shadow: none;
 }
+
 .tbp-acf-relation-list .filters .filter input {
-    border-color:transparent;
-    box-shadow:none;
-    padding-left:3px;
-    padding-right:3px
+    border-color: transparent;
+    box-shadow: none;
+    padding-left: 3px;
+    padding-right: 3px;
 }
+
 .tbp-acf-relation-list .filters.-f2 .filter {
-    width:50%
+    width: 50%;
 }
+
 .tbp-acf-relation-list .filters.-f3 .filter {
-    width:25%
+    width: 25%;
 }
+
 .tbp-acf-relation-list .filters.-f3 .filter.-search {
-    width:50%
+    width: 50%;
 }
+
 .tbp-acf-relation-list .list {
-    margin:0;
-    padding:5px;
-    height:160px;
-    overflow:auto
+    margin: 0;
+    padding: 5px;
+    height: 160px;
+    overflow: auto;
 }
+
 .tbp-acf-relation-list .list.single-line {
-    height:30px;
+    height: 30px;
 }
+
 .tbp-acf-relation-list .list .acf-rel-label,
 .tbp-acf-relation-list .list .acf-rel-item,
 .tbp-acf-relation-list .list p {
-    padding:5px;
-    margin:0;
-    display:block;
-    position:relative;
-    min-height:18px
+    padding: 5px;
+    margin: 0;
+    display: block;
+    position: relative;
+    min-height: 18px;
 }
+
 .tbp-acf-relation-list .list .acf-rel-label {
-    font-weight:bold
+    font-weight: bold;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item {
-    cursor:pointer
+    cursor: pointer;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item b {
-    text-decoration:underline;
-    font-weight:normal
+    text-decoration: underline;
+    font-weight: normal;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item .thumbnail {
-    background:#e0e0e0;
-    width:22px;
-    height:22px;
-    float:left;
-    margin:-2px 5px 0 0
+    background: #e0e0e0;
+    width: 22px;
+    height: 22px;
+    float: left;
+    margin: -2px 5px 0 0;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item .thumbnail img {
-    max-width:22px;
-    max-height:22px;
-    margin:0 auto;
-    display:block
+    max-width: 22px;
+    max-height: 22px;
+    margin: 0 auto;
+    display: block;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item .thumbnail.-icon {
-    background:#fff
+    background: #fff;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item .thumbnail.-icon img {
-    max-height:20px;
-    margin-top:1px
+    max-height: 20px;
+    margin-top: 1px;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item:hover {
-    background:#3875D7;
-    color:#fff
+    background: #3875D7;
+    color: #fff;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item:hover .thumbnail {
-    background:#a2bfec
+    background: #a2bfec;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item:hover .thumbnail.-icon {
-    background:#fff
+    background: #fff;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item.disabled {
-    opacity:0.5
+    opacity: 0.5;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item.disabled:hover {
-    background:transparent;
-    color:#333;
-    cursor:default
+    background: transparent;
+    color: #333;
+    cursor: default;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item.disabled:hover .thumbnail {
-    background:#e0e0e0
+    background: #e0e0e0;
 }
+
 .tbp-acf-relation-list .list .acf-rel-item.disabled:hover .thumbnail.-icon {
-    background:#fff
+    background: #fff;
 }
+
 .tbp-acf-relation-list .list ul {
-    padding-bottom:5px
+    padding-bottom: 5px;
 }
+
 .tbp-acf-relation-list .list ul .acf-rel-label,
 .tbp-acf-relation-list .list ul .acf-rel-item,
 .tbp-acf-relation-list .list ul p {
-    padding-left:20px
+    padding-left: 20px;
 }
+
 .tbp-acf-relation-list .selection {
-    position:relative
+    position: relative;
 }
+
 .tbp-acf-relation-list .selection:after {
-    display:block;
-    clear:both;
-    content:""
+    display: block;
+    clear: both;
+    content: "";
 }
+
 .tbp-acf-relation-list .selection .values,
 .tbp-acf-relation-list .selection .choices {
-    background:#fff;
+    background: #fff;
 }
+
 .tbp-acf-relation-list .selection .values-50,
 .tbp-acf-relation-list .selection .choices-50 {
-    width:50%;
-    float:left
+    width: 50%;
+    float: left;
 }
+
 .tbp-acf-relation-list .selection .values-100,
 .tbp-acf-relation-list .selection .choices-100 {
-    width:100%;
+    width: 100%;
 }
+
 .tbp-acf-relation-list .selection .choices {
-    background:#F9F9F9
+    background: #F9F9F9;
 }
+
 .tbp-acf-relation-list .selection .choices .list {
-    border-right:#DFDFDF solid 1px
+    border-right: #DFDFDF solid 1px;
 }
+
 .tbp-acf-relation-list .selection .values .acf-icon {
-    position:absolute;
-    top:4px;
-    right:7px;
-    display:none
+    position: absolute;
+    top: 4px;
+    right: 7px;
+    display: none;
 }
+
 html[dir="rtl"] .tbp-acf-relation-list .selection .values .acf-icon {
-    right:auto;
-    left:7px
+    right: auto;
+    left: 7px;
 }
+
 .tbp-acf-relation-list .selection .values .acf-rel-item:hover .acf-icon {
-    display:block
+    display: block;
 }
+
 .tbp-acf-relation-list .selection .values .acf-rel-item {
-    cursor:move
+    cursor: move;
 }
+
 .tbp-acf-relation-list .selection .values .acf-rel-item b {
-    text-decoration:none
+    text-decoration: none;
 }
