@@ -1035,6 +1035,7 @@ HTML;
         {
             $replacements = [];
 
+            $replacements['%id%']     = sprintf( '%s-filter-%s', esc_attr( $field['key'] ), esc_attr( $filter ) );
             $replacements['%filter%'] = esc_attr( $filter );
 
             if ( $field[ $filter . '_display_instruction' ] )
@@ -1060,6 +1061,9 @@ HTML;
                         '' => $filterSettings['select_label'],
                     ]
                     + $filterSettings['choices']( acf_get_array( $field[ $filter ] ) );
+
+                $script
+                    = '<script>document.addEventListener("DOMContentLoaded",function() { jQuery("#%id% > select").select2({width: \'100%\'});} );</script>';
                 break;
 
             default:
@@ -1084,8 +1088,8 @@ HTML;
             $html .= strtr(
                 <<<HTML
 
- <div class="filter-instruction -%filter%">%instructions%</div>
- <div class="filter -%filter%">
+ <div id="%id%-instruction" class="filter-instruction -%filter%">%instructions%</div>
+ <div id="%id%" class="filter -%filter%">
     %html%
 </div>$script
 
