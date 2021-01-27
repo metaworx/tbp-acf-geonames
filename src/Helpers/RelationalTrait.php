@@ -759,7 +759,6 @@ trait RelationalTrait
      *
      * @throws \ErrorException
      * @method-type    action
-     *
      */
     public function render_fieldAsList(
         array &$field,
@@ -767,14 +766,13 @@ trait RelationalTrait
     ): void {
 
         // filters
-        $filters      = $this->getFilters( acf_get_array( $field['filters'] ) );
-        $filter_count = count( $filters );
+        $filters = $this->getFilters( acf_get_array( $field['filters'] ) );
 
         // div attributes
         $attributes = [
             'id'          => $field['id'],
             'class'       => sprintf(
-                "tbp-acf-relation tbp-acf-relation-list tbp-acf-%s %s",
+                "tbp-acf tbp-acf-relation tbp-acf-relation-list tbp-acf-%s %s",
                 static::NAME,
                 $field['class']
             ),
@@ -805,138 +803,61 @@ trait RelationalTrait
             }
         );
 
-        ?>
-        <div <?php
-        echo acf_esc_attrs( $attributes ); ?>>
+        $replacements = [];
 
-            <?php
-            acf_hidden_input(
-                [
-                    'name'  => $field['name'],
-                    'value' => '',
-                ]
-            ); ?>
+        $replacements['%width%']  = ( $field['choice_on_new_line'] ?? false )
+            ? 100
+            : 50;
+        $replacements['%height%'] = ( $replacements['%width%'] === 100 && (int) ( $field['max'] ?? 0 ) === 1 )
+            ? 'single-line'
+            : '';
 
-            <?php
+        $replacements['%attrs%']        = acf_esc_attrs( $attributes );
+        $replacements['%hidden_field%'] = acf_get_hidden_input(
+            [
+                'name'  => $field['name'],
+                'value' => '',
+            ]
+        );
+        $replacements['%filter%']       = $this->render_field_filters( $field, $filters );
 
-            /* filters */
-            if ( $filter_count )
+        if ( $field['selection_choices_display_instruction'] )
+        {
+            $replacements['%choices_instruction%'] = $field['selection_choices_instruction_text']
+                ?: $fieldSettings['selection_choices_instruction_text']['placeholder'];
+        }
+        else
+        {
+            $replacements['%choices_instruction%'] = '';
+        }
+
+        if ( $field['selection_values_display_instruction'] )
+        {
+            $replacements['%values_instruction%'] = $field['selection_values_instruction_text']
+                ?: $fieldSettings['selection_values_instruction_text']['placeholder'];
+        }
+        else
+        {
+            $replacements['%values_instruction%'] = '';
+        }
+
+        $replacements['%values%'] = $this->render_field_values(
+            $field,
+            static function (
+                string $dataId,
+                string $caption,
+                bool $echo = true,
+                ?string $template = null
+            ) use
+            (
+                &
+                $field
+            )
             {
-                ?>
-                <div class="filters -f<?php
-                echo $field['one_filter_per_row']
-                    ? 4
-                    : $filter_count; ?>">
-                    <?php
 
-                    foreach ( $filters as $filter => $filterSettings )
-                    {
-                        ?>
-                        <div class="filter-instruction -<?php
-                        echo esc_attr( $filter ); ?>"><?php
-
-                            if ( $field[ $filter . '_display_instruction' ] )
-                            {
-                                echo $field[ $filter . '_instruction_text' ] ?? $filterSettings['instructions'];
-                            }
-                            ?></div>
-                        <div class="filter -<?php
-                        echo esc_attr( $filter ); ?>">
-                            <?php
-
-                            switch ( $filterSettings['type'] )
-                            {
-                            case 'text':
-                                $function = 'acf_text_input';
-                                break;
-
-                            case 'select':
-                                $function                  = 'acf_select_input';
-                                $filterSettings['choices'] = [
-                                        '' => $filterSettings['select_label'],
-                                    ]
-                                    + $filterSettings['choices']( acf_get_array( $field[ $filter ] ) );
-                                break;
-
-                            default:
-                                throw new \ErrorException( "unknown filter input type $filter" );
-                            }
-
-                            $function(
-                                array_intersect_key(
-                                    $filterSettings,
-                                    array_flip(
-                                        [
-                                            'placeholder',
-                                            'data-filter',
-                                            'choices',
-                                        ]
-                                    )
-                                )
-                            );
-
-                            ?>
-                        </div>
-                        <?php
-                    }
-
-                    ?>
-                </div>
-                <?php
-            }
-
-            $width  = ( $field['choice_on_new_line'] ?? false )
-                ? 100
-                : 50;
-            $height = ( $width === 100 && (int) ( $field['max'] ?? 0 ) === 1 )
-                ? 'single-line'
-                : '';
-
-            ?>
-
-            <div class="selection">
-                <div class="selection-instruction choices-instruction"><?php
-
-                    if ( $field['selection_choices_display_instruction'] )
-                    {
-                        echo $field['selection_choices_instruction_text']
-                            ?: $fieldSettings['selection_choices_instruction_text']['placeholder'];
-                    }
-                    ?></div>
-                <div class="choices choices-<?php
-                echo $width; ?>">
-                    <ul class="acf-bl list choices-list"></ul>
-                </div>
-                <div class="selection-instruction values-instruction"><?php
-
-                    if ( $field['selection_values_display_instruction'] )
-                    {
-                        echo $field['selection_values_instruction_text']
-                            ?: $fieldSettings['selection_values_instruction_text']['placeholder'];
-                    }
-                    ?></div>
-                <div class="values values-<?php
-                echo $width; ?>">
-                    <ul class="acf-bl list values-list <?php
-                    echo $height; ?>">
-                        <?php
-
-                        $this->render_field_values(
-                            $field,
-                            static function (
-                                string $dataId,
-                                string $caption,
-                                ?string $template = null
-                            ) use
-                            (
-                                &
-                                $field
-                            )
-                            {
-
-                                printf(
-                                    $template ??
-                                    <<<HTML
+                $html = sprintf(
+                    $template ??
+                    <<<HTML
                                <li>
                                     %s
                                     <span class="acf-rel-item" data-id="%s" >
@@ -945,25 +866,50 @@ trait RelationalTrait
                                     </span>
                                 </li>
 HTML
-                                    ,
-                                    acf_get_hidden_input(
-                                        [
-                                            'name'  => $field['name'] . '[]',
-                                            'value' => $dataId,
-                                        ]
-                                    ),
-                                    esc_attr( $dataId ),
-                                    acf_esc_html( $caption )
-                                );
-                            }
-                        );
+                    ,
+                    acf_get_hidden_input(
+                        [
+                            'name'  => $field['name'] . '[]',
+                            'value' => $dataId,
+                        ]
+                    ),
+                    esc_attr( $dataId ),
+                    acf_esc_html( $caption )
+                );
 
-                        ?>
-                    </ul>
-                </div>
-            </div>
+                if ( $echo )
+                {
+                    echo $html;
+                }
+
+                return $html;
+            },
+            false
+        );
+
+        $html = <<<HTML
+<div %attrs%>
+    %hidden_field%
+    %filter%
+    <div class="selection tbp-acf">
+        <div class="selection-instruction choices-instruction tbp-acf">%choices_instruction%</div>
+        <div class="choices choices-%width% tbp-acf">
+            <ul class="acf-bl list choices-list tbp-acf"></ul>
         </div>
-        <?php
+        <div class="selection-instruction values-instruction tbp-acf">%values_instruction%</div>
+        <div class="values values-%width% tbp-acf">
+            <ul class="acf-bl list values-list %height% tbp-acf">
+                %values%
+            </ul>
+        </div>
+    </div>
+</div>
+
+HTML;
+
+        $html = strtr( $html, $replacements );
+
+        echo $html;
     }
 
 
@@ -1023,6 +969,100 @@ HTML
         $html = preg_replace( '/ data-/', " $attr data-", $html, 1 );
 
         echo $html;
+    }
+
+
+    protected function render_field_filters(
+        array &$field,
+        array &$filters,
+        $echo = false
+    ): string {
+
+        /* filters */
+        if ( 0 === ( $filter_count = count( $filters ) ) )
+        {
+            return '';
+        }
+
+        $html = sprintf(
+            '<div class="filters -f%d">',
+            $field['one_filter_per_row']
+                ? 4
+                : $filter_count
+        );
+
+        foreach ( $filters as $filter => $filterSettings )
+        {
+            $replacements = [];
+
+            $replacements['%filter%'] = esc_attr( $filter );
+
+            if ( $field[ $filter . '_display_instruction' ] )
+            {
+                $replacements['%instructions%']
+                    = $field[ $filter . '_instruction_text' ] ?? $filterSettings['instructions'];
+            }
+            else
+            {
+                $replacements['%instructions%'] = '';
+            }
+
+            switch ( $filterSettings['type'] )
+            {
+            case 'text':
+                $function = 'acf_text_input';
+                $script   = '';
+                break;
+
+            case 'select':
+                $function                  = 'acf_select_input';
+                $filterSettings['choices'] = [
+                        '' => $filterSettings['select_label'],
+                    ]
+                    + $filterSettings['choices']( acf_get_array( $field[ $filter ] ) );
+                break;
+
+            default:
+                throw new \ErrorException( "unknown filter input type $filter" );
+            }
+
+            ob_start();
+            $function(
+                array_intersect_key(
+                    $filterSettings,
+                    array_flip(
+                        [
+                            'placeholder',
+                            'data-filter',
+                            'choices',
+                        ]
+                    )
+                )
+            );
+            $replacements['%html%'] = ob_get_clean();
+
+            $html .= strtr(
+                <<<HTML
+
+ <div class="filter-instruction -%filter%">%instructions%</div>
+ <div class="filter -%filter%">
+    %html%
+</div>$script
+
+HTML,
+                $replacements
+            );
+
+        }
+
+        $html .= '</div>';
+
+        if ( $echo )
+        {
+            echo $html;
+        }
+
+        return $html;
     }
 
 
@@ -1201,8 +1241,9 @@ HTML
 
     abstract protected function render_field_values(
         array &$field,
-        callable $render
-    ): void;
+        callable $render,
+        bool $echo = true
+    ): string;
 
 
     /**

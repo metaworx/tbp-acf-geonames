@@ -512,8 +512,9 @@ class Language
      */
     protected function render_field_values(
         array &$field,
-        callable $render
-    ): void {
+        callable $render,
+        bool $echo = true
+    ): string {
 
         //if ( ! empty( $field['value'] ) )
         //{
@@ -522,15 +523,19 @@ class Language
         //$languages = LanguagePost::load( $field['value'] );
         $languages = LanguagePost::load( null );
 
+        $html = '';
+
         // loop
         /** @var LanguagePost $language */
         foreach ( $languages as $language )
         {
             $dataId  = $language->getCode();
             $caption = $language->getCaption();
-            $render( $dataId, $caption );
+            $html    .= $render( $dataId, $caption, $echo );
         }
+
         //}
+        return $html;
     }
 
 

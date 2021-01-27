@@ -225,29 +225,33 @@ class Relationship
 
     protected function render_field_values(
         array &$field,
-        callable $render
-    ): void {
+        callable $render,
+        bool $echo = true
+    ): string {
 
         $data = $this->get_ajax_query(
             [
                 'paged'     => 0,
-                'post_type' => CPT_EVENT_TYPES,
+                'post_type' => $field['post_type'],
             ]
         );
 
         if ( $data === false )
         {
-            return;
+            return '';
         }
+
+        $html = '';
 
         // loop
         foreach ( $data['results'] as $type )
         {
             $dataId  = $type['id'];
             $caption = $type['text'];
-            $render( $dataId, $caption );
+            $html    .= $render( $dataId, $caption, $echo );
         }
-        //}
+
+        return $html;
     }
 
 

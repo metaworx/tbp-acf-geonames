@@ -984,33 +984,39 @@ class Geoname
 
     protected function render_field_values(
         array &$field,
-        callable $render
-    ): void {
+        callable $render,
+        bool $echo = true
+    ): string {
 
-        if ( ! empty( $field['value'] ) )
+        if ( empty( $field['value'] ) )
         {
-
-            // get locations
-            $locations = Location::load(
-                (array) $field['value'],
-                (object) [
-                    'locationClass' => Location::class,
-                    'countryClass'  => Country::class,
-                ]
-            );
-
-            /**
-             * loop
-             *
-             * @var Location $location
-             */
-            foreach ( $locations as $location )
-            {
-                $dataId  = $location->geonameId;
-                $caption = $location->name . ', ' . $location->countryCode;
-                $render( $dataId, $caption );
-            }
+            return '';
         }
+
+        // get locations
+        $locations = Location::load(
+            (array) $field['value'],
+            (object) [
+                'locationClass' => Location::class,
+                'countryClass'  => Country::class,
+            ]
+        );
+
+        $html = '';
+
+        /**
+         * loop
+         *
+         * @var Location $location
+         */
+        foreach ( $locations as $location )
+        {
+            $dataId  = $location->geonameId;
+            $caption = $location->name . ', ' . $location->countryCode;
+            $html    .= $render( $dataId, $caption, $echo );
+        }
+
+        return $html;
     }
 
 
