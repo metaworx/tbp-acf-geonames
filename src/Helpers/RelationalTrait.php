@@ -165,7 +165,7 @@ trait RelationalTrait
                 [
                     'type'              => 'true_false',
                     'name'              => 'choice_on_new_line',
-                    'label'             => __( 'Display selected values on new line', 'tbp-acf-fields' ),
+                    'label'             => __( 'Display selected values on separate line', 'tbp-acf-fields' ),
                     'ui'                => 1,
                     'allow_null'        => 0,
                     'default'           => false,
