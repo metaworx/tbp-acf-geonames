@@ -146,6 +146,24 @@ trait RelationalTrait
 
                 [
                     'type'              => 'true_false',
+                    'name'              => 'values_before_choices',
+                    'label'             => __( 'Display selected values first', 'tbp-acf-fields' ),
+                    'ui'                => 1,
+                    'allow_null'        => 0,
+                    'default'           => false,
+                    'conditional_logic' => [
+                        [
+                            [
+                                'field'    => 'choice_layout',
+                                'operator' => '==',
+                                'value'    => 'list',
+                            ],
+                        ],
+                    ],
+                ],
+
+                [
+                    'type'              => 'true_false',
                     'name'              => 'choice_on_new_line',
                     'label'             => __( 'Display selected values on new line', 'tbp-acf-fields' ),
                     'ui'                => 1,
@@ -888,7 +906,28 @@ HTML
             false
         );
 
-        $html = <<<HTML
+        $html = $field['values_before_choices']
+            ? <<<HTML
+<div %attrs%>
+    %hidden_field%
+    <div class="selection tbp-acf-selection tbp-acf">
+        <div class="values values-%width% tbp-acf">
+            <ul class="acf-bl list values-list %height% tbp-acf">
+                %values%
+            </ul>
+        </div>
+        <div class="selection-instruction values-instruction tbp-acf">%values_instruction%</div>
+        %filter%
+        <div class="selection-instruction choices-instruction tbp-acf">%choices_instruction%</div>
+        <div class="choices choices-%width% tbp-acf">
+            <ul class="acf-bl list choices-list tbp-acf"></ul>
+        </div>
+    </div>
+</div>
+
+HTML
+
+            : <<<HTML
 <div %attrs%>
     %hidden_field%
     %filter%
