@@ -420,6 +420,18 @@ trait RelationalTrait
                         'array'  => __( "Both (Array)", 'acf' ),
                     ],
                 ],
+
+                // storage_format
+                [
+                    'type'         => 'radio',
+                    'name'         => 'storage_format',
+                    'label'        => __( 'Storage Format', 'tbp-acf-fields' ),
+                    'instructions' => 'In what format should the value(s) be stored in the database?',
+                    'choices'      => [
+                        'ID'        => __( static::LABEL . " ID", 'tbp-acf-fields' ),
+                        'post_name' => __( static::LABEL . " post_name (slug)", 'tbp-acf-fields' ),
+                    ],
+                ],
             ],
             null,
             'name'

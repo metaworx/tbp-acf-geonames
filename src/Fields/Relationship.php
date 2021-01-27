@@ -27,6 +27,7 @@ class Relationship
     {
         __construct as private _FieldTrait__construct;
         load_value as private _FieldTrait_load_value;
+        update_value as private _FieldTrait_update_value;
         RelationalTrait::field_wrapper_attributes insteadof FieldTrait;
     }
 
@@ -183,11 +184,63 @@ class Relationship
     }
 
 
+    public function get_ajax_query(
+        $options = [],
+        array &$field = null
+    ) {
+
+        ///
+        //	$data = array(
+        //		'text'		=> $group_title,
+        //		'children'	=> array()
+        //	);
+        //
+        // $response = array(
+        //			'results'	=> $data,
+        //			'limit'		=> $args['posts_per_page']
+        //		);
+        $response = parent::get_ajax_query( $options );
+
+        if ( $field === null )
+        {
+            // load field
+            $field = acf_get_field( $options['field_key'] ?? '' );
+        }
+
+        switch ( $field['storage_format'] ?? 'ID' )
+        {
+        case 'ID':
+
+            return $response;
+
+        case 'post_name':
+            array_walk(
+                $response['results'],
+                function (
+                    &$row
+                ) {
+
+                    if ( is_numeric( $row['id'] )
+                        && ( $post = \get_post( $row['id'] ) )
+                        && $post->post_name )
+                    {
+                        $row['id'] = $post->post_name;
+                    }
+                }
+            );
+
+            return $response;
+
+        default:
+            throw $this->new_exception_for_invalid_storage_type( $field );
+        }
+    }
+
+
     public function ajax_query_helper()
     {
 
-        /** @noinspection MissUsingParentKeywordInspection */
-        return parent::get_ajax_query( $_POST );
+        return $this->get_ajax_query( $_POST );
     }
 
 
@@ -214,23 +267,84 @@ class Relationship
 
         $value = $this->_FieldTrait_load_value( $value, $post_id, $field );
 
-        if ( is_string( $value ) && ! is_numeric( $value ) && trim( $value ) !== '' )
+        if ( $this->normalize_value( $value, $field ) )
         {
-            foreach ( $field['post_type'] as $post_type )
-            {
-                /** @var \WP_Post|null $post */
-                $post = get_page_by_path( trim( $value ), OBJECT, $post_type );
-
-                if ( $post )
-                {
-                    $value = $this->_FieldTrait_load_value( $post->ID, $post_id, $field );
-
-                    return $value;
-                }
-            }
+            $value = $this->_FieldTrait_load_value( $value, $post_id, $field );
         }
 
         return $value;
+    }
+
+
+    public function new_exception_for_invalid_storage_type( array &$field ): \ErrorException
+    {
+
+        return new \ErrorException(
+            sprintf(
+                'Undefined storage_format "%s" for field "%s/%s" (field type: "%s")',
+                $field['storage_format'],
+                $field['key'],
+                $field['name'],
+                $field['type']
+            )
+        );
+    }
+
+
+    protected function normalize_value(
+        &$value,
+        array &$field
+    ): bool {
+
+        if ( $value === null )
+        {
+            return false;
+        }
+
+        if ( trim( $value ) === '' )
+        {
+            $value = null;
+
+            return true;
+        }
+
+        switch ( $field['storage_format'] ?? 'ID' )
+        {
+        case 'ID':
+            if ( ! is_numeric( $value ) )
+            {
+                foreach ( $field['post_type'] as $post_type )
+                {
+                    /** @var \WP_Post|null $post */
+                    $post = get_page_by_path( trim( $value ), OBJECT, $post_type );
+
+                    if ( $post )
+                    {
+                        $value = $post->ID;
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+
+        case 'post_name':
+            if ( is_numeric( $value )
+                && ( $post = \get_post( $value ) )
+                && $post->post_name )
+            {
+                $value = $post->post_name;
+
+                return true;
+            }
+
+            return false;
+
+        default:
+            throw $this->new_exception_for_invalid_storage_type( $field );
+        }
+
     }
 
 
@@ -244,7 +358,9 @@ class Relationship
             [
                 'paged'     => 0,
                 'post_type' => $field['post_type'],
-            ]
+                'field_key' => $field['key'],
+            ],
+            $field
         );
 
         if ( $data === false )
@@ -263,6 +379,23 @@ class Relationship
         }
 
         return $html;
+    }
+
+
+    public function update_value(
+        $value,
+        $post_id,
+        $field
+    ) {
+
+        $value = $this->_FieldTrait_update_value( $value, $post_id, $field );
+
+        if ( $this->normalize_value( $value, $field ) )
+        {
+            $value = $this->_FieldTrait_update_value( $value, $post_id, $field );
+        }
+
+        return $value;
     }
 
 
