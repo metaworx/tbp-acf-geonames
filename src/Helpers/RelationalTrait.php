@@ -687,6 +687,7 @@ trait RelationalTrait
     ) {
 
         $value = \apply_filters( 'acf/load_value/name=' . $field['name'], $value, $post_id, $field );
+        $value = \apply_filters( 'acf/load_value/key=' . $field['key'], $value, $post_id, $field );
 
         return $value;
     }
@@ -1290,6 +1291,7 @@ HTML,
     ) {
 
         $value = \apply_filters( 'acf/update_value/name=' . $field['name'], $value, $post_id, $field );
+        $value = \apply_filters( 'acf/update_value/key=' . $field['key'], $value, $post_id, $field );
 
         if ( empty( $value ) )
         {
