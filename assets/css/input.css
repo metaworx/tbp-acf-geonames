@@ -1,10 +1,9 @@
 .tbp-acf-relation-list {
     background: #fff;
-    border:#ccd0d4 solid 1px;
 }
 
 .tbp-acf-relation-list .filters {
-    border-bottom: #ccd0d4 solid 1px;
+    border: #ccd0d4 solid 1px;
     background: #fff;
 }
 
@@ -19,7 +18,7 @@
     float: left;
     width: 100%;
     box-sizing: border-box;
-    padding: 7px 7px 7px 0;
+    padding: 8px;
 }
 
 .tbp-acf-relation-list .filters .filter:first-child {
@@ -61,7 +60,7 @@
 
 .tbp-acf-relation-list .list {
     margin: 0;
-    padding: 5px;
+    padding: 5px 2px;
     height: 160px;
     overflow: auto;
 }
@@ -158,10 +157,6 @@
     padding-left: 20px;
 }
 
-.tbp-acf-relation-list .selection {
-    position: relative;
-}
-
 .tbp-acf-relation-list .selection:after {
     display: block;
     clear: both;
@@ -214,4 +209,17 @@ html[dir="rtl"] .tbp-acf-relation-list .selection .values .acf-icon {
 
 .tbp-acf-relation-list .selection .values .acf-rel-item b {
     text-decoration: none;
+}
+
+.tbp-acf-relation-list .selection .values .list {
+    border: 1px solid #7e8993;
+    box-shadow: none;
+    border-radius: 3px;
+    font-size: 14px;
+    line-height: 1.4;
+    /* margin: 0 8px; */
+}
+
+.tbp-acf-relation-list .selection-instruction, .tbp-acf-relation-list .filter-instruction {
+    padding: 3px 8px;
 }
