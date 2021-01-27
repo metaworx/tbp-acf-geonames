@@ -64,7 +64,7 @@
 
 } )( jQuery );
 
-( function ( $, undefined ) {
+( function ( $ ) {
 
 	var TbpRelational = acf.models.RelationshipField.extend( {
 
@@ -129,7 +129,7 @@
 
 					//console.log( 'select field' );
 
-					this.events = acf.models.SelectField.events
+					this.events = acf.models.SelectField.prototype.events
 					this.$input = acf.models.SelectField.prototype.$input;
 
 					acf.models.SelectField.prototype.initialize.call( this );
@@ -141,7 +141,7 @@
 
 					//console.log( 'list field' );
 
-					this.events = acf.models.RelationshipField.events
+					this.events = acf.models.RelationshipField.prototype.events
 					this.getValue = acf.models.RelationshipField.prototype.getValue
 
 					acf.models.RelationshipField.prototype.initialize.call( this );
