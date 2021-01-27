@@ -8,7 +8,6 @@ use Tbp\WP\Plugin\AcfFields\FieldInterface;
 use Tbp\WP\Plugin\AcfFields\FieldTypes\FieldRelational;
 use Tbp\WP\Plugin\AcfFields\Helpers\FieldTrait;
 use Tbp\WP\Plugin\AcfFields\Helpers\RelationalTrait;
-use const Tbp\WP\Plugin\Config\Includes\CPT_EVENT_TYPES;
 
 if ( ! class_exists( 'acf_field_relationship' ) )
 {
@@ -164,6 +163,26 @@ class Relationship
     }
 
 
+    protected function getPostBySlug(
+        string $slug,
+        array $field
+    ): ?\WP_Post {
+
+        foreach ( $field['post_type'] as $post_type )
+        {
+            /** @var \WP_Post|null $post */
+            $post = get_page_by_path( trim( $slug ), OBJECT, $post_type );
+
+            if ( $post )
+            {
+                return $post;
+            }
+        }
+
+        return null;
+    }
+
+
     public function ajax_query_helper()
     {
 
@@ -197,26 +216,18 @@ class Relationship
 
         if ( is_string( $value ) && ! is_numeric( $value ) && trim( $value ) !== '' )
         {
-            $param
-                = [
-                'posts_per_page'         => 1,
-                'paged'                  => 0,
-                'post_type'              => CPT_EVENT_TYPES,
-                'orderby'                => 'ID',
-                'order'                  => 'ASC',
-                'post_status'            => 'any',
-                'suppress_filters'       => false,
-                'update_post_meta_cache' => false,
-                'post_name__in'          => $value,
-            ];
+            foreach ( $field['post_type'] as $post_type )
+            {
+                /** @var \WP_Post|null $post */
+                $post = get_page_by_path( trim( $value ), OBJECT, $post_type );
 
-            $post = \get_posts( $param );
+                if ( $post )
+                {
+                    $value = $this->_FieldTrait_load_value( $post->ID, $post_id, $field );
 
-            $value = empty( $post )
-                ? null
-                : $post[0]->ID;
-
-            $value = $this->_FieldTrait_load_value( $value, $post_id, $field );
+                    return $value;
+                }
+            }
         }
 
         return $value;
