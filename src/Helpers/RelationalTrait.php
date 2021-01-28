@@ -419,6 +419,7 @@ trait RelationalTrait
                         'label'  => __( "Label", 'acf' ),
                         'array'  => __( "Both (Array)", 'acf' ),
                     ],
+                    'default'      => 'object',
                 ],
 
                 // storage_format
@@ -431,6 +432,7 @@ trait RelationalTrait
                         'ID'        => __( static::LABEL . " ID", 'tbp-acf-fields' ),
                         'post_name' => __( static::LABEL . " post_name (slug)", 'tbp-acf-fields' ),
                     ],
+                    'default'      => 'ID',
                 ],
             ] + $addArray
         );
@@ -748,7 +750,7 @@ trait RelationalTrait
         // field settings
         $fieldSettings = $this->getFieldSettings();
 
-        if ( $field['multiple'] ?? $fieldSettings['multiple']['default'] )
+        if ( $field['multiple'] ?? $fieldSettings['multiple']['default'] ?? false )
         {
             $field['max'] = 1;
         }
@@ -758,7 +760,7 @@ trait RelationalTrait
             $field['min'] = 1;
         }
 
-        switch ( $field['choice_layout'] ?? $fieldSettings['choice_layout']['default'] )
+        switch ( $field['choice_layout'] ?? $fieldSettings['choice_layout']['default'] ?? 'list' )
         {
         case 'list':
             $this->render_fieldAsList( $field, $fieldSettings );
@@ -850,7 +852,7 @@ trait RelationalTrait
         );
         $replacements['%filter%']       = $this->render_field_filters( $field, $filters );
 
-        if ( $field['selection_choices_display_instruction'] )
+        if ( $field['selection_choices_display_instruction'] ?? false )
         {
             $replacements['%choices_instruction%'] = $field['selection_choices_instruction_text']
                 ?: $fieldSettings['selection_choices_instruction_text']['placeholder'];
@@ -860,7 +862,7 @@ trait RelationalTrait
             $replacements['%choices_instruction%'] = '';
         }
 
-        if ( $field['selection_values_display_instruction'] )
+        if ( $field['selection_values_display_instruction'] ?? false )
         {
             $replacements['%values_instruction%'] = $field['selection_values_instruction_text']
                 ?: $fieldSettings['selection_values_instruction_text']['placeholder'];
@@ -1036,7 +1038,7 @@ HTML;
 
         $html = sprintf(
             '<div class="filters -f%d">',
-            $field['one_filter_per_row']
+            $field['one_filter_per_row'] ?? false
                 ? 4
                 : $filter_count
         );
@@ -1048,7 +1050,7 @@ HTML;
             $replacements['%id%']     = sprintf( '%s-filter-%s', esc_attr( $field['key'] ), esc_attr( $filter ) );
             $replacements['%filter%'] = esc_attr( $filter );
 
-            if ( $field[ $filter . '_display_instruction' ] )
+            if ( $field[ $filter . '_display_instruction' ] ?? false )
             {
                 $replacements['%instructions%']
                     = $field[ $filter . '_instruction_text' ] ?? $filterSettings['instructions'];
