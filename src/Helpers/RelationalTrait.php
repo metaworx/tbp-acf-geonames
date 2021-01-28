@@ -750,7 +750,7 @@ trait RelationalTrait
         // field settings
         $fieldSettings = $this->getFieldSettings();
 
-        if ( $field['multiple'] ?? $fieldSettings['multiple']['default'] ?? false )
+        if ( ! ( $field['multiple'] ?? $fieldSettings['multiple']['default'] ?? false ) )
         {
             $field['max'] = 1;
         }
