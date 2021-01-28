@@ -354,14 +354,38 @@ class Relationship
         bool $echo = true
     ): string {
 
-        $data = $this->get_ajax_query(
-            [
-                'paged'     => 0,
-                'post_type' => $field['post_type'],
-                'field_key' => $field['key'],
-            ],
+        if ( empty( $field['value'] ) )
+        {
+            return '';
+        }
+
+        $addValue = function (
+            $args,
+            $origField,
+            $post_id
+        ) use
+        (
+            &
             $field
-        );
+        )
+        {
+
+            $args['include'] = $field['value'];
+            return $args;
+        };
+
+
+        $params = [
+            'paged'     => 0,
+            'post_type' => $field['post_type'],
+            'field_key' => $field['key'],
+        ];
+
+        add_filter( 'acf/fields/relationship/query/key=' . $field['key'], $addValue, 10, 3 );
+
+        $data = $this->get_ajax_query( $params, $field );
+
+        remove_filter( 'acf/fields/relationship/query/key=' . $field['key'], $addValue, 10 );
 
         if ( $data === false )
         {
