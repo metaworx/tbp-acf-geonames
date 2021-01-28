@@ -24,9 +24,6 @@ abstract class Field
     /** @var static */
     protected static $instance = [];
 
-    protected $filters;
-    protected $fieldSettings;
-
 
     public function initialize(): void
     {

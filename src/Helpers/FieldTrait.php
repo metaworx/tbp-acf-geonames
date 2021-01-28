@@ -9,8 +9,11 @@ trait FieldTrait
 {
 
 // protected properties
-    protected $settings;  // will hold info such as dir / path
+
+    protected $fieldSettings;
     protected $filterBase;
+    protected $filters;
+    protected $settings;  // will hold info such as dir / path
 
 
     public function __construct( $settings = [] )
