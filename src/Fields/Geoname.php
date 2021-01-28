@@ -288,8 +288,8 @@ class Geoname
             $searchTypes[ $searchTypeBitmask ] = __( $searchTypeName, 'tbp-acf-fields' );
         }
 
-        $fieldSettings = parent::getFieldSettingsDefinition()
-            + array_column(
+        $fieldSettings = parent::getFieldSettingsDefinition(
+
                 [
                     [
                         'isSetting'    => true,
@@ -328,8 +328,6 @@ class Geoname
 
                     ],
                 ],
-                null,
-                'name'
             );
 
         return $fieldSettings;

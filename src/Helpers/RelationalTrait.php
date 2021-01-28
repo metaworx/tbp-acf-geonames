@@ -5,10 +5,10 @@ namespace Tbp\WP\Plugin\AcfFields\Helpers;
 trait RelationalTrait
 {
 
-    protected function getFieldSettingsDefinition(): array
+    protected function getFieldSettingsDefinition( array $addArray = [] ): array
     {
 
-        return array_column(
+        return $this->getFieldSettingsDefinitionHelper(
             [
 
                 // choice layout
@@ -432,9 +432,7 @@ trait RelationalTrait
                         'post_name' => __( static::LABEL . " post_name (slug)", 'tbp-acf-fields' ),
                     ],
                 ],
-            ],
-            null,
-            'name'
+            ] + $addArray
         );
 
     }

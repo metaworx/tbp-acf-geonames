@@ -72,6 +72,25 @@ trait FieldTrait
     abstract protected function getFieldSettingsDefinition(): array;
 
 
+    protected function getFieldSettingsDefinitionHelper( array $fieldSettings ): array
+    {
+
+        $fieldSettings = array_column( $fieldSettings, null, 'name' );
+
+        foreach ( $this->defaults as $key => $default )
+        {
+            if ( array_key_exists( $key, $fieldSettings )
+                && array_key_exists( 'default', $fieldSettings[ $key ] )
+            )
+            {
+                $fieldSettings[ $key ]['default'] = $default;
+            }
+        }
+
+        return $fieldSettings;
+    }
+
+
     abstract protected function getFilterDefinition(): array;
 
 
