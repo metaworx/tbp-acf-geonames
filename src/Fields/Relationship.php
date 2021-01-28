@@ -370,10 +370,30 @@ class Relationship
         )
         {
 
-            $args['include'] = $field['value'];
+            if ( ( $field['value'] ?? '' ) === '' )
+            {
+                return $args;
+            }
+
+            $value = $field['value'];
+
+            if ( is_array( $value ) )
+            {
+                $value = reset( $value );
+            }
+
+            if ( is_string( $value ) )
+            {
+                $args['post_name__in'] = $field['value'];
+            }
+
+            elseif ( is_numeric( $value ) )
+            {
+                $args['post__in'] = $field['value'];
+            }
+
             return $args;
         };
-
 
         $params = [
             'paged'     => 0,
@@ -381,7 +401,10 @@ class Relationship
             'field_key' => $field['key'],
         ];
 
-        add_filter( 'acf/fields/relationship/query/key=' . $field['key'], $addValue, 10, 3 );
+        if ( $field['ajax'] ?? false )
+        {
+            add_filter( 'acf/fields/relationship/query/key=' . $field['key'], $addValue, 10, 3 );
+        }
 
         $data = $this->get_ajax_query( $params, $field );
 
