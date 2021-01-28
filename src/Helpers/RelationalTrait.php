@@ -1345,8 +1345,32 @@ HTML,
         $field
     ) {
 
-        $value = \apply_filters( 'acf/update_value/name=' . $field['name'], $value, $post_id, $field );
-        $value = \apply_filters( 'acf/update_value/key=' . $field['key'], $value, $post_id, $field );
+        /**
+         * avoid infinite loop
+         *
+         * @see /wp-content/plugins/advanced-custom-fields-pro/includes/fields/class-acf-field.php:46
+         */
+        \remove_filter(
+            'acf/update_value/type=' . $this->name,
+            [
+                $this,
+                'update_value',
+            ],
+            10
+        );
+
+        $value = \apply_filters( 'acf/update_value', $value, $post_id, $field, $value );
+
+        // re-install filter
+        $this->add_field_filter(
+            'acf/update_value',
+            [
+                $this,
+                'update_value',
+            ],
+            10,
+            3
+        );
 
         if ( empty( $value ) )
         {
