@@ -289,46 +289,44 @@ class Geoname
         }
 
         $fieldSettings = parent::getFieldSettingsDefinition(
-
+            [
                 [
-                    [
-                        'isSetting'    => true,
-                        'name'         => 'searchTypeDefaults',
-                        'type'         => 'checkbox',
-                        'label'        => __( 'Default search mode', 'tbp-acf-fields' ),
-                        'instructions' => '',
-                        'choices'      => $searchTypes,
-                    ],
-                    [
-                        'type'         => 'true_false',
-                        'name'         => 'searchTypesAllowUser',
-                        'label'        => __( 'User-defined Search Mode', 'tbp-acf-fields' ),
-                        'instructions' => __(
-                            'Allow user to select from the following search types.',
-                            'tbp-acf-fields'
-                        ),
-                        'ui'           => 1,
-                        'allow_null'   => 0,
-                        'default'      => 0,
-                    ],
-                    [
-                        'isSetting'         => true,
-                        'name'              => 'searchTypeUserEditable',
-                        'type'              => 'checkbox',
-                        'label'             => __( 'Available Search Modes', 'tbp-acf-fields' ),
-                        'instructions'      => __( 'Allow user to select from these search modes.', 'tbp-acf-fields' ),
-                        'choices'           => $searchTypes,
-                        'conditional_logic' => [
-                            [
-                                'field'    => 'searchTypesAllowUser',
-                                'operator' => '!=',
-                                'value'    => '0',
-                            ],
+                    'isSetting'    => true,
+                    'name'         => 'searchTypeDefaults',
+                    'type'         => 'checkbox',
+                    'label'        => __( 'Default search mode', 'tbp-acf-fields' ),
+                    'instructions' => '',
+                    'choices'      => $searchTypes,
+                ],
+                [
+                    'type'         => 'true_false',
+                    'name'         => 'searchTypesAllowUser',
+                    'label'        => __( 'User-defined Search Mode', 'tbp-acf-fields' ),
+                    'instructions' => __(
+                        'Allow user to select from the following search types.',
+                        'tbp-acf-fields'
+                    ),
+                    'ui'           => 1,
+                    'allow_null'   => 0,
+                    'default'      => 0,
+                ],
+                [
+                    'isSetting'         => true,
+                    'name'              => 'searchTypeUserEditable',
+                    'type'              => 'checkbox',
+                    'label'             => __( 'Available Search Modes', 'tbp-acf-fields' ),
+                    'instructions'      => __( 'Allow user to select from these search modes.', 'tbp-acf-fields' ),
+                    'choices'           => $searchTypes,
+                    'conditional_logic' => [
+                        [
+                            'field'    => 'searchTypesAllowUser',
+                            'operator' => '!=',
+                            'value'    => '0',
                         ],
-
                     ],
                 ],
-            );
+            ],
+        );
 
         return $fieldSettings;
     }
