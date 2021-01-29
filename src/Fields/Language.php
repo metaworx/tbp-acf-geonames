@@ -277,7 +277,7 @@ class Language
     }
 
 
-    protected function getFieldSettingsDefinition(): array
+    protected function getFieldSettingsDefinition( array $addArray = [] ): array
     {
 
         $fieldSettings = parent::getFieldSettingsDefinition();
