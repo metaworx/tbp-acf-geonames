@@ -102,7 +102,7 @@ class Language
         );
 
         add_filter(
-            "manage_language_posts_columns",
+            sprintf( "manage_edit-%s_columns", LanguagePost::POST_TYPE ),
             [
                 LanguagePost::class,
                 'adminLanguagePostColumns',
