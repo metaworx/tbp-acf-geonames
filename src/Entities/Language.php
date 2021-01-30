@@ -632,8 +632,8 @@ class Language
                     return $data;
                 }
 
-                $language = ! empty( $postarr['acf'] ) && ! empty( $postarr['acf']['field_tbpLanguageCode'] )
-                    ? new LanguageBase( $postarr['acf']['field_tbpLanguageCode'] )
+                $language = ! empty( $postarr['acf'] ) && ! empty( $postarr['acf']['field_tbp-language-code'] )
+                    ? new LanguageBase( $postarr['acf']['field_tbp-language-code'] )
                     : LanguageBase::get( $postarr['post_name'] ?? null, true );
 
                 if ( $language === null )
@@ -701,7 +701,7 @@ class Language
                 {
 
                     $lang = new LanguageBase(
-                        $_REQUEST['acf']['field_tbpLanguageCode']
+                        $_REQUEST['acf']['field_tbp-language-code']
                         ?? $postarr['post_name']
                         ?? null
                     );
@@ -763,11 +763,11 @@ class Language
                     return;
                 }
 
-                $lang = static::load( $_REQUEST['acf']['field_tbpLanguageCode'] );
+                $lang = static::load( $_REQUEST['acf']['field_tbp-language-code'] );
 
                 if ( $lang instanceof Language && $lang->getPost()->ID !== (int) $_REQUEST['post_ID'] )
                 {
-                    acf_add_validation_error( 'acf[field_tbpLanguageCode]', 'Language does already exist' );
+                    acf_add_validation_error( 'acf[field_tbp-language-code]', 'Language does already exist' );
                 }
             }
         );
@@ -803,7 +803,7 @@ class Language
                 'title'                 => 'Language',
                 'fields'                => [
                     [
-                        'key'                 => 'field_tbpLanguageCode',
+                        'key'                 => 'field_tbp-language-code',
                         'label'               => 'Language',
                         'name'                => 'lang',
                         'type'                => 'select',
@@ -827,7 +827,7 @@ class Language
                         'placeholder'         => 'Select new language',
                     ],
                     [
-                        'key'                 => 'field_tbpLanguageFlag',
+                        'key'                 => 'field_tbp-language-flag',
                         'label'               => 'Flag',
                         'name'                => 'flag',
                         'type'                => 'url',
@@ -846,7 +846,7 @@ class Language
                         'acfe_form'           => true,
                     ],
                     [
-                        'key'                 => 'field_tbpLanguageDefaultLocale',
+                        'key'                 => 'field_tbp-language-default-locale',
                         'label'               => 'Default Locale',
                         'name'                => 'default_locale',
                         'type'                => 'text',
@@ -868,7 +868,7 @@ class Language
                         'acfe_form'           => true,
                     ],
                     [
-                        'key'                 => 'field_tbpLanguageDefaultScript',
+                        'key'                 => 'field_tbp-language-default-script',
                         'label'               => 'Default Script',
                         'name'                => 'default_script',
                         'type'                => 'text',
