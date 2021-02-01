@@ -508,6 +508,26 @@ class Language
     }
 
 
+    public function load_value(
+        $value,
+        $post_id,
+        array $field
+    ) {
+
+        if ( $value )
+        {
+            if ( is_string( $value ) )
+            {
+                $value = explode( ',', $value );
+            }
+        }
+
+        $value = parent::load_value( $value, $post_id, $field );
+
+        return $value;
+    }
+
+
     /**
      * @inheritDoc
      */
@@ -537,6 +557,23 @@ class Language
 
         //}
         return $html;
+    }
+
+
+    public function update_value(
+        $value,
+        $post_id,
+        $field
+    ) {
+
+        $value = parent::update_value( $value, $post_id, $field );
+
+        if ( is_array( $value ) )
+        {
+            $value = implode( ',', $value );
+        }
+
+        return $value;
     }
 
 
