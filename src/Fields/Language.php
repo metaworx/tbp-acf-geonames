@@ -48,7 +48,7 @@ class Language
                     'parent',
                 ],
                 'elements'      => [],
-                'choice_layout' => 'select',
+                'field_type'    => 'select',
                 'return_format' => 'object',
             ]
         );

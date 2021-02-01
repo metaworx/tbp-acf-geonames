@@ -14,7 +14,7 @@ trait RelationalTrait
                 // choice layout
                 [
                     'type'         => 'radio',
-                    'name'         => 'choice_layout',
+                    'name'         => 'field_type',
                     'label'        => __( 'Layout', 'tbp-acf-fields' ),
                     'instructions' => '',
                     'choices'      => [
@@ -84,7 +84,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
@@ -96,7 +96,7 @@ trait RelationalTrait
                         ],
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
@@ -115,7 +115,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
@@ -136,7 +136,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
@@ -154,7 +154,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
@@ -172,7 +172,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
@@ -190,7 +190,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
@@ -230,7 +230,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
@@ -257,7 +257,7 @@ trait RelationalTrait
                                 'value'    => '1',
                             ],
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
@@ -277,7 +277,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'select',
                             ],
@@ -295,7 +295,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'select',
                             ],
@@ -313,7 +313,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'select',
                             ],
@@ -337,7 +337,7 @@ trait RelationalTrait
                     'conditional_logic' => [
                         [
                             [
-                                'field'    => 'choice_layout',
+                                'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'select',
                             ],
@@ -359,14 +359,14 @@ trait RelationalTrait
                     'ui'                => 0,
                     'conditional_logic' => [
                         [
-                            'field'    => 'choice_layout',
+                            'field'    => 'field_type',
                             'operator' => '==',
                             'value'    => 'list',
                         ],
                     ],
                     [
                         [
-                            'field'    => 'choice_layout',
+                            'field'    => 'field_type',
                             'operator' => '==',
                             'value'    => 'select',
                         ],
@@ -387,14 +387,14 @@ trait RelationalTrait
                     'ui'                => 0,
                     'conditional_logic' => [
                         [
-                            'field'    => 'choice_layout',
+                            'field'    => 'field_type',
                             'operator' => '==',
                             'value'    => 'list',
                         ],
                     ],
                     [
                         [
-                            'field'    => 'choice_layout',
+                            'field'    => 'field_type',
                             'operator' => '==',
                             'value'    => 'select',
                         ],
@@ -514,9 +514,9 @@ trait RelationalTrait
             return $wrapper;
         }
 
-        if ( $field['choice_layout'] ?? false )
+        if ( $field['field_type'] ?? false )
         {
-            $wrapper['data-layout'] = $field['choice_layout'];
+            $wrapper['data-layout'] = $field['field_type'];
         }
 
         return $wrapper;
@@ -760,7 +760,7 @@ trait RelationalTrait
             $field['min'] = 1;
         }
 
-        switch ( $field['choice_layout'] ?? $fieldSettings['choice_layout']['default'] ?? 'list' )
+        switch ( $field['field_type'] ?? $fieldSettings['field_type']['default'] ?? 'list' )
         {
         case 'list':
             $this->render_fieldAsList( $field, $fieldSettings );
