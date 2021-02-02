@@ -398,14 +398,14 @@ class Relationship
                 $value = reset( $value );
             }
 
-            if ( is_string( $value ) )
+            if ( is_numeric( $value ) )
             {
-                $args['post_name__in'] = $field['value'];
+                $args['post__in'] = (array) $field['value'];
             }
 
-            elseif ( is_numeric( $value ) )
+            elseif ( is_string( $value ) )
             {
-                $args['post__in'] = $field['value'];
+                $args['post_name__in'] = (array) $field['value'];
             }
 
             return $args;
