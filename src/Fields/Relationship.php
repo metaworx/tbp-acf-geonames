@@ -192,6 +192,45 @@ class Relationship
         array &$field = null
     ) {
 
+        if ( $field === null )
+        {
+            // load field
+            $field = acf_get_field( $options['field_key'] ?? '' );
+        }
+
+        if ( $field['meta_query'] ?? false )
+        {
+            // allocate pointer
+            $addMetaQuery = null;
+
+            $addMetaQuery = function (
+                $args,
+                $origField,
+                $post_id
+            ) use
+            (
+                &
+                $field,
+                &
+                $addMetaQuery
+            )
+            {
+
+                if ( ! empty( $args['post__in'] ) )
+                {
+                    return $args;
+                }
+
+                $args['meta_query'] = $field['meta_query'];
+
+                remove_filter( 'acf/fields/relationship/query/key=' . $field['key'], $addMetaQuery, 11 );
+
+                return $args;
+            };
+
+            add_filter( 'acf/fields/relationship/query/key=' . $field['key'], $addMetaQuery, 11, 3 );
+        }
+
         ///
         //	$data = array(
         //		'text'		=> $group_title,
@@ -203,12 +242,6 @@ class Relationship
         //			'limit'		=> $args['posts_per_page']
         //		);
         $response = parent::get_ajax_query( $options );
-
-        if ( $field === null )
-        {
-            // load field
-            $field = acf_get_field( $options['field_key'] ?? '' );
-        }
 
         switch ( $field['storage_format'] ?? 'ID' )
         {
