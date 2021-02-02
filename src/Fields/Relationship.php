@@ -122,19 +122,6 @@ class Relationship
     }
 
 
-    /*
-    *  validate_value
-    *
-    *  description
-    *
-    *  @type	function
-    *  @date	11/02/2014
-    *  @since	5.0.0
-    *
-    *  @param	$post_id (int)
-    *  @return	$post_id (int)
-    */
-
     public function initialize(): void
     {
 
@@ -495,6 +482,18 @@ class Relationship
     }
 
 
+    /*
+   *  validate_value
+   *
+   *  description
+   *
+   *  @type	function
+   *  @date	11/02/2014
+   *  @since	5.0.0
+   *
+   *  @param	$post_id (int)
+   *  @return	$post_id (int)
+   */
     function validate_value(
         $valid,
         $value,

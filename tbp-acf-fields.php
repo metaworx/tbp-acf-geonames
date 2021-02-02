@@ -72,7 +72,7 @@ call_user_func(
                 'url'      => 'https://www.advancedcustomfields.com',
                 'required' => false,
                 'fields'   => [
-                    'Tbp\WP\Plugin\AcfFields\Fields\Geoname' => true,
+                    'Tbp\WP\Plugin\AcfFields\Fields\Geoname'      => true,
                     'Tbp\WP\Plugin\AcfFields\Fields\Relationship' => true,
                 ],
             ],
