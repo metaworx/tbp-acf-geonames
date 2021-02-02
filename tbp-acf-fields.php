@@ -16,7 +16,7 @@ RequiresPHP: 7.3.0
  * @noinspection PhpUnusedParameterInspection
  */
 
-use Tbp\WP\Plugin\AcfFields\Plugin;
+namespace Tbp\WP\Plugin\AcfFields;
 
 // exit if accessed directly
 if ( ! defined( 'ABSPATH' ) )
@@ -41,6 +41,18 @@ if ( TBP_IS_ADMIN_HEARTBEAT )
 {
     return;
 }
+
+function save_orig_post_id(
+    $post,
+    $wpQuery
+) {
+
+    define( __NAMESPACE__ . '\ORIG_POST_ID', $post->ID );
+    remove_action( 'the_post', __FUNCTION__, 10 );
+}
+
+
+add_action( 'the_post', __NAMESPACE__ . '\\save_orig_post_id', 10, 2 );
 
 require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 

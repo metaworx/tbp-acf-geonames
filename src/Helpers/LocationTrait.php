@@ -57,9 +57,9 @@ trait LocationTrait
     public static function currentLocale()
     {
 
-        static $wpml_locale = false;
+        static $wpml_locale = 0;
 
-        if ( $wpml_locale === false )
+        if ( $wpml_locale === 0 )
         {
             /**
              * test WPML info
@@ -67,7 +67,7 @@ trait LocationTrait
              * @see https://wpml.org/documentation/support/wpml-coding-api/wpml-hooks-reference/#hook-605645
              * @var array
              */
-            $wpml = apply_filters( 'wpml_post_language_details', null );
+            $wpml = apply_filters( 'wpml_post_language_details', null, \Tbp\WP\Plugin\AcfFields\ORIG_POST_ID );
 
             /**
              * array (
@@ -81,7 +81,8 @@ trait LocationTrait
              */
 
             $wpml_locale = $wpml
-                ? $wpml['locale']
+                ? ( $wpml['locale']
+                    ?: null )
                 : null;
         }
 
