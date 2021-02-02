@@ -22,7 +22,10 @@ class Relationship
     FieldInterface
 {
 
-    use RelationalTrait;
+    use RelationalTrait
+    {
+        format_value as private _RelationalTrait_format_value;
+    }
     use FieldTrait
     {
         __construct as private _FieldTrait__construct;
@@ -241,6 +244,19 @@ class Relationship
     {
 
         return $this->get_ajax_query( $_POST );
+    }
+
+
+    public function format_value(
+        $value,
+        $object_id,
+        $field
+    ) {
+
+        $value = $this->_RelationalTrait_format_value( $value, $object_id, $field );
+        $value = parent::format_value( $value, $object_id, $field );
+
+        return $value;
     }
 
 
