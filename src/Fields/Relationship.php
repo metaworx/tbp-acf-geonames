@@ -230,12 +230,14 @@ class Relationship
         //		);
         $response = parent::get_ajax_query( $options );
 
-        switch ( $field['storage_format'] ?? 'ID' )
+        switch ( $field['storage_format'] ?? $this->getFieldSettingsDefinition()['storage_format']['default'] )
         {
         case 'ID':
 
             return $response;
 
+        case 'csv':
+        case ',csv,':
         case 'post_name':
             array_walk(
                 $response['results'],
@@ -251,6 +253,9 @@ class Relationship
                     }
                 }
             );
+
+            // make sure empty value (e.g resulting from ",csv," format)
+            $response['results'] = array_filter( $response['results'] );
 
             return $response;
 
@@ -301,7 +306,24 @@ class Relationship
         array $field
     ) {
 
+        $field['storage_format'] = $field['storage_format']
+            ?? $this->getFieldSettingsDefinition()['storage_format']['default'];
+
         $value = $this->_FieldTrait_load_value( $value, $post_id, $field );
+
+        if ( in_array(
+                $field['storage_format'],
+                [
+                    'csv',
+                    ',csv,',
+                ],
+                true
+            )
+            && ! empty( $value ) )
+        {
+            $value                   = array_filter( explode( ',', $value ) );
+            $field['storage_format'] = 'post_name';
+        }
 
         if ( $this->normalize_value( $value, $field ) )
         {
@@ -332,6 +354,8 @@ class Relationship
         array &$field
     ): bool {
 
+        $changed = false;
+
         if ( $value === null )
         {
             return false;
@@ -344,7 +368,27 @@ class Relationship
             return true;
         }
 
-        switch ( $field['storage_format'] ?? 'ID' )
+        if ( is_array( $value ) )
+        {
+            array_walk(
+                $value,
+                function ( &$value ) use
+                (
+                    &
+                    $field,
+                    &
+                    $changed
+                )
+                {
+
+                    $changed |= $this->normalize_value( $value, $field );
+                }
+            );
+
+            return $changed;
+        }
+
+        switch ( $field['storage_format'] ?? $this->getFieldSettingsDefinition()['storage_format']['default'] )
         {
         case 'ID':
             if ( ! is_numeric( $value ) )
@@ -390,7 +434,7 @@ class Relationship
         bool $echo = true
     ): string {
 
-        if ( empty( $field['value'] ) )
+        if ( empty( $field['value'] ) && $field['type'] === 'list' )
         {
             return '';
         }
@@ -471,10 +515,35 @@ class Relationship
         $field
     ) {
 
+        $field['storage_format'] = $field['storage_format']
+            ?? $this->getFieldSettingsDefinition()['storage_format']['default'];
+
         $value = $this->_FieldTrait_update_value( $value, $post_id, $field );
 
-        if ( $this->normalize_value( $value, $field ) )
+        if ( $csv = array_search(
+            $field['storage_format'],
+            [
+                1 => 'csv',
+                2 => ',csv,',
+            ],
+            true
+        ) )
         {
+            $field['storage_format'] = 'post_name';
+        }
+
+        if ( $this->normalize_value( $value, $field ) || $csv )
+        {
+            if ( $csv )
+            {
+                $value = implode( ',', $value );
+
+                if ( $value !== '' && $csv === 2 )
+                {
+                    $value = ",$value,";
+                }
+            }
+
             $value = $this->_FieldTrait_update_value( $value, $post_id, $field );
         }
 
