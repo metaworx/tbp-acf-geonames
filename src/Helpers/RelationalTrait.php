@@ -762,6 +762,12 @@ trait RelationalTrait
 
         switch ( $field['field_type'] ?? $fieldSettings['field_type']['default'] ?? 'list' )
         {
+        case 'checkbox':
+        case 'choice':
+        case 'radio':
+            $this->render_fieldAsChoice( $field, $fieldSettings );
+            break;
+
         case 'list':
             $this->render_fieldAsList( $field, $fieldSettings );
             break;
@@ -774,6 +780,36 @@ trait RelationalTrait
         default:
             break;
         }
+    }
+
+
+    /**
+     * @param  array  $field  (array) the $field being rendered
+     * @param  array  $fieldSettings
+     *
+     * @throws \ErrorException
+     * @method-type    action
+     */
+    public function render_fieldAsChoice(
+        array &$field,
+        array &$fieldSettings
+    ): void {
+
+        // Change Field into a select.
+        if ( ( (int) ( $field['max'] ?? $fieldSettings['max']['default'] ?? 0 ) === 1 )
+            || ! ( $field['multiple'] ?? $fieldSettings['multiple']['default'] ?? 0 ) )
+        {
+            $field['type'] = 'radio';
+        }
+        else
+        {
+            $field['type'] = 'checkbox';
+        }
+
+        $field['ajax'] = 0;
+        $field['ui']   = 0;
+
+        $this->render_fieldWithChoices( $field, $fieldSettings );
     }
 
 
@@ -971,17 +1007,28 @@ HTML;
     ): void {
 
         // Change Field into a select.
-        $field['type']       = 'select';
-        $field['ui']         = $field['ui'] ?? $fieldSettings['ui']['default'] ?? 1;
-        $field['ajax']       = $field['ui']
+        $field['type'] = 'select';
+        $field['ui']   = $field['ui'] ?? $fieldSettings['ui']['default'] ?? 1;
+        $field['ajax'] = $field['ui']
             && $field['ajax'] ?? $fieldSettings['ajax']['default'] ?? 0; // ajax can only work if UI is enabled
+
+        $this->render_fieldWithChoices( $field, $fieldSettings );
+    }
+
+
+    public function render_fieldWithChoices(
+        array &$field,
+        array &$fieldSettings
+    ): void {
+
         $field['allow_null'] = $field['allow_null'] ?? $fieldSettings['allow_null']['default'] ?? 1;
         // $field['readonly']
         // $field['disabled']
         // $field['ajax_action']
         // $field['id'],
-        $field['wrapper']['class'] = ( $field['wrapper']['class'] ?? '' ) . ' tbp-acf-relation-select';
-        $field['class']            = $field['wrapper']['class'];
+        $field['wrapper']['class']
+                        = ( $field['wrapper']['class'] ?? '' ) . ' categorychecklist-holder tbp-acf-relation-' . $field['type'];
+        $field['class'] = $field['wrapper']['class'];
 
         if ( empty( $field['ajax'] ) )
         {
@@ -1013,12 +1060,21 @@ HTML;
         $html = ob_get_clean();
 
         $attrs = [
-            'data-layout' => 'select',
+            'data-layout' => $field['type'],
         ];
 
         $attr = acf_esc_attrs( $attrs );
 
-        $html = preg_replace( '/ data-/', " $attr data-", $html, 1 );
+        $html = preg_replace( '/>/', " $attr>", $html, 1 );
+
+        $attrs = [
+            'class'           => 'acf-taxonomy-field tbp-acf tbp-acf-relation tbp-acf-tbp_relationship tbp-acf-relation-' . $field['type'],
+            'data-ftype'      => $field['type'],
+            'data-allow_null' => $field['allow_null'],
+        ];
+
+        $attr = acf_esc_attrs( $attrs );
+        $html = sprintf( '<div %s>%s</div>', $attr, $html );
 
         echo $html;
     }
