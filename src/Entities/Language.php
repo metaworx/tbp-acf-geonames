@@ -341,7 +341,24 @@ class Language
 
         static $cachedAll = false;
 
-        if ( is_array( $ids ) && count( $ids ) === 0 )
+        if ( $ids === '' )
+        {
+            return null;
+        }
+
+        // if it's an array with exactly one element that includes commas, treat it as a CSV list
+        if ( is_array( $ids ) && count( $ids ) === 1 && false !== strpos( $ids[0], ',' ) )
+        {
+            $ids = array_filter( explode( ',', $ids[0] ) );
+        }
+
+        // if it's an string that includes commas, treat it as a CSV list
+        elseif ( is_string( $ids ) && false !== strpos( $ids, ',' ) )
+        {
+            $ids = array_filter( explode( ',', $ids[0] ) );
+        }
+
+        if ( $ids === [] || $ids === [ '' ] )
         {
             return [];
         }
