@@ -159,28 +159,24 @@
 
 	} );
 
-	var TbpGeoname = TbpRelational.extend( {
+	[
+		'tbp_geoname',
+		'tbp_language',
+		'tbp_relationship',
+	]
+		.forEach( function ( type ) {
 
-		type: 'tbp_geoname',
+			acf.registerFieldType( TbpRelational.extend( {
 
-	} );
+				type: type,
 
-	acf.registerFieldType( TbpGeoname );
+			} ) );
 
-	var TbpLanguage = TbpRelational.extend( {
+			acf.registerConditionForFieldType( 'hasValue', type );
+			// condition hasNoValue is based on hasValue, hence no extra registration required
+			acf.registerConditionForFieldType( 'lessThan', type );
+			// condition greaterThan is based on lessThan, hence no extra registration required
 
-		type: 'tbp_language',
-
-	} );
-
-	acf.registerFieldType( TbpLanguage );
-
-	var TbpRelationship = TbpRelational.extend( {
-
-		type: 'tbp_relationship',
-
-	} );
-
-	acf.registerFieldType( TbpRelationship );
+		} )
 
 } )( jQuery );
