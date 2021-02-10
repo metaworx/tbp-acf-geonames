@@ -31,6 +31,7 @@ class Relationship
         __construct as private _FieldTrait__construct;
         load_value as private _FieldTrait_load_value;
         update_value as private _FieldTrait_update_value;
+        normalize_value as private _FieldTrait_normalize_value;
         RelationalTrait::field_wrapper_attributes insteadof FieldTrait;
     }
 
@@ -309,8 +310,6 @@ class Relationship
         $field['storage_format'] = $field['storage_format']
             ?? $this->getFieldSettingsDefinition()['storage_format']['default'];
 
-        $value = $this->_FieldTrait_load_value( $value, $post_id, $field );
-
         if ( in_array(
                 $field['storage_format'],
                 [
@@ -325,10 +324,7 @@ class Relationship
             $field['storage_format'] = 'post_name';
         }
 
-        if ( $this->normalize_value( $value, $field ) )
-        {
-            $value = $this->_FieldTrait_load_value( $value, $post_id, $field );
-        }
+        $value = $this->_FieldTrait_load_value( $value, $post_id, $field );
 
         return $value;
     }
@@ -351,41 +347,13 @@ class Relationship
 
     protected function normalize_value(
         &$value,
-        array &$field
+        array &$field,
+        bool $forStorage
     ): bool {
 
-        $changed = false;
-
-        if ( $value === null )
+        if ( $this->_FieldTrait_normalize_value( $value, $field, $forStorage ) === null )
         {
-            return false;
-        }
-
-        if ( trim( $value ) === '' )
-        {
-            $value = null;
-
             return true;
-        }
-
-        if ( is_array( $value ) )
-        {
-            array_walk(
-                $value,
-                function ( &$value ) use
-                (
-                    &
-                    $field,
-                    &
-                    $changed
-                )
-                {
-
-                    $changed |= $this->normalize_value( $value, $field );
-                }
-            );
-
-            return $changed;
         }
 
         switch ( $field['storage_format'] ?? $this->getFieldSettingsDefinition()['storage_format']['default'] )
@@ -523,8 +491,6 @@ class Relationship
         $field['storage_format'] = $field['storage_format']
             ?? $this->getFieldSettingsDefinition()['storage_format']['default'];
 
-        $value = $this->_FieldTrait_update_value( $value, $post_id, $field );
-
         if ( $csv = array_search(
             $field['storage_format'],
             [
@@ -537,19 +503,16 @@ class Relationship
             $field['storage_format'] = 'post_name';
         }
 
-        if ( $this->normalize_value( $value, $field ) || $csv )
+        $value = $this->_FieldTrait_update_value( $value, $post_id, $field );
+
+        if ( $csv && is_array( $value ) )
         {
-            if ( $csv )
+            $value = implode( ',', $value );
+
+            if ( $value !== '' && $csv === 2 )
             {
-                $value = implode( ',', $value );
-
-                if ( $value !== '' && $csv === 2 )
-                {
-                    $value = ",$value,";
-                }
+                $value = ",$value,";
             }
-
-            $value = $this->_FieldTrait_update_value( $value, $post_id, $field );
         }
 
         return $value;

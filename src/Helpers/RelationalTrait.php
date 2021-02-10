@@ -438,6 +438,39 @@ trait RelationalTrait
                         'default'      => 'ID',
                     ],
 
+                    // store_empty_as
+                    [
+                        'type'         => 'radio',
+                        'name'         => 'store_empty_as',
+                        'label'        => __( 'Store empty values as', 'tbp-acf-fields' ),
+                        'instructions' => 'What would you like to be the format for empty values?',
+                        'choices'      => [
+                            'unchanged'       => __( "Unchanged", 'tbp-acf-fields' ),
+                            'string'          => __( "Empty String", 'tbp-acf-fields' ),
+                            'integer'         => __( "Integer of 0 (as string, obviously)", 'tbp-acf-fields' ),
+                            'array'           => __( "Empty Array (serialized)", 'tbp-acf-fields' ),
+                            'null'            => __( "NULL (delete metadata)", 'tbp-acf-fields' ),
+                            'null_serialized' => __( "NULL (serialized)", 'tbp-acf-fields' ),
+                        ],
+                        'default'      => 'string',
+                    ],
+
+                    // load_empty_as
+                    [
+                        'type'         => 'radio',
+                        'name'         => 'load_empty_as',
+                        'label'        => __( 'Store empty values as', 'tbp-acf-fields' ),
+                        'instructions' => 'What would you like to be the format for empty values?',
+                        'choices'      => [
+                            'unchanged' => __( "Unchanged", 'tbp-acf-fields' ),
+                            'string'    => __( "Empty String", 'tbp-acf-fields' ),
+                            'integer'   => __( "Integer of 0", 'tbp-acf-fields' ),
+                            'array'     => __( "Empty Array", 'tbp-acf-fields' ),
+                            'null'      => __( "NULL", 'tbp-acf-fields' ),
+                        ],
+                        'default'      => 'string',
+                    ],
+
                 ] + $addArray
             );
 
@@ -720,10 +753,118 @@ trait RelationalTrait
         array $field
     ) {
 
-        $value = \apply_filters( 'acf/load_value/name=' . $field['name'], $value, $post_id, $field );
-        $value = \apply_filters( 'acf/load_value/key=' . $field['key'], $value, $post_id, $field );
+        /**
+         * avoid infinite loop
+         *
+         * @see /wp-content/plugins/advanced-custom-fields-pro/includes/fields/class-acf-field.php:46
+         */
+        \remove_filter(
+            'acf/load_value/type=' . $this->name,
+            [
+                $this,
+                'load_value',
+            ],
+            10
+        );
 
-        return $value;
+        $new = \apply_filters( 'acf/load_value', $value, $post_id, $field, $value );
+
+        $this->normalize_value( $new, $field, false );
+
+        // re-install filter
+        $this->add_field_filter(
+            'acf/load_value',
+            [
+                $this,
+                'load_value',
+            ],
+            10,
+            3
+        );
+
+        return $new;
+    }
+
+
+    protected function normalize_value(
+        &$value,
+        array &$field,
+        bool $forStorage
+    ): ?bool {
+
+        $changed   = false;
+        $serialize = false;
+
+        if ( is_array( $value ) )
+        {
+            array_walk(
+                $value,
+                function ( &$value ) use
+                (
+                    $forStorage,
+                    &
+                    $field,
+                    &
+                    $changed
+                )
+                {
+
+                    $changed |= $this->normalize_value( $value, $field, $forStorage ) ?? true;
+                }
+            );
+
+        }
+
+        if ( empty( $value ) || ( is_string( $value ) && trim( $value ) === '' ) )
+        {
+            $setting = $forStorage
+                ? 'store_empty_as'
+                : 'load_empty_as';
+
+            switch ( $field[ $setting ] ?? $this->getFieldSettingsDefinition()[ $setting ]['default'] )
+            {
+            case 'unchanged':
+                return $changed;
+
+            case 'string':
+                $new = '';
+                break;
+
+            case 'integer':
+                $new = 0;
+                break;
+
+            case 'array':
+                $new       = [];
+                $serialize = $forStorage;
+                break;
+
+                /** @noinspection PhpMissingBreakStatementInspection */
+            case 'null_serialized':
+                $serialize = true;
+
+            case 'null':
+                $new = null;
+                break;
+
+            }
+
+            if ( $serialize )
+            {
+                $new = serialize( $new );
+            }
+
+            if ( $new === $value )
+            {
+                return $changed;
+            }
+
+            $value = $new;
+
+            return null;
+        }
+
+        return $changed;
     }
 
 
@@ -1419,7 +1560,9 @@ HTML,
             10
         );
 
-        $value = \apply_filters( 'acf/update_value', $value, $post_id, $field, $value );
+        $new = \apply_filters( 'acf/update_value', $value, $post_id, $field, $value );
+
+        $this->normalize_value( $new, $field, true );
 
         // re-install filter
         $this->add_field_filter(
@@ -1432,17 +1575,12 @@ HTML,
             3
         );
 
-        if ( empty( $value ) )
+        if ( is_array( $new ) && ( ( $field['multiple'] ?? 1 ) === 0 || ( $field['max'] ?? 0 ) === 1 ) )
         {
-            return null;
+            $new = reset( $new );
         }
 
-        if ( is_array( $value ) && ( ( $field['multiple'] ?? 1 ) === 0 || ( $field['max'] ?? 0 ) === 1 ) )
-        {
-            $value = reset( $value );
-        }
-
-        return $value;
+        return $new;
     }
 
 }
