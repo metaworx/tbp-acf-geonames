@@ -483,6 +483,11 @@ class Relationship
 
         if ( $field['ajax'] ?? false )
         {
+            if ( empty( $field['value'] ) )
+            {
+                return '';
+            }
+
             add_filter( 'acf/fields/relationship/query/key=' . $field['key'], $addValue, 10, 3 );
         }
 
