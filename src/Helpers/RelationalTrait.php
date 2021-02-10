@@ -8,309 +8,365 @@ trait RelationalTrait
     protected function getFieldSettingsDefinition( array $addArray = [] ): array
     {
 
-        return $this->getFieldSettingsDefinitionHelper(
-            [
+        static $definition;
 
-                // choice layout
+        return $definition
+            ?? $definition = $this->getFieldSettingsDefinitionHelper(
                 [
-                    'type'         => 'radio',
-                    'name'         => 'field_type',
-                    'label'        => __( 'Layout', 'tbp-acf-fields' ),
-                    'instructions' => '',
-                    'choices'      => [
-                        'list'   => __( "List", 'tbp-acf-fields' ),
-                        'select' => __( "Dynamic Selection", 'tbp-acf-fields' ),
+
+                    // choice layout
+                    [
+                        'type'         => 'radio',
+                        'name'         => 'field_type',
+                        'label'        => __( 'Layout', 'tbp-acf-fields' ),
+                        'instructions' => '',
+                        'choices'      => [
+                            'list'   => __( "List", 'tbp-acf-fields' ),
+                            'select' => __( "Dynamic Selection", 'tbp-acf-fields' ),
+                        ],
+                        'layout'       => 'vertical',
+                        'default'      => 'list',
                     ],
-                    'layout'       => 'vertical',
-                    'default'      => 'list',
-                ],
 
-                // selection limit
-                [
-                    'type'         => 'true_false',
-                    'name'         => 'multiple',
-                    'label'        => __( 'Select multiple values?', 'acf' ),
-                    'instructions' => '',
-                    'ui'           => 1,
-                    'allow_null'   => 0,
-                    'default'      => true,
-                ],
+                    // selection limit
+                    [
+                        'type'         => 'true_false',
+                        'name'         => 'multiple',
+                        'label'        => __( 'Select multiple values?', 'acf' ),
+                        'instructions' => '',
+                        'ui'           => 1,
+                        'allow_null'   => 0,
+                        'default'      => true,
+                    ],
 
-                // min
-                [
-                    'type'              => 'number',
-                    'name'              => 'min',
-                    'label'             => __( 'Minimum languages', 'tbp-acf-fields' ),
-                    'instructions'      => '',
-                    'conditional_logic' => [
-                        [
+                    // min
+                    [
+                        'type'              => 'number',
+                        'name'              => 'min',
+                        'label'             => __( 'Minimum languages', 'tbp-acf-fields' ),
+                        'instructions'      => '',
+                        'conditional_logic' => [
                             [
-                                'field'    => 'multiple',
-                                'operator' => '==',
-                                'value'    => '1',
+                                [
+                                    'field'    => 'multiple',
+                                    'operator' => '==',
+                                    'value'    => '1',
+                                ],
                             ],
                         ],
                     ],
-                ],
 
-                // max
-                [
-                    'type'              => 'number',
-                    'name'              => 'max',
-                    'label'             => __( 'Maximum languages', 'tbp-acf-fields' ),
-                    'instructions'      => '',
-                    'conditional_logic' => [
-                        [
+                    // max
+                    [
+                        'type'              => 'number',
+                        'name'              => 'max',
+                        'label'             => __( 'Maximum languages', 'tbp-acf-fields' ),
+                        'instructions'      => '',
+                        'conditional_logic' => [
                             [
-                                'field'    => 'multiple',
-                                'operator' => '==',
-                                'value'    => '1',
+                                [
+                                    'field'    => 'multiple',
+                                    'operator' => '==',
+                                    'value'    => '1',
+                                ],
                             ],
                         ],
                     ],
-                ],
 
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'replace_selected_value',
-                    'label'             => __( 'Replace selected value', 'tbp-acf-fields' ),
-                    'instructions'      => __(
-                        'If there is only one choice allowed and this setting is set to true, the selected value is automatically replaced. If this setting is set to false, the user has to first remove the current selection.',
-                        'tbp-acf-fields'
-                    ),
-                    'ui'                => 1,
-                    'allow_null'        => 0,
-                    'default'           => true,
-                    'conditional_logic' => [
-                        [
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'replace_selected_value',
+                        'label'             => __( 'Replace selected value', 'tbp-acf-fields' ),
+                        'instructions'      => __(
+                            'If there is only one choice allowed and this setting is set to true, the selected value is automatically replaced. If this setting is set to false, the user has to first remove the current selection.',
+                            'tbp-acf-fields'
+                        ),
+                        'ui'                => 1,
+                        'allow_null'        => 0,
+                        'default'           => true,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'list',
+                                ],
+                                [
+                                    'field'    => 'max',
+                                    'operator' => '==',
+                                    'value'    => '1',
+                                ],
+                            ],
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'list',
+                                ],
+                                [
+                                    'field'    => 'multiple',
+                                    'operator' => '==',
+                                    'value'    => '0',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    // filters
+                    [
+                        'name'              => 'filters',
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'list',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    // list options
+
+                    // filter layout
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'one_filter_per_row',
+                        'label'             => __( 'Display one filter per row', 'tbp-acf-fields' ),
+                        'ui'                => 1,
+                        'allow_null'        => 0,
+                        'default'           => false,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'list',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'values_before_choices',
+                        'label'             => __( 'Display selected values first', 'tbp-acf-fields' ),
+                        'ui'                => 1,
+                        'allow_null'        => 0,
+                        'default'           => false,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'list',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'choice_on_new_line',
+                        'label'             => __( 'Display selected values on separate line', 'tbp-acf-fields' ),
+                        'ui'                => 1,
+                        'allow_null'        => 0,
+                        'default'           => false,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'list',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'selection_choices_display_instruction',
+                        'label'             => __( 'Display instruction for available choices', 'tbp-acf-fields' ),
+                        'ui'                => 1,
+                        'allow_null'        => 0,
+                        'default'           => 1,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'list',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'text',
+                        'name'              => 'selection_choices_instruction_text',
+                        'label'             => __( 'Choices instructions', 'tbp-acf-fields' ),
+                        'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
+                        'placeholder'       => __(
+                            'Click on one of the entries to add it to the selection.',
+                            'tbp-acf-fields'
+                        ),
+                        'allow_null'        => 1,
+                        'default'           => null,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'selection_choices_display_instruction',
+                                    'operator' => '==',
+                                    'value'    => '1',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'selection_values_display_instruction',
+                        'label'             => __( 'Display instruction for selected values', 'tbp-acf-fields' ),
+                        'ui'                => 1,
+                        'allow_null'        => 0,
+                        'default'           => 1,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'list',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'text',
+                        'name'              => 'selection_values_instruction_text',
+                        'label'             => __( 'Selection instructions', 'tbp-acf-fields' ),
+                        'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
+                        'placeholder'       => __(
+                            'This is/are the current selected values. To remove an entry, click on the minus-symbol at the end of the line.',
+                            'tbp-acf-fields'
+                        ),
+                        'allow_null'        => 1,
+                        'default'           => null,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'selection_values_display_instruction',
+                                    'operator' => '==',
+                                    'value'    => '1',
+                                ],
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'list',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    // select options
+
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'allow_null',
+                        'label'             => __( 'Allow Null?', 'acf' ),
+                        'allow_null'        => 0,
+                        'ui'                => 1,
+                        'default'           => 0,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'select',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'ui',
+                        'label'             => __( 'Stylised UI', 'acf' ),
+                        'allow_null'        => 0,
+                        'ui'                => 1,
+                        'default'           => 1,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'select',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'ajax',
+                        'label'             => __( 'Use AJAX to lazy load choices?', 'acf' ),
+                        'allow_null'        => 0,
+                        'ui'                => 1,
+                        'default'           => 1,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'select',
+                                ],
+                                [
+                                    'field'    => 'ui',
+                                    'operator' => '==',
+                                    'value'    => '1',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'true_false',
+                        'name'              => 'allow_custom',
+                        'label'             => __( 'Allow Custom', 'acf' ),
+                        'message'           => __( "Allow 'custom' values to be added", 'acf' ),
+                        'allow_null'        => 0,
+                        'ui'                => 1,
+                        'default'           => 1,
+                        'conditional_logic' => [
+                            [
+                                [
+                                    'field'    => 'field_type',
+                                    'operator' => '==',
+                                    'value'    => 'select',
+                                ],
+                                [
+                                    'field'    => 'ui',
+                                    'operator' => '==',
+                                    'value'    => '1',
+                                ],
+                            ],
+                        ],
+                    ],
+
+                    [
+                        'type'              => 'text',
+                        'name'              => 'placeholder',
+                        'label'             => __( 'Placeholder', 'acf' ),
+                        'instructions'      => __( 'Appears within the input', 'acf' ),
+                        'allow_null'        => 1,
+                        'ui'                => 0,
+                        'conditional_logic' => [
                             [
                                 'field'    => 'field_type',
                                 'operator' => '==',
                                 'value'    => 'list',
                             ],
-                            [
-                                'field'    => 'max',
-                                'operator' => '==',
-                                'value'    => '1',
-                            ],
                         ],
-                        [
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'list',
-                            ],
-                            [
-                                'field'    => 'multiple',
-                                'operator' => '==',
-                                'value'    => '0',
-                            ],
-                        ],
-                    ],
-                ],
-
-                // filters
-                [
-                    'name'              => 'filters',
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'list',
-                            ],
-                        ],
-                    ],
-                ],
-
-                // list options
-
-                // filter layout
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'one_filter_per_row',
-                    'label'             => __( 'Display one filter per row', 'tbp-acf-fields' ),
-                    'ui'                => 1,
-                    'allow_null'        => 0,
-                    'default'           => false,
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'list',
-                            ],
-                        ],
-                    ],
-                ],
-
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'values_before_choices',
-                    'label'             => __( 'Display selected values first', 'tbp-acf-fields' ),
-                    'ui'                => 1,
-                    'allow_null'        => 0,
-                    'default'           => false,
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'list',
-                            ],
-                        ],
-                    ],
-                ],
-
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'choice_on_new_line',
-                    'label'             => __( 'Display selected values on separate line', 'tbp-acf-fields' ),
-                    'ui'                => 1,
-                    'allow_null'        => 0,
-                    'default'           => false,
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'list',
-                            ],
-                        ],
-                    ],
-                ],
-
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'selection_choices_display_instruction',
-                    'label'             => __( 'Display instruction for available choices', 'tbp-acf-fields' ),
-                    'ui'                => 1,
-                    'allow_null'        => 0,
-                    'default'           => 1,
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'list',
-                            ],
-                        ],
-                    ],
-                ],
-
-                [
-                    'type'              => 'text',
-                    'name'              => 'selection_choices_instruction_text',
-                    'label'             => __( 'Choices instructions', 'tbp-acf-fields' ),
-                    'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
-                    'placeholder'       => __(
-                        'Click on one of the entries to add it to the selection.',
-                        'tbp-acf-fields'
-                    ),
-                    'allow_null'        => 1,
-                    'default'           => null,
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'selection_choices_display_instruction',
-                                'operator' => '==',
-                                'value'    => '1',
-                            ],
-                        ],
-                    ],
-                ],
-
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'selection_values_display_instruction',
-                    'label'             => __( 'Display instruction for selected values', 'tbp-acf-fields' ),
-                    'ui'                => 1,
-                    'allow_null'        => 0,
-                    'default'           => 1,
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'list',
-                            ],
-                        ],
-                    ],
-                ],
-
-                [
-                    'type'              => 'text',
-                    'name'              => 'selection_values_instruction_text',
-                    'label'             => __( 'Selection instructions', 'tbp-acf-fields' ),
-                    'instructions'      => __( 'This text is shown before the field', 'tbp-acf-fields' ),
-                    'placeholder'       => __(
-                        'This is/are the current selected values. To remove an entry, click on the minus-symbol at the end of the line.',
-                        'tbp-acf-fields'
-                    ),
-                    'allow_null'        => 1,
-                    'default'           => null,
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'selection_values_display_instruction',
-                                'operator' => '==',
-                                'value'    => '1',
-                            ],
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'list',
-                            ],
-                        ],
-                    ],
-                ],
-
-                // select options
-
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'allow_null',
-                    'label'             => __( 'Allow Null?', 'acf' ),
-                    'allow_null'        => 0,
-                    'ui'                => 1,
-                    'default'           => 0,
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'select',
-                            ],
-                        ],
-                    ],
-                ],
-
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'ui',
-                    'label'             => __( 'Stylised UI', 'acf' ),
-                    'allow_null'        => 0,
-                    'ui'                => 1,
-                    'default'           => 1,
-                    'conditional_logic' => [
-                        [
-                            [
-                                'field'    => 'field_type',
-                                'operator' => '==',
-                                'value'    => 'select',
-                            ],
-                        ],
-                    ],
-                ],
-
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'ajax',
-                    'label'             => __( 'Use AJAX to lazy load choices?', 'acf' ),
-                    'allow_null'        => 0,
-                    'ui'                => 1,
-                    'default'           => 1,
-                    'conditional_logic' => [
                         [
                             [
                                 'field'    => 'field_type',
@@ -324,17 +380,21 @@ trait RelationalTrait
                             ],
                         ],
                     ],
-                ],
 
-                [
-                    'type'              => 'true_false',
-                    'name'              => 'allow_custom',
-                    'label'             => __( 'Allow Custom', 'acf' ),
-                    'message'           => __( "Allow 'custom' values to be added", 'acf' ),
-                    'allow_null'        => 0,
-                    'ui'                => 1,
-                    'default'           => 1,
-                    'conditional_logic' => [
+                    [
+                        'type'              => 'text',
+                        'name'              => 'search_placeholder',
+                        'label'             => __( 'Search Input Placeholder', 'acf' ),
+                        'instructions'      => __( 'Appears within the search input', 'acf' ),
+                        'allow_null'        => 1,
+                        'ui'                => 0,
+                        'conditional_logic' => [
+                            [
+                                'field'    => 'field_type',
+                                'operator' => '==',
+                                'value'    => 'list',
+                            ],
+                        ],
                         [
                             [
                                 'field'    => 'field_type',
@@ -348,94 +408,38 @@ trait RelationalTrait
                             ],
                         ],
                     ],
-                ],
 
-                [
-                    'type'              => 'text',
-                    'name'              => 'placeholder',
-                    'label'             => __( 'Placeholder', 'acf' ),
-                    'instructions'      => __( 'Appears within the input', 'acf' ),
-                    'allow_null'        => 1,
-                    'ui'                => 0,
-                    'conditional_logic' => [
-                        [
-                            'field'    => 'field_type',
-                            'operator' => '==',
-                            'value'    => 'list',
-                        ],
-                    ],
+                    // return_format
                     [
-                        [
-                            'field'    => 'field_type',
-                            'operator' => '==',
-                            'value'    => 'select',
+                        'type'         => 'radio',
+                        'name'         => 'return_format',
+                        'label'        => __( 'Return Format', 'acf' ),
+                        'instructions' => '',
+                        'choices'      => [
+                            'object' => __( static::LABEL . " Object", 'tbp-acf-fields' ),
+                            'id'     => __( static::LABEL . " ID", 'tbp-acf-fields' ),
+                            'value'  => __( "Value", 'acf' ),
+                            'label'  => __( "Label", 'acf' ),
+                            'array'  => __( "Both (Array)", 'acf' ),
                         ],
-                        [
-                            'field'    => 'ui',
-                            'operator' => '==',
-                            'value'    => '1',
-                        ],
+                        'default'      => 'object',
                     ],
-                ],
 
-                [
-                    'type'              => 'text',
-                    'name'              => 'search_placeholder',
-                    'label'             => __( 'Search Input Placeholder', 'acf' ),
-                    'instructions'      => __( 'Appears within the search input', 'acf' ),
-                    'allow_null'        => 1,
-                    'ui'                => 0,
-                    'conditional_logic' => [
-                        [
-                            'field'    => 'field_type',
-                            'operator' => '==',
-                            'value'    => 'list',
-                        ],
-                    ],
+                    // storage_format
                     [
-                        [
-                            'field'    => 'field_type',
-                            'operator' => '==',
-                            'value'    => 'select',
+                        'type'         => 'radio',
+                        'name'         => 'storage_format',
+                        'label'        => __( 'Storage Format', 'tbp-acf-fields' ),
+                        'instructions' => 'In what format should the value(s) be stored in the database?',
+                        'choices'      => [
+                            'ID'        => __( static::LABEL . " ID", 'tbp-acf-fields' ),
+                            'post_name' => __( static::LABEL . " post_name (slug)", 'tbp-acf-fields' ),
                         ],
-                        [
-                            'field'    => 'ui',
-                            'operator' => '==',
-                            'value'    => '1',
-                        ],
+                        'default'      => 'ID',
                     ],
-                ],
 
-                // return_format
-                [
-                    'type'         => 'radio',
-                    'name'         => 'return_format',
-                    'label'        => __( 'Return Format', 'acf' ),
-                    'instructions' => '',
-                    'choices'      => [
-                        'object' => __( static::LABEL . " Object", 'tbp-acf-fields' ),
-                        'id'     => __( static::LABEL . " ID", 'tbp-acf-fields' ),
-                        'value'  => __( "Value", 'acf' ),
-                        'label'  => __( "Label", 'acf' ),
-                        'array'  => __( "Both (Array)", 'acf' ),
-                    ],
-                    'default'      => 'object',
-                ],
-
-                // storage_format
-                [
-                    'type'         => 'radio',
-                    'name'         => 'storage_format',
-                    'label'        => __( 'Storage Format', 'tbp-acf-fields' ),
-                    'instructions' => 'In what format should the value(s) be stored in the database?',
-                    'choices'      => [
-                        'ID'        => __( static::LABEL . " ID", 'tbp-acf-fields' ),
-                        'post_name' => __( static::LABEL . " post_name (slug)", 'tbp-acf-fields' ),
-                    ],
-                    'default'      => 'ID',
-                ],
-            ] + $addArray
-        );
+                ] + $addArray
+            );
 
     }
 
