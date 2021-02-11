@@ -308,6 +308,7 @@ class Relationship
     ) {
 
         $field['storage_format'] = $field['storage_format']
+            ?? acf_get_local_field($field['key'])['storage_format']
             ?? $this->getFieldSettingsDefinition()['storage_format']['default'];
 
         if ( in_array(
@@ -492,6 +493,7 @@ class Relationship
     ) {
 
         $field['storage_format'] = $field['storage_format']
+            ?? acf_get_local_field($field['key'])['storage_format']
             ?? $this->getFieldSettingsDefinition()['storage_format']['default'];
 
         if ( $csv = array_search(
