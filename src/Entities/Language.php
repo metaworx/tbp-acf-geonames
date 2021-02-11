@@ -355,7 +355,7 @@ class Language
         // if it's an string that includes commas, treat it as a CSV list
         elseif ( is_string( $ids ) && false !== strpos( $ids, ',' ) )
         {
-            $ids = array_filter( explode( ',', $ids[0] ) );
+            $ids = array_filter( explode( ',', $ids ) );
         }
 
         if ( $ids === [] || $ids === [ '' ] )
