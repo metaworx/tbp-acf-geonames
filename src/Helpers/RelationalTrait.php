@@ -854,11 +854,6 @@ trait RelationalTrait
                 $new = serialize( $new );
             }
 
-            if ( $new === $value )
-            {
-                return $changed;
-            }
-
             $value = $new;
 
             return null;

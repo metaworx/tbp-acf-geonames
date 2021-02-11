@@ -311,16 +311,19 @@ class Relationship
             ?? $this->getFieldSettingsDefinition()['storage_format']['default'];
 
         if ( in_array(
-                $field['storage_format'],
-                [
-                    'csv',
-                    ',csv,',
-                ],
-                true
-            )
-            && ! empty( $value ) )
+            $field['storage_format'],
+            [
+                'csv',
+                ',csv,',
+            ],
+            true
+        ) )
         {
-            $value                   = array_filter( explode( ',', $value ) );
+            if ( ! empty( $value ) )
+            {
+                $value = array_filter( explode( ',', $value ) );
+            }
+
             $field['storage_format'] = 'post_name';
         }
 
