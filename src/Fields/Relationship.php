@@ -279,8 +279,8 @@ class Relationship
         $field
     ) {
 
-        $value = $this->_RelationalTrait_format_value( $value, $object_id, $field );
         $value = parent::format_value( $value, $object_id, $field );
+        $value = $this->_RelationalTrait_format_value( $value, $object_id, $field );
 
         return $value;
     }
