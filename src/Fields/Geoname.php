@@ -651,9 +651,17 @@ class Geoname
 
         if ( empty( $field['value'] ) )
         {
-            if ( $field["key"] !== 'field_tbpEventAdditionalCountries' )
+            $params['defaults'] = $default;
+
+            $add = apply_filters(
+                "tbp-acf-fields/facet/index/row/empty/type=" . static::NAME,
+                $default,
+                $params
+            );
+
+            if ( ! empty( $add ) )
             {
-                $rows[] = $default;
+                $rows[] = $add;
             }
 
             return $rows;
