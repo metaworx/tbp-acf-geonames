@@ -273,6 +273,98 @@ class Relationship
     }
 
 
+    /**
+     * Add ACF fields to the Data Sources dropdown
+     *
+     * This function is not called directly by FacetWP, but from
+     * \Tbp\WP\Plugin\AcfFields\Integration\FacetWP::facetwp_indexer_row_data
+     *
+     * @param  array  $rows
+     * @param  array  $params
+     *
+     * @return array
+     */
+    public function &facetwpIndexerRowData(
+        array $rows,
+        array $params
+    ): array {
+
+        $source = $params['source'];
+
+        if ( $source->type !== static::NAME )
+        {
+            return $rows;
+        }
+
+        $field                          = $source->field;
+        $default                        = $params['defaults'];
+        $default['facet_value']         = 0;
+        $default['facet_display_value'] = 'N/A';
+
+        if ( empty( $field['value'] ) )
+        {
+            $params['defaults'] = $default;
+
+            $add = apply_filters(
+                "tbp-acf-fields/facet/index/row/empty/type=" . static::NAME,
+                $default,
+                $params
+            );
+
+            if ( ! empty( $add ) )
+            {
+                $rows[] = $add;
+            }
+
+            return $rows;
+        }
+
+        try
+        {
+            $post = null;
+
+            if ( is_numeric( $field['value'] ) )
+            {
+                $post = get_post( $field['value'] );
+            }
+            else
+            {
+                foreach ( $field['post_type'] as $post_type )
+                {
+                    if ( $post = get_page_by_path( $field['value'], OBJECT, $post_type ) )
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if ( $post )
+            {
+                $default['facet_value']         = $post->ID;
+                $default['facet_display_value'] = $post->{$source->property};
+            }
+        }
+        catch ( \Throwable $e )
+        {
+            /** @noinspection ForgottenDebugOutputInspection */
+            error_log(
+                sprintf(
+                    'Unable to retrieve post information "%s" for post_id %d',
+                    print_r( $field['value'], true ),
+                    $default['post_id']
+                )
+            );
+
+            $default['facet_value']         = - 1;
+            $default['facet_display_value'] = 'Error';
+        }
+
+        $rows[] = $default;
+
+        return $rows;
+    }
+
+
     public function format_value(
         $value,
         $object_id,
