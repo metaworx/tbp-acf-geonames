@@ -8,6 +8,7 @@ use Tbp\WP\Plugin\AcfFields\FieldInterface;
 use Tbp\WP\Plugin\AcfFields\FieldTypes\FieldRelational;
 use Tbp\WP\Plugin\AcfFields\Helpers\FieldTrait;
 use Tbp\WP\Plugin\AcfFields\Helpers\RelationalTrait;
+use Tbp\WP\Plugin\AcfFields\Helpers\Utils;
 
 if ( ! class_exists( 'acf_field_relationship' ) )
 {
@@ -371,9 +372,35 @@ class Relationship
         $field
     ) {
 
-        $value = parent::format_value( $value, $object_id, $field );
         $value = $this->_RelationalTrait_format_value( $value, $object_id, $field );
 
+        // bail early if no value
+        if ( empty( $value ) )
+        {
+
+            return $value;
+
+        }
+
+        // load posts if needed
+        switch ( $field['return_format'] )
+        {
+
+        case 'object':
+            // get posts
+            $posts = [];
+
+            foreach ( $field['post_type'] as $post_type )
+            {
+                $posts = Utils::getPosts( $value, $post_type, null, null, null, $posts );
+            }
+
+            $value = is_array( $value )
+                ? $posts
+                : reset( $posts );
+        }
+
+        // return
         return $value;
     }
 
