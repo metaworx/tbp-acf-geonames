@@ -585,7 +585,7 @@ trait RelationalTrait
         $value = \apply_filters( 'acf/format_value/name=' . $field['name'], $value, $object_id, $field );
 
         // bail early if no value
-        if ( empty( $value ) || ! array_key_exists( 'return_format', $field ) )
+        if ( empty( $value ) )
         {
 
             return $value;
