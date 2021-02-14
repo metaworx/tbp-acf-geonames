@@ -3,6 +3,7 @@
 namespace Tbp\WP\Plugin\AcfFields\Entities;
 
 use ErrorException;
+use Tbp\WP\Plugin\AcfFields\Helpers\Utils;
 use WP_Error;
 use WP_Post;
 
@@ -398,171 +399,74 @@ class CountryPost
      * @param $countryIds
      *
      * @return array|false|mixed
-     * @noinspection AdditionOperationOnArraysInspection
      */
     protected static function getPosts(
         $countryIds,
         int $numericAs = self::LOAD_NUMERIC_ID_AS_LOCATION_ID
     ) {
 
-        $loadingAll = $countryIds === null;
-
-        if ( $countryIds === [] )
-        {
-            return $countryIds;
-        }
-
-        $cached = [];
+        $cached = null;
 
         // get all missing countries by id
-        $missingIds = array_filter(
-            (array) $countryIds,
-            static function ( $key ) use
-            (
-                &
-                $cached
-            )
-            {
-
-                if ( ! is_numeric( $key ) )
-                {
-                    return false;
-                }
-
-                /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $post */
-                if ( ( $post = self::$_countryPosts["_$key"] ?? null )
-                    && $post->hasPost( false ) )
-                {
-                    $cached["_$key"] = $post->getPost();
-
-                    return false;
-                }
-
-                return true;
-            },
-            ARRAY_FILTER_USE_BOTH
-        );
-
-        // get all missing countries by slug
-        $missingSlugs = array_filter(
-            (array) $countryIds,
-            static function ( $key ) use
-            (
-                &
-                $cached
-            )
-            {
-
-                if ( is_numeric( $key ) )
-                {
-                    return false;
-                }
-
-                /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $post */
-                if ( ( $post = self::$_countryPosts[ $key ] ?? null )
-                    && $post->hasPost( false ) )
-                {
-                    $cached[ $key ] = $post->getPost();
-
-                    return false;
-                }
-
-                return true;
-            },
-            ARRAY_FILTER_USE_BOTH
-        );
-
-        $posts = [];
-
-        $param
-            = [
-            'posts_per_page'         => $loadingAll || is_array( $countryIds )
-                ? - 1
-                : 1,
-            'paged'                  => 0,
-            'post_type'              => static::POST_TYPE,
-            'orderby'                => 'ID',
-            'order'                  => 'ASC',
-            'post_status'            => $loadingAll
-                ? 'publish'
-                : 'any',
-            'suppress_filters'       => false,
-            'update_post_meta_cache' => false,
-        ];
-
-        // lookup by location field id
-        if ( ! empty( $missingIds ) && $numericAs === self::LOAD_NUMERIC_ID_AS_LOCATION_ID )
+        $isIdCallback = static function ( $key ) use
+        (
+            &
+            $cached
+        )
         {
-            $param['meta_query'] = [
-                [
-                    'key'     => static::LOCATION_FIELD,
-                    'value'   => $missingIds,
-                    'compare' => 'IN',
-                ],
-            ];
 
-            $missingIds = get_posts( $param );
-            $missingIds = array_column( $missingIds, null, 'ID' );
-
-            $posts += $missingIds;
-
-            unset( $param['meta_query'] );
-            unset( $missingIds );
-        }
-
-        // lookup by post id
-        elseif ( $loadingAll || ( ! empty( $missingIds ) && $numericAs === self::LOAD_NUMERIC_ID_AS_POST_ID ) )
-        {
-            if ( ! empty( $missingIds ) )
+            if ( ! is_numeric( $key ) )
             {
-                $param['post__in']    = $missingIds;
-                $param['post_status'] = [
-                    'publish',
-                    'pending',
-                    'draft',
-                    'auto-draft',
-                    'trash',
-                ];
+                return false;
             }
 
-            $missingIds = get_posts( $param );
-            $missingIds = array_column( $missingIds, null, 'ID' );
+            /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $post */
+            if ( ( $post = self::$_countryPosts["_$key"] ?? null )
+                && $post->hasPost( false ) )
+            {
+                $cached["_$key"] = $post->getPost();
 
-            $posts += $missingIds;
+                return false;
+            }
 
-            unset( $param['post__in'] );
-            unset( $missingIds );
-        }
+            return true;
+        };
 
-        // lookup by slug
-        if ( ! empty( $missingSlugs ) )
-        {
-            $param['post_name__in'] = $missingSlugs;
-
-            $missingSlugs = get_posts( $param );
-            $missingSlugs = array_column( $missingSlugs, null, 'ID' );
-
-            $posts += $missingSlugs;
-
-            unset( $param['post_name__in'] );
-            unset( $missingSlugs );
-        }
-
-        if ( ! empty( $posts ) )
+        // get all missing countries by slug
+        $isSlugCallback = static function ( $key ) use
+        (
+            &
+            $cached
+        )
         {
 
-            // load geoname field
-            $missingIds = array_column( $posts, 'ID' );
+            if ( is_numeric( $key ) )
+            {
+                return false;
+            }
 
-            update_meta_cache( 'post', $missingIds );
-        }
+            /** @var \Tbp\WP\Plugin\AcfFields\Entities\CountryPost $post */
+            if ( ( $post = self::$_countryPosts[ $key ] ?? null )
+                && $post->hasPost( false ) )
+            {
+                $cached[ $key ] = $post->getPost();
 
-        $posts += $cached;
+                return false;
+            }
 
-        if ( ! $loadingAll && ! is_array( $countryIds ) )
-        {
-            return reset( $posts );
-        }
+            return true;
+        };
+
+        $posts = Utils::getPosts(
+            $countryIds,
+            static::POST_TYPE,
+            $numericAs === self::LOAD_NUMERIC_ID_AS_LOCATION_ID
+                ? static::LOCATION_FIELD
+                : null,
+            $isIdCallback,
+            $isSlugCallback,
+            $cached
+        );
 
         return $posts;
     }
