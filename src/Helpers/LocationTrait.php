@@ -4,6 +4,7 @@ namespace Tbp\WP\Plugin\AcfFields\Helpers;
 
 use DateTimeInterface;
 use Tbp\WP\Plugin\AcfFields\Entities\DateTime;
+use const Tbp\WP\Plugin\AcfFields\ORIG_POST_ID;
 
 trait LocationTrait
 {
@@ -67,7 +68,7 @@ trait LocationTrait
              * @see https://wpml.org/documentation/support/wpml-coding-api/wpml-hooks-reference/#hook-605645
              * @var array
              */
-            $wpml = apply_filters( 'wpml_post_language_details', null, \Tbp\WP\Plugin\AcfFields\ORIG_POST_ID );
+            $wpml = apply_filters( 'wpml_post_language_details', null, ORIG_POST_ID );
 
             /**
              * array (
