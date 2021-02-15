@@ -158,19 +158,13 @@ class FacetWP
             );
 
             $args = apply_filters(
-                "tbp-acf-fields/facet/render/field",
+                "tbp-acf-fields/facet/render/field/type={$type}/property={$property}",
                 $args,
                 $source
             );
 
             $args = apply_filters(
-                "tbp-acf-fields/facet/render/type={$type}/property={$property}",
-                $args,
-                $source
-            );
-
-            $args = apply_filters(
-                "tbp-acf-fields/facet/render/type={$type}",
+                "tbp-acf-fields/facet/render/field/type={$type}",
                 $args,
                 $source
             );
@@ -181,6 +175,18 @@ class FacetWP
                 $source
             );
         }
+
+        $args = apply_filters(
+            "tbp-acf-fields/facet/render/facet/name={$args['facet']['name']}",
+            $args,
+            $source
+        );
+
+        $args = apply_filters(
+            "tbp-acf-fields/facet/render/facet/type={$args['facet']['type']}",
+            $args,
+            $source
+        );
 
         return $args;
     }
@@ -261,6 +267,8 @@ class FacetWP
         $class
     ) {
 
+        $params['facet'] = FWP()->helper->get_facet_by_name( $params['facet_name'] );
+
         if ( $source = $this->acfSource(
             $params['facet_source'],
             $params['post_id'],
@@ -271,19 +279,6 @@ class FacetWP
         {
 
             $params['source'] = $source;
-            $params['facet']  = FWP()->helper->get_facet_by_name( $params['facet_name'] );
-
-            $params = apply_filters(
-                "tbp-acf-fields/facet/index/row/facet/name={$params['facet_name']}",
-                $params,
-                $class
-            );
-
-            $params = apply_filters(
-                "tbp-acf-fields/facet/index/row/facet/type={$params['facet']['type']}",
-                $params,
-                $class
-            );
 
             $params = apply_filters(
                 "tbp-acf-fields/facet/index/row/field/key={$field['key']}",
@@ -298,19 +293,13 @@ class FacetWP
             );
 
             $params = apply_filters(
-                "tbp-acf-fields/facet/index/row/field",
+                "tbp-acf-fields/facet/index/row/field/type={$type}/property={$property}",
                 $params,
                 $class
             );
 
             $params = apply_filters(
-                "tbp-acf-fields/facet/index/row/type={$type}/property={$property}",
-                $params,
-                $class
-            );
-
-            $params = apply_filters(
-                "tbp-acf-fields/facet/index/row/type={$type}",
+                "tbp-acf-fields/facet/index/row/field/type={$type}",
                 $params,
                 $class
             );
@@ -321,6 +310,18 @@ class FacetWP
                 $class
             );
         }
+
+        $params = apply_filters(
+            "tbp-acf-fields/facet/index/row/facet/name={$params['facet_name']}",
+            $params,
+            $class
+        );
+
+        $params = apply_filters(
+            "tbp-acf-fields/facet/index/row/facet/type={$params['facet']['type']}",
+            $params,
+            $class
+        );
 
         return $params;
 
@@ -362,18 +363,6 @@ class FacetWP
             $params['source'] = $source;
 
             $rows = apply_filters(
-                "tbp-acf-fields/facet/index/data/facet/name={$params['facet']['name']}",
-                $rows,
-                $params
-            );
-
-            $rows = apply_filters(
-                "tbp-acf-fields/facet/index/data/facet/type={$params['facet']['type']}",
-                $rows,
-                $params
-            );
-
-            $rows = apply_filters(
                 "tbp-acf-fields/facet/index/data/field/key={$field['key']}",
                 $rows,
                 $params
@@ -386,19 +375,13 @@ class FacetWP
             );
 
             $rows = apply_filters(
-                "tbp-acf-fields/facet/index/data/field",
+                "tbp-acf-fields/facet/index/data/field/type={$type}/property={$property}",
                 $rows,
                 $params
             );
 
             $rows = apply_filters(
-                "tbp-acf-fields/facet/index/data/type={$type}/property={$property}",
-                $rows,
-                $params
-            );
-
-            $rows = apply_filters(
-                "tbp-acf-fields/facet/index/data/type={$type}",
+                "tbp-acf-fields/facet/index/data/field/type={$type}",
                 $rows,
                 $params
             );
@@ -409,6 +392,18 @@ class FacetWP
                 $params
             );
         }
+
+        $rows = apply_filters(
+            "tbp-acf-fields/facet/index/data/facet/name={$params['facet']['name']}",
+            $rows,
+            $params
+        );
+
+        $rows = apply_filters(
+            "tbp-acf-fields/facet/index/data/facet/type={$params['facet']['type']}",
+            $rows,
+            $params
+        );
 
         return $rows;
 

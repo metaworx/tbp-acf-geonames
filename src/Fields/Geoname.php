@@ -77,7 +77,7 @@ class Geoname
         );
 
         add_filter(
-            "tbp-acf-fields/facet/index/data/type=" . static::NAME,
+            "tbp-acf-fields/facet/index/data/field/type=" . static::NAME,
             [
                 $this,
                 'facetwpIndexerRowData',
@@ -87,7 +87,7 @@ class Geoname
         );
 
         add_filter(
-            "tbp-acf-fields/facet/render/type=" . static::NAME,
+            "tbp-acf-fields/facet/render/field/type=" . static::NAME,
             [
                 $this,
                 'facetwpRender',
