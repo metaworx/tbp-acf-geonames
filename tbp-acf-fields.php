@@ -54,10 +54,10 @@ function save_orig_post_id(
         return;
     }
 
-    remove_action( 'the_post', __FUNCTION__, 10 );
-
     if ( $post !== null )
     {
+        remove_action( 'the_post', __FUNCTION__, 10 );
+
         define( __NAMESPACE__ . '\ORIG_POST_ID', $post->ID );
 
         return;

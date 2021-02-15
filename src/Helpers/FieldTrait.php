@@ -69,7 +69,7 @@ trait FieldTrait
     }
 
 
-    abstract protected function  getFieldSettingsDefinition( array $addArray = [] ): array;
+    abstract protected function getFieldSettingsDefinition( array $addArray = [] ): array;
 
 
     protected function getFieldSettingsDefinitionHelper( array $fieldSettings ): array
