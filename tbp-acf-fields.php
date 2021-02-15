@@ -42,17 +42,39 @@ if ( TBP_IS_ADMIN_HEARTBEAT )
     return;
 }
 
+add_action( 'the_post', __NAMESPACE__ . '\\save_orig_post_id', 10, 2 );
+add_action( 'admin_init', __NAMESPACE__ . '\\save_orig_post_id', 0, 0 );
 function save_orig_post_id(
-    $post,
-    $wpQuery
+    $post = null,
+    $wpQuery = null
 ) {
 
-    define( __NAMESPACE__ . '\ORIG_POST_ID', $post->ID );
+    if ( defined( __NAMESPACE__ . '\ORIG_POST_ID' ) )
+    {
+        return;
+    }
+
     remove_action( 'the_post', __FUNCTION__, 10 );
+
+    if ( $post !== null )
+    {
+        define( __NAMESPACE__ . '\ORIG_POST_ID', $post->ID );
+
+        return;
+    }
+
+    $post_id = (int) ( $_GET['post'] ?? $_POST['post_ID'] ?? $_POST['post_id'] ?? 0 );
+
+    if ( $post_id > 0 )
+    {
+        define( __NAMESPACE__ . '\ORIG_POST_ID', $post_id );
+
+        return;
+    }
+
+    return;
 }
 
-
-add_action( 'the_post', __NAMESPACE__ . '\\save_orig_post_id', 10, 2 );
 
 require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
