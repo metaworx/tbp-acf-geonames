@@ -366,6 +366,45 @@ class Relationship
     }
 
 
+    /**
+     * Add ACF fields to the Data Sources dropdown
+     *
+     * This function is not called directly by FacetWP, but from
+     * \Tbp\WP\Plugin\AcfFields\Integration\FacetWP::facetwp_facet_render_args
+     *
+     * @see https://facetwp.com/documentation/developers/querying/facetwp_facet_render_args/
+     *
+     *
+     * @param  array   $args    $arguments as in original filter
+     * @param  object  $source  Source of facet data
+     *
+     * @return array
+     *
+     */
+    public function &facetwpRender(
+        array $args,
+        object $source
+    ): array {
+
+        if ( empty( $args['values'] ) )
+        {
+            return $args;
+        }
+
+        foreach ( $args['values'] as &$facet_index )
+        {
+            $post = get_post( $facet_index['facet_value'] );
+
+            if ( $post )
+            {
+                $facet_index['facet_display_value'] = $post->post_title ?? $facet_index['facet_display_value'];
+            }
+        }
+
+        return $args;
+    }
+
+
     public function format_value(
         $value,
         $object_id,
