@@ -297,7 +297,7 @@ class Language
     {
 
         // WPML integration
-        if ( defined( 'ICL_LANGUAGE_CODE' ) )
+        if ( defined( 'ICL_LANGUAGE_CODE' ) && ICL_LANGUAGE_CODE !== null )
         {
             return ICL_LANGUAGE_CODE;
         }
