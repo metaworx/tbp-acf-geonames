@@ -3,6 +3,9 @@
 
 namespace Tbp\WP\Plugin\AcfFields\Integration\WPAI;
 
+require_once WP_PLUGIN_DIR . '/wpai-acf-add-on/libraries/acf-fields/fieldInterface.php';
+require_once WP_PLUGIN_DIR . '/wpai-acf-add-on/libraries/acf-fields/field.php';
+
 use wpai_acf_add_on\acf\ACFService;
 use wpai_acf_add_on\acf\fields\Field;
 
