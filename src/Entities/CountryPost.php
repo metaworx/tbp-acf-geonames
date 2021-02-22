@@ -16,7 +16,7 @@ class CountryPost
     public const LOAD_NUMERIC_ID_AS_LOCATION_ID = 2;
     public const LOAD_NUMERIC_ID_AS_POST_ID     = 1;
     public const LOCATION_FIELD                 = 'location';
-    public const POST_TYPE                      = 'location';
+    public const POST_TYPE                      = 'tbp-location';
 
 //  public properties
 
@@ -346,10 +346,7 @@ class CountryPost
             "show_in_nav_menus"     => true,
             "delete_with_user"      => false,
             "exclude_from_search"   => false,
-            "capability_type"       => [
-                "location",
-                "locations",
-            ],
+            "capability_type"       => static::POST_TYPE,
             "map_meta_cap"          => true,
             "hierarchical"          => true,
             "rewrite"               => [

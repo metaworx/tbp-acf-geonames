@@ -11,7 +11,7 @@ class Language
 
 // constants
 
-    public const POST_TYPE = 'language';
+    public const POST_TYPE = 'tbp-language';
 
 //  public properties
 
@@ -588,7 +588,7 @@ class Language
             "show_in_nav_menus"     => true,
             "delete_with_user"      => false,
             "exclude_from_search"   => true,
-            "capability_type"       => "languages",
+            "capability_type"       => static::POST_TYPE,
             "map_meta_cap"          => true,
             "hierarchical"          => true,
             "rewrite"               => [
