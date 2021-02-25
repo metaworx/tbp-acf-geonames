@@ -14,6 +14,7 @@ class FacetWP
     public const SOURCE_IDENTIFIER = 'tbp-acf';
 
 // protected properties
+
     /** @var \Tbp\WP\Plugin\AcfFields\Integration\FacetWP\ACF|null */
     static protected $facetAcf;
 
@@ -303,12 +304,6 @@ class FacetWP
                 $params,
                 $class
             );
-
-            $params = apply_filters(
-                "tbp-acf-fields/facet/index/row",
-                $params,
-                $class
-            );
         }
 
         $params = apply_filters(
@@ -319,6 +314,12 @@ class FacetWP
 
         $params = apply_filters(
             "tbp-acf-fields/facet/index/row/facet/type={$params['facet']['type']}",
+            $params,
+            $class
+        );
+
+        $params = apply_filters(
+            "tbp-acf-fields/facet/index/row",
             $params,
             $class
         );
