@@ -23,7 +23,7 @@ class WPAI
 
         if ( PHP_SAPI === 'cli'
             || (
-                $_SERVER['DOCUMENT_URI'] === '/wp-admin/admin.php'
+                ( $_SERVER['DOCUMENT_URI'] ?? null) === '/wp-admin/admin.php'
                 && ! empty( $_GET )
                 && ( $_GET['page'] ?? '' ) === 'pmxi-admin-import'
                 && ( $_GET['action'] ?? '' ) === 'process' )
