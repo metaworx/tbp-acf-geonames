@@ -349,7 +349,7 @@ REGEX,
                 deactivate_plugins( plugin_basename( __FILE__ ) );
             }
 
-            return new WP_Error( 'missing_dependency', __( 'One of the plugins is invalid.' ), $errors );
+            return new \WP_Error( 'missing_dependency', __( 'One of the plugins is invalid.' ), $errors );
         };
 
         $notice = is_multisite()
