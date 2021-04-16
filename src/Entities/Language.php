@@ -592,8 +592,9 @@ class Language
             "map_meta_cap"          => true,
             "hierarchical"          => true,
             "rewrite"               => [
-                "slug"       => static::POST_TYPE,
-                "with_front" => false,
+                "slug"                 => static::POST_TYPE,
+                "with_front"           => true,
+                "remove_rewrite_regex" => "@trackback|comment-page@",
             ],
             "query_var"             => true,
             "menu_position"         => 6,

@@ -21,6 +21,7 @@ class CountryPost
 //  public properties
 
     public static $_countryClass = self::class;
+
     public static $_returnFormat = self::class;
 
 // protected properties
@@ -350,8 +351,9 @@ class CountryPost
             "map_meta_cap"          => true,
             "hierarchical"          => true,
             "rewrite"               => [
-                "slug"       => "location",
-                "with_front" => true,
+                "slug"                 => "location",
+                "with_front"           => true,
+                "remove_rewrite_regex" => "@trackback|comment-page@",
             ],
             "query_var"             => true,
             "menu_position"         => 6,
