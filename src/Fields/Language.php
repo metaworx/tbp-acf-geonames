@@ -111,7 +111,7 @@ class Language
         );
 
         add_action(
-            "manage_language_posts_custom_column",
+            sprintf( "manage_%s_posts_custom_column", LanguagePost::POST_TYPE ),
             [
                 LanguagePost::class,
                 'adminLanguagePostColumnValues',
