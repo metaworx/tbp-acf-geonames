@@ -42,6 +42,39 @@ class CountryPost
     protected $postId;
 
 
+    public function __get( $property )
+    {
+
+        if ( parent::__isset( $property ) )
+        {
+            return parent::__get( $property );
+        }
+
+        $post = $this->getPost();
+
+        if ( $post && isset( $post->$property ) )
+        {
+            return $post->$property;
+        }
+
+        return null;
+    }
+
+
+    public function __isset( $property )
+    {
+
+        if ( parent::__isset( $property ) )
+        {
+            return true;
+        }
+
+        $post = $this->getPost();
+
+        return $post && isset( $post->$property );
+    }
+
+
     public function getGeonameId(): int
     {
 
