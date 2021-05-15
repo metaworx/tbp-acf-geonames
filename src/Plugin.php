@@ -142,10 +142,26 @@ class Plugin
             $this->facet = new FacetWP();
         }
 
-       if ( ! array_key_exists( 'wpai-acf-add-on/wpai-acf-add-on.php', self::$missingPlugins ) )
-            // use low priority (>10) to make sure ACF has already loaded
+        if ( ! array_key_exists( 'wpai-acf-add-on/wpai-acf-add-on.php', self::$missingPlugins ) )
         {
-            $this->wpai = new WPAI();
+            add_filter(
+                'import_functions_file_path',
+                function ( $path )
+                {
+
+                    $this->wpai = $this->wpai ?? new WPAI();
+                }
+            );
+
+            add_filter(
+                'pmxi_base_url',
+                function ( $path )
+                {
+
+                    $this->wpai = $this->wpai ?? new WPAI();
+
+                }
+            );
         }
 
     }

@@ -125,6 +125,17 @@ call_user_func(
                 'condition' => static function (): bool
                 {
 
+                    if ( defined( 'STDIN' ) || php_sapi_name() === 'cli' || getenv( 'TERM' ) )
+                    {
+
+                        if ( in_array( 'all-import', $GLOBALS['argv'], true ) )
+                        {
+                            return true;
+                        }
+
+                        return false;
+                    }
+
                     if ( ! preg_match(
                         <<<'REGEX'
 @
