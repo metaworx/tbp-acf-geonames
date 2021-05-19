@@ -12,7 +12,8 @@ use Tbp\WP\Plugin\AcfFields\Helpers\Utils;
 
 if ( ! class_exists( 'acf_field_relationship' ) )
 {
-    require_once WP_PLUGIN_DIR . '/advanced-custom-fields/includes/fields/class-acf-field-relationship.php';
+    /** @noinspection PhpUndefinedConstantInspection */
+    require_once ACF_PATH . 'includes/fields/class-acf-field-relationship.php';
 }
 
 

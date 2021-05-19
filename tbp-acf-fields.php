@@ -89,14 +89,38 @@ call_user_func(
 
         $plugins = [
             'advanced-custom-fields/acf.php'      => [
-                'name'     => 'Advanced Custom Fields',
-                'version'  => '5.0.0',
-                'url'      => 'https://www.advancedcustomfields.com',
-                'required' => false,
-                'fields'   => [
+                'name'      => 'Advanced Custom Fields',
+                'version'   => '5.0.0',
+                'url'       => 'https://www.advancedcustomfields.com',
+                'required'  => false,
+                'fields'    => [
                     'Tbp\WP\Plugin\AcfFields\Fields\Geoname'      => true,
                     'Tbp\WP\Plugin\AcfFields\Fields\Relationship' => true,
                 ],
+                'condition' => static function (): bool
+                {
+
+                    return ! file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'advanced-custom-fields-pro/acf.php' );
+                },
+            ],
+            'advanced-custom-fields-pro/acf.php'  => [
+                'name'      => 'Advanced Custom Fields Pro',
+                'version'   => '5.0.0',
+                'url'       => 'https://www.advancedcustomfields.com',
+                'required'  => false,
+                'fields'    => [
+                    'Tbp\WP\Plugin\AcfFields\Fields\Geoname'      => true,
+                    'Tbp\WP\Plugin\AcfFields\Fields\Relationship' => true,
+                ],
+                'condition' => static function (
+                    $plugin,
+                    &$plugin_data,
+                    &$plugins
+                ): bool {
+
+                    return ! file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'advanced-custom-fields/acf.php' )
+                        || ! array_key_exists( 'advanced-custom-fields/acf.php', $plugins );
+                },
             ],
             'wp-geonames/wp-geonames.php'         => [
                 'name'     => 'WP Geonames',
@@ -206,7 +230,7 @@ REGEX,
                 if ( array_key_exists( 'condition', $plugin_data ) )
                 {
                     if ( false === ( is_callable( $plugin_data['condition'] )
-                            ? $plugin_data['condition']()
+                            ? $plugin_data['condition']( $plugin, $plugin_data, $plugins )
                             : $plugin_data['condition'] ) )
                     {
                         unset( $plugins[ $plugin ] );
