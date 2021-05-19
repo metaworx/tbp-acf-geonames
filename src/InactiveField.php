@@ -7,7 +7,7 @@ class InactiveField
     Field
 {
 
-    protected function getFieldSettingsDefinition(): array
+    protected function getFieldSettingsDefinition( array $addArray = [] ): array
     {
 
         return [];
