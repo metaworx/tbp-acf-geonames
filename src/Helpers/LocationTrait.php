@@ -4,7 +4,7 @@ namespace Tbp\WP\Plugin\AcfFields\Helpers;
 
 use DateTimeInterface;
 use Tbp\WP\Plugin\AcfFields\Entities\DateTime;
-use const Tbp\WP\Plugin\AcfFields\ORIG_POST_ID;
+use const Tbp\WP\Plugin\Config\LANGUAGE_CODE;
 
 trait LocationTrait
 {
@@ -58,33 +58,14 @@ trait LocationTrait
     public static function currentLocale()
     {
 
+        /* @var \SitePress $sitepress */
+        global $sitepress;
+
         static $wpml_locale = 0;
 
         if ( $wpml_locale === 0 )
         {
-            /**
-             * test WPML info
-             *
-             * @see https://wpml.org/documentation/support/wpml-coding-api/wpml-hooks-reference/#hook-605645
-             * @var array
-             */
-            $wpml = apply_filters( 'wpml_post_language_details', null, ORIG_POST_ID );
-
-            /**
-             * array (
-             * 'language_code' => 'en',
-             * 'locale' => 'en_US',
-             * 'text_direction' => false,
-             * 'display_name' => 'English',
-             * 'native_name' => 'English',
-             * 'different_language' => false,
-             * )
-             */
-
-            $wpml_locale = $wpml
-                ? ( $wpml['locale']
-                    ?: null )
-                : null;
+            $wpml_locale = $sitepress->get_locale( LANGUAGE_CODE );
         }
 
         return $wpml_locale;
