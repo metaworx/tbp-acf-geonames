@@ -27,14 +27,14 @@ class Relationship
     use RelationalTrait
     {
         format_value as private _RelationalTrait_format_value;
+        load_value as private _RelationalTrait_load_value;
+        update_value as private _RelationalTrait_update_value;
+        normalize_value as private _RelationalTrait_normalize_value;
     }
     use FieldTrait
     {
         __construct as private _FieldTrait__construct;
-        load_value as private _FieldTrait_load_value;
-        update_value as private _FieldTrait_update_value;
-        normalize_value as private _FieldTrait_normalize_value;
-        RelationalTrait::field_wrapper_attributes insteadof FieldTrait;
+         RelationalTrait::field_wrapper_attributes insteadof FieldTrait;
     }
 
 // constants
@@ -487,7 +487,7 @@ class Relationship
             $field['storage_format'] = 'post_name';
         }
 
-        $value = $this->_FieldTrait_load_value( $value, $post_id, $field );
+        $value = $this->_RelationalTrait_load_value( $value, $post_id, $field );
 
         return $value;
     }
@@ -514,7 +514,7 @@ class Relationship
         bool $forStorage
     ): bool {
 
-        if ( $this->_FieldTrait_normalize_value( $value, $field, $forStorage ) === null )
+        if ( $this->_RelationalTrait_normalize_value( $value, $field, $forStorage ) === null )
         {
             return true;
         }
@@ -667,7 +667,7 @@ class Relationship
             $field['storage_format'] = 'post_name';
         }
 
-        $value = $this->_FieldTrait_update_value( $value, $post_id, $field );
+        $value = $this->_RelationalTrait_update_value( $value, $post_id, $field );
 
         if ( $csv && is_array( $value ) )
         {
