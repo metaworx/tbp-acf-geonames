@@ -26,15 +26,22 @@ trait LocationTrait
      * @param         $selector
      * @param  false  $post_id
      *
-     * @return \Tbp\WP\Plugin\AcfFields\Entities\DateTime
+     * @return \Tbp\WP\Plugin\AcfFields\Entities\DateTime|null
      * @throws \Exception
      */
     public function createDateTimeFromField(
         $selector,
         $post_id = false
-    ): DateTime {
+    ): ?DateTime {
 
-        return $this->createDateTime( get_field( $selector, $post_id ) );
+        $dateTime = get_field( $selector, $post_id );
+
+        if ( ! $dateTime )
+        {
+            return null;
+        }
+
+        return $this->createDateTime( $dateTime );
     }
 
 
@@ -47,8 +54,8 @@ trait LocationTrait
      */
     public function format(
         DateTimeInterface $dateTime,
-        string $format,
-        $locale = null
+        string            $format,
+                          $locale = null
     ) {
 
         return parent::format( $dateTime, $format, $locale ?? static::currentLocale() );

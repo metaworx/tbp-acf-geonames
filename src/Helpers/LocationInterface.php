@@ -21,13 +21,13 @@ interface LocationInterface
      * @param         $selector
      * @param  false  $post_id
      *
-     * @return \Tbp\WP\Plugin\AcfFields\Entities\DateTime
+     * @return \Tbp\WP\Plugin\AcfFields\Entities\DateTime|null
      * @throws \Exception
      */
     public function createDateTimeFromField(
         $selector,
         $post_id = false
-    ): DateTime;
+    ): ?DateTime;
 
 
     /**
